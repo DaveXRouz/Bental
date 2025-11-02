@@ -1,0 +1,109 @@
+{
+  "common": {
+    "app_name": "Bental Advisor",
+    "welcome": "Bienvenue",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "done": "Terminé",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "refresh": "Actualiser"
+  },
+  "auth": {
+    "sign_in": "Se connecter",
+    "sign_up": "S'inscrire",
+    "sign_out": "Se déconnecter",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgot_password": "Mot de passe oublié?",
+    "no_account": "Vous n'avez pas de compte?",
+    "have_account": "Vous avez déjà un compte?",
+    "email_required": "L'email est requis",
+    "password_required": "Le mot de passe est requis",
+    "invalid_email": "Adresse email invalide",
+    "password_min_length": "Le mot de passe doit contenir au moins 8 caractères"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "portfolio": "Portefeuille",
+    "trade": "Trading",
+    "ai_insights": "Analyses IA",
+    "profile": "Profil"
+  },
+  "home": {
+    "net_worth": "Valeur nette",
+    "today_pnl": "P&L du jour",
+    "risk_profile": "Profil de risque",
+    "ai_bots": "Allocation bots IA",
+    "recent_activity": "Activité récente",
+    "demo_mode": "Mode démo actif",
+    "demo_disclaimer": "Vous êtes actuellement en mode démo avec des données simulées"
+  },
+  "portfolio": {
+    "title": "Portefeuille",
+    "total_value": "Valeur totale",
+    "cash": "Liquidités",
+    "crypto": "Crypto",
+    "equity": "Actions",
+    "holdings": "Positions",
+    "performance": "Performance",
+    "no_holdings": "Aucune position pour le moment"
+  },
+  "trade": {
+    "title": "Trading",
+    "buy": "Acheter",
+    "sell": "Vendre",
+    "market_order": "Ordre au marché",
+    "limit_order": "Ordre limité",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "total": "Total",
+    "place_order": "Passer l'ordre",
+    "order_history": "Historique des ordres"
+  },
+  "ai_insights": {
+    "title": "Analyses IA",
+    "bots": "Bots de trading",
+    "insights": "Analyses quotidiennes",
+    "sentinel": "Sentinelle",
+    "navigator": "Navigateur",
+    "momentum": "Momentum",
+    "apex": "Apex",
+    "risk_low": "Risque faible",
+    "risk_medium": "Risque moyen",
+    "risk_high": "Risque élevé",
+    "projected_return": "Rendement projeté",
+    "min_capital": "Capital minimum"
+  },
+  "profile": {
+    "title": "Profil",
+    "personal_info": "Informations personnelles",
+    "settings": "Paramètres",
+    "documents": "Documents",
+    "messages": "Messages",
+    "preferences": "Préférences",
+    "security": "Sécurité",
+    "about": "À propos"
+  },
+  "settings": {
+    "language": "Langue",
+    "currency": "Devise",
+    "theme": "Thème",
+    "notifications": "Notifications",
+    "analytics": "Analyses"
+  },
+  "disclaimers": {
+    "financial": "Ceci est à des fins éducatives uniquement. Pas un conseil financier.",
+    "demo": "Le mode démo utilise des données simulées. Le trading réel comporte des risques."
+  }
+}
