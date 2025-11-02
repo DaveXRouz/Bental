@@ -1,47 +1,50 @@
-import * as Sentry from '@sentry/react-native';
+type SeverityLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug';
+
+interface Breadcrumb {
+  message?: string;
+  category?: string;
+  level?: SeverityLevel;
+  data?: Record<string, any>;
+}
 
 export function captureException(error: Error, context?: Record<string, any>) {
   if (__DEV__) {
-    console.error('Sentry Error:', error, context);
+    console.error('Error:', error, context);
     return;
   }
-
-  Sentry.withScope((scope) => {
-    if (context) {
-      Object.entries(context).forEach(([key, value]) => {
-        scope.setContext(key, value);
-      });
-    }
-    Sentry.captureException(error);
-  });
+  console.error('Production Error:', error, context);
 }
 
-export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info', context?: Record<string, any>) {
+export function captureMessage(message: string, level: SeverityLevel = 'info', context?: Record<string, any>) {
   if (__DEV__) {
-    console.log(`Sentry Message [${level}]:`, message, context);
+    console.log(`Message [${level}]:`, message, context);
     return;
   }
-
-  Sentry.withScope((scope) => {
-    if (context) {
-      Object.entries(context).forEach(([key, value]) => {
-        scope.setContext(key, value);
-      });
-    }
-    Sentry.captureMessage(message, level);
-  });
+  console.log(`Production Message [${level}]:`, message, context);
 }
 
 export function setUser(user: { id: string; email?: string; username?: string }) {
-  Sentry.setUser(user);
+  if (__DEV__) {
+    console.log('User set:', user);
+  }
 }
 
 export function clearUser() {
-  Sentry.setUser(null);
+  if (__DEV__) {
+    console.log('User cleared');
+  }
 }
 
-export function addBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
-  Sentry.addBreadcrumb(breadcrumb);
+export function addBreadcrumb(breadcrumb: Breadcrumb) {
+  if (__DEV__) {
+    console.log('Breadcrumb:', breadcrumb);
+  }
 }
 
-export { Sentry };
+export const Sentry = {
+  captureException,
+  captureMessage,
+  setUser,
+  clearUser,
+  addBreadcrumb,
+};

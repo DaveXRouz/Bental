@@ -4,7 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Star, TrendingUp, TrendingDown, ShoppingCart, DollarSign } from 'lucide-react-native';
-import { LineChart } from 'react-native-chart-kit';
+import { VictoryLine, VictoryChart, VictoryAxis, VictoryTheme } from 'victory-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, radius } from '@/constants/theme';
@@ -218,38 +218,41 @@ export default function StockDetailScreen() {
         </View>
 
         <BlurView intensity={40} tint="dark" style={styles.chartCard}>
-          <LineChart
-            data={{
-              labels: [],
-              datasets: [{ data: chartData }],
-            }}
+          <VictoryChart
             width={width - 48}
             height={220}
-            chartConfig={{
-              backgroundColor: 'transparent',
-              backgroundGradientFrom: 'transparent',
-              backgroundGradientTo: 'transparent',
-              decimalPlaces: 2,
-              color: (opacity = 1) => isPositive ? `rgba(16, 185, 129, ${opacity})` : `rgba(239, 68, 68, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity * 0.5})`,
-              style: { borderRadius: 16 },
-              propsForDots: {
-                r: '0',
-              },
-              propsForBackgroundLines: {
-                strokeDasharray: '',
-                stroke: 'rgba(255,255,255,0.1)',
-              },
+            theme={VictoryTheme.material}
+            padding={{ top: 20, bottom: 30, left: 40, right: 20 }}
+            style={{
+              background: { fill: 'transparent' },
             }}
-            bezier
-            style={styles.chart}
-            withInnerLines={true}
-            withOuterLines={false}
-            withVerticalLabels={false}
-            withHorizontalLabels={true}
-            withDots={false}
-            transparent
-          />
+          >
+            <VictoryAxis
+              style={{
+                axis: { stroke: 'transparent' },
+                tickLabels: { fill: 'transparent' },
+                grid: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 },
+              }}
+            />
+            <VictoryAxis
+              dependentAxis
+              style={{
+                axis: { stroke: 'transparent' },
+                tickLabels: { fill: 'rgba(255,255,255,0.5)', fontSize: 10 },
+                grid: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 },
+              }}
+            />
+            <VictoryLine
+              data={chartData.map((value, index) => ({ x: index, y: value }))}
+              style={{
+                data: {
+                  stroke: isPositive ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)',
+                  strokeWidth: 2,
+                },
+              }}
+              interpolation="natural"
+            />
+          </VictoryChart>
         </BlurView>
 
         <BlurView intensity={40} tint="dark" style={styles.statsCard}>

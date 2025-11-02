@@ -12,11 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, GripVertical, Plus, Minus, Lock, RotateCcw, Save } from 'lucide-react-native';
-import DraggableFlatList, {
-  ScaleDecorator,
-  RenderItemParams,
-} from 'react-native-draggable-flatlist';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDockStore } from '@/stores/useDockStore';
@@ -56,13 +52,28 @@ export default function DockCustomizationModal({ visible, onClose, onSave }: Pro
     }
   }, [visible, config.items]);
 
-  const handleDragEnd = ({ data }: { data: DockItemId[] }) => {
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newItems = [...activeItems];
+    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+    setActiveItems(newItems);
     if (Platform.OS !== 'web') {
       try {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       } catch (e) {}
     }
-    setActiveItems(data);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === activeItems.length - 1) return;
+    const newItems = [...activeItems];
+    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+    setActiveItems(newItems);
+    if (Platform.OS !== 'web') {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } catch (e) {}
+    }
   };
 
   const handleAddItem = (itemId: DockItemId) => {
@@ -159,7 +170,7 @@ export default function DockCustomizationModal({ visible, onClose, onSave }: Pro
     );
   };
 
-  const renderActiveItem = ({ item, drag, isActive }: RenderItemParams<DockItemId>) => {
+  const renderActiveItem = (item: DockItemId, index: number) => {
     const navItem = getNavItem(item);
     if (!navItem) return null;
 
@@ -167,40 +178,44 @@ export default function DockCustomizationModal({ visible, onClose, onSave }: Pro
     const isPinned = item === 'home';
 
     return (
-      <ScaleDecorator>
-        <TouchableOpacity
-          onLongPress={drag}
-          disabled={isActive || isPinned}
-          activeOpacity={0.8}
-          style={[styles.activeItem, isActive && styles.activeItemDragging]}
-        >
-          <View style={styles.activeItemContent}>
-            <View style={styles.dragHandle}>
-              {!isPinned && <GripVertical size={20} color={colors.textMuted} />}
-              {isPinned && <Lock size={16} color={colors.textMuted} />}
-            </View>
-
-            <View style={[styles.iconContainer, { backgroundColor: `${navItem.iconColor}20` }]}>
-              <IconComponent size={20} color={navItem.iconColor} strokeWidth={2} />
-            </View>
-
-            <View style={styles.itemTextContainer}>
-              <Text style={styles.itemLabel}>{navItem.label}</Text>
-              {isPinned && <Text style={styles.pinnedText}>Pinned</Text>}
-            </View>
-
-            {!isPinned && (
-              <TouchableOpacity
-                onPress={() => handleRemoveItem(item)}
-                style={styles.removeButton}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Minus size={20} color="#EF4444" strokeWidth={2.5} />
+      <View
+        style={styles.activeItem}
+      >
+        <View style={styles.activeItemContent}>
+          <View style={styles.dragHandle}>
+            {!isPinned && index > 0 && (
+              <TouchableOpacity onPress={() => handleMoveUp(index)} hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}>
+                <Text style={styles.moveText}>↑</Text>
               </TouchableOpacity>
             )}
+            {!isPinned && index < activeItems.length - 1 && (
+              <TouchableOpacity onPress={() => handleMoveDown(index)} hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}>
+                <Text style={styles.moveText}>↓</Text>
+              </TouchableOpacity>
+            )}
+            {isPinned && <Lock size={16} color={colors.textMuted} />}
           </View>
-        </TouchableOpacity>
-      </ScaleDecorator>
+
+          <View style={[styles.iconContainer, { backgroundColor: `${navItem.iconColor}20` }]}>
+            <IconComponent size={20} color={navItem.iconColor} strokeWidth={2} />
+          </View>
+
+          <View style={styles.itemTextContainer}>
+            <Text style={styles.itemLabel}>{navItem.label}</Text>
+            {isPinned && <Text style={styles.pinnedText}>Pinned</Text>}
+          </View>
+
+          {!isPinned && (
+            <TouchableOpacity
+              onPress={() => handleRemoveItem(item)}
+              style={styles.removeButton}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Minus size={20} color="#EF4444" strokeWidth={2.5} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
     );
   };
 
@@ -261,15 +276,14 @@ export default function DockCustomizationModal({ visible, onClose, onSave }: Pro
             </TouchableOpacity>
           </View>
 
-          <GestureHandlerRootView style={styles.content}>
+          <View style={styles.content}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Active Tabs ({activeItems.length}/{MAX_DOCK_ITEMS})</Text>
-              <DraggableFlatList
+              <FlatList
                 data={activeItems}
-                onDragEnd={handleDragEnd}
                 keyExtractor={(item) => item}
-                renderItem={renderActiveItem}
-                containerStyle={styles.activeList}
+                renderItem={({ item, index }) => renderActiveItem(item, index)}
+                style={styles.activeList}
                 scrollEnabled={false}
               />
             </View>
@@ -286,7 +300,7 @@ export default function DockCustomizationModal({ visible, onClose, onSave }: Pro
                 <View style={{ height: 20 }} />
               </ScrollView>
             </View>
-          </GestureHandlerRootView>
+          </View>
 
           <View style={styles.footer}>
             <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
@@ -517,5 +531,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: Typography.weight.bold,
     color: colors.white,
+  },
+  moveText: {
+    fontSize: 16,
+    color: colors.textMuted,
+    paddingHorizontal: 4,
   },
 });
