@@ -53,7 +53,15 @@ export default function TradeConfirmationModal({
   const sufficientFunds = trade.buyingPower ? trade.buyingPower >= totalWithFees : true;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+      accessible={true}
+      accessibilityViewIsModal={true}
+      accessibilityLabel={`Confirm ${isBuy ? 'purchase' : 'sale'} of ${trade.quantity} shares of ${trade.symbol}`}
+    >
       <View style={styles.modalOverlay}>
         <BlurView intensity={40} tint="dark" style={styles.blurOverlay}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
@@ -75,15 +83,35 @@ export default function TradeConfirmationModal({
                 )}
                 <Text style={styles.headerTitle}>Confirm {isBuy ? 'Purchase' : 'Sale'}</Text>
               </View>
-              <TouchableOpacity style={styles.closeButton} onPress={onClose} disabled={isConfirming}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={onClose}
+                disabled={isConfirming}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Close confirmation dialog"
+                accessibilityHint="Cancels the trade and closes this dialog"
+              >
                 <BlurView intensity={40} tint="dark" style={styles.closeButtonInner}>
                   <X size={20} color="#FFFFFF" />
                 </BlurView>
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-              <BlurView intensity={60} tint="dark" style={styles.summaryCard}>
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+              accessible={false}
+              accessibilityLabel="Trade details"
+            >
+              <BlurView
+                intensity={60}
+                tint="dark"
+                style={styles.summaryCard}
+                accessible={true}
+                accessibilityRole="summary"
+                accessibilityLabel={`Trade summary: ${isBuy ? 'Buying' : 'Selling'} ${trade.quantity} shares of ${trade.symbol} for approximately ${formatCurrency(trade.estimatedTotal)}`}
+              >
                 <View style={styles.symbolRow}>
                   <Text style={styles.symbol}>{trade.symbol}</Text>
                   {trade.companyName && <Text style={styles.companyName}>{trade.companyName}</Text>}
@@ -132,7 +160,13 @@ export default function TradeConfirmationModal({
                     <Text style={styles.buyingPowerValue}>{formatCurrency(trade.buyingPower)}</Text>
                   </View>
                   {!sufficientFunds && (
-                    <View style={styles.insufficientFundsWarning}>
+                    <View
+                      style={styles.insufficientFundsWarning}
+                      accessible={true}
+                      accessibilityRole="alert"
+                      accessibilityLiveRegion="assertive"
+                      accessibilityLabel="Warning: Insufficient buying power for this trade"
+                    >
                       <AlertCircle size={16} color="#EF4444" />
                       <Text style={styles.warningText}>Insufficient buying power for this trade</Text>
                     </View>
@@ -140,7 +174,14 @@ export default function TradeConfirmationModal({
                 </BlurView>
               )}
 
-              <BlurView intensity={40} tint="dark" style={styles.disclaimerCard}>
+              <BlurView
+                intensity={40}
+                tint="dark"
+                style={styles.disclaimerCard}
+                accessible={true}
+                accessibilityRole="text"
+                accessibilityLabel={`Important notice: ${trade.orderType === 'market' ? 'Market orders execute at the current market price, which may differ from the estimate shown' : 'Your limit order will only execute if the market price reaches your limit price'}`}
+              >
                 <AlertCircle size={18} color="#F59E0B" />
                 <Text style={styles.disclaimerText}>
                   {trade.orderType === 'market'
@@ -155,6 +196,11 @@ export default function TradeConfirmationModal({
                   onPress={onClose}
                   activeOpacity={0.7}
                   disabled={isConfirming}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Cancel trade"
+                  accessibilityHint="Returns to the trading screen without placing the order"
+                  accessibilityState={{ disabled: isConfirming }}
                 >
                   <BlurView intensity={60} tint="dark" style={styles.cancelButtonInner}>
                     <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -166,6 +212,11 @@ export default function TradeConfirmationModal({
                   onPress={handleConfirm}
                   activeOpacity={0.8}
                   disabled={!sufficientFunds || isConfirming}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Confirm ${isBuy ? 'purchase' : 'sale'} of ${trade.quantity} shares`}
+                  accessibilityHint={!sufficientFunds ? 'Insufficient funds to complete this trade' : `Places ${trade.orderType} order for ${formatCurrency(totalWithFees)}`}
+                  accessibilityState={{ disabled: !sufficientFunds || isConfirming, busy: isConfirming }}
                 >
                   <LinearGradient
                     colors={isBuy ? ['#10B981', '#059669'] : ['#EF4444', '#DC2626']}

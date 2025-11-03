@@ -195,9 +195,9 @@ export function SmartInput({
   const isPassword = type === 'password';
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessible={false}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>
+        <Text style={styles.label} accessibilityRole="text">
           {label}
           {required && <Text style={styles.required}> *</Text>}
         </Text>
@@ -215,6 +215,7 @@ export function SmartInput({
           showError && styles.inputWrapperError,
           showValid && styles.inputWrapperValid,
         ]}
+        accessible={false}
       >
         {Icon && (
           <Icon
@@ -243,6 +244,13 @@ export function SmartInput({
           keyboardType={getKeyboardType()}
           autoCapitalize={type === 'email' ? 'none' : textInputProps.autoCapitalize}
           secureTextEntry={isPassword && !showPassword}
+          accessible={true}
+          accessibilityLabel={label}
+          accessibilityHint={hint || `Enter ${label.toLowerCase()}`}
+          accessibilityRequired={required}
+          accessibilityState={{
+            disabled: textInputProps.disabled || false,
+          }}
           {...textInputProps}
         />
 
@@ -250,6 +258,10 @@ export function SmartInput({
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.eyeButton}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            accessibilityHint="Toggles password visibility"
           >
             {showPassword ? (
               <EyeOff size={20} color={colors.textSecondary} />
@@ -269,7 +281,12 @@ export function SmartInput({
       </BlurView>
 
       {showError && (
-        <View style={styles.errorContainer}>
+        <View
+          style={styles.errorContainer}
+          accessible={true}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+        >
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
