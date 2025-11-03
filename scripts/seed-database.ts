@@ -9,8 +9,8 @@ import { createClient } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 
 // Supabase configuration
-const SUPABASE_URL = 'https://tnjgqdpxvkciiqdrdkyz.supabase.co';
-const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjExNjU3MiwiZXhwIjoyMDc3NjkyNTcyfQ.q5bcaIT4zCqKZW0Tkx8zFsvfWJYz62q_L6iW7x5dADk';
+const SUPABASE_URL = 'https://oanohrjkniduqkkahmel.supabase.co';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm9ocmprbmlkdXFra2FobWVsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTg0MjI5MSwiZXhwIjoyMDc3NDE4MjkxfQ.E7JvMlP6mEBrh5yBdjHVSNRVBTPRzzMW9K-dQZ_nEkw';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 

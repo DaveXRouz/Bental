@@ -170,12 +170,14 @@ export default function LoginScreen() {
       });
 
       if (error) {
+        console.error('Login error:', error);
         if (loginMode === 'email') {
           setEmailError('Invalid email or password');
+          setPasswordError('Invalid email or password');
         } else {
           setPassportError('Invalid Trading Passport or password');
+          setPasswordError('Invalid Trading Passport or password');
         }
-        setPasswordError('Invalid email or password');
         setLoading(false);
         return;
       }
@@ -231,16 +233,15 @@ export default function LoginScreen() {
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);
-                    if (touched.email) {
-                      setEmailError('');
-                    }
+                    setEmailError('');
+                    setPasswordError('');
                   }}
                   placeholder="your@email.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                   textContentType="username"
-                  error={touched.email ? emailError : ''}
+                  error={emailError}
                   onBlur={() => handleBlur('email')}
                   icon={<Mail size={20} color={theme.colors.textSecondary} />}
                 />
@@ -250,14 +251,13 @@ export default function LoginScreen() {
                   value={tradingPassport}
                   onChangeText={(text) => {
                     setTradingPassport(text);
-                    if (touched.passport) {
-                      setPassportError('');
-                    }
+                    setPassportError('');
+                    setPasswordError('');
                   }}
                   placeholder="Enter your Trading Passport"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  error={touched.passport ? passportError : ''}
+                  error={passportError}
                   onBlur={() => handleBlur('passport')}
                   icon={<CreditCard size={20} color={theme.colors.textSecondary} />}
                 />
@@ -268,12 +268,15 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  if (touched.password) {
-                    setPasswordError('');
+                  setPasswordError('');
+                  if (loginMode === 'email') {
+                    setEmailError('');
+                  } else {
+                    setPassportError('');
                   }
                 }}
                 placeholder="Enter your password"
-                error={touched.password ? passwordError : ''}
+                error={passwordError}
                 onBlur={() => handleBlur('password')}
                 icon={<Lock size={20} color={theme.colors.textSecondary} />}
               />
