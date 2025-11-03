@@ -10,6 +10,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    console.clear();
     fetchUsers();
   }, []);
 

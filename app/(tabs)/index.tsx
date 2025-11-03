@@ -145,6 +145,7 @@ export default function HomeScreen() {
   }, [user?.id, createSnapshot]);
 
   useEffect(() => {
+    console.clear();
     fetchDashboardData();
   }, [fetchDashboardData]);
 

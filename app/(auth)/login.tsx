@@ -54,6 +54,7 @@ export default function LoginScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      console.clear();
       setEmail('');
       setTradingPassport('');
       setPassword('');

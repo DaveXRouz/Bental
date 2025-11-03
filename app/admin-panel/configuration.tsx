@@ -11,6 +11,7 @@ export default function ConfigurationPage() {
   const [activeTab, setActiveTab] = useState<'config' | 'features'>('config');
 
   useEffect(() => {
+    console.clear();
     fetchData();
     setupRealtimeSync();
   }, []);

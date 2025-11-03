@@ -33,6 +33,7 @@ export default function AdminPanelDashboard() {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
+    console.clear();
     fetchStats();
   }, []);
 
