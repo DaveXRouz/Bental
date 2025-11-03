@@ -24,18 +24,21 @@ export function Sparkline({
   const chartColor = color || colors.primary;
   const areaFillColor = fillColor || chartColor;
 
-  if (!data || data.length === 0) {
+  // Filter out invalid data (NaN, null, undefined)
+  const validData = data.filter(val => typeof val === 'number' && !isNaN(val) && isFinite(val));
+
+  if (!validData || validData.length === 0) {
     return null;
   }
 
-  const minValue = Math.min(...data);
-  const maxValue = Math.max(...data);
+  const minValue = Math.min(...validData);
+  const maxValue = Math.max(...validData);
   const range = maxValue - minValue || 1;
 
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * width;
+  const points = validData.map((value, index) => {
+    const x = (index / (validData.length - 1 || 1)) * width;
     const y = height - ((value - minValue) / range) * height;
-    return { x, y };
+    return { x: isFinite(x) ? x : 0, y: isFinite(y) ? y : height };
   });
 
   const pathData = points.reduce((acc, point, index) => {
