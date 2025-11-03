@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform, RefreshControl, Dimensions } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 
 const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
 import { useRouter } from 'expo-router';
-import { LogOut, User as UserIcon, Phone, Mail, Calendar, Shield, Edit2, Lock } from 'lucide-react-native';
+import { LogOut, User as UserIcon, Phone, Mail, Calendar, Shield, Edit2, Lock, CreditCard, Copy } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeStore } from '@/stores/useThemeStore';
@@ -21,6 +22,7 @@ interface ClientData {
   email: string;
   phone: string | null;
   created_at: string;
+  trading_passport_number: string | null;
 }
 
 export default function ProfileScreen() {
@@ -107,6 +109,14 @@ export default function ProfileScreen() {
     });
   };
 
+  const copyToClipboard = async (text: string) => {
+    await Clipboard.setStringAsync(text);
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    Alert.alert('Copied!', 'Trading Passport copied to clipboard');
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <GlassHeader title="Profile" />
@@ -129,6 +139,47 @@ export default function ProfileScreen() {
           role="Financial Advisory Client"
           verified
         />
+
+        {clientData?.trading_passport_number && (
+          <GlassCard style={styles.section} variant="elevated">
+            <View style={styles.passportCard}>
+              <LinearGradient
+                colors={['rgba(96, 255, 218, 0.15)', 'rgba(96, 255, 218, 0.05)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.passportGradient}
+              >
+                <View style={styles.passportHeader}>
+                  <View style={styles.passportIconContainer}>
+                    <CreditCard size={24} color="#60FFDA" strokeWidth={2} />
+                  </View>
+                  <View style={styles.passportHeaderText}>
+                    <Text style={[styles.passportLabel, { color: colors.textSecondary }]}>
+                      Trading Passport
+                    </Text>
+                    <Text style={[styles.passportNumber, { color: colors.text }]}>
+                      {clientData.trading_passport_number}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.copyButton}
+                    onPress={() => copyToClipboard(clientData.trading_passport_number!)}
+                    activeOpacity={0.7}
+                  >
+                    <BlurView intensity={15} tint="dark" style={styles.copyButtonBlur}>
+                      <Copy size={18} color="#60FFDA" strokeWidth={2.5} />
+                    </BlurView>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.passportInfo}>
+                  <Text style={[styles.passportInfoText, { color: colors.textTertiary }]}>
+                    Use this passport number to login instead of your email
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+          </GlassCard>
+        )}
 
         <GlassCard style={styles.section} variant="elevated">
           <View style={styles.sectionHeader}>
@@ -479,5 +530,67 @@ const styles = StyleSheet.create({
   securityArrowText: {
     fontSize: 20,
     fontWeight: '600',
+  },
+  passportCard: {
+    overflow: 'hidden',
+    borderRadius: radii.card,
+  },
+  passportGradient: {
+    padding: Spacing.lg,
+    borderWidth: 1.5,
+    borderColor: 'rgba(96, 255, 218, 0.3)',
+    borderRadius: radii.card,
+  },
+  passportHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  passportIconContainer: {
+    width: isTablet ? 56 : 48,
+    height: isTablet ? 56 : 48,
+    borderRadius: isTablet ? 28 : 24,
+    backgroundColor: 'rgba(96, 255, 218, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(96, 255, 218, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  passportHeaderText: {
+    flex: 1,
+  },
+  passportLabel: {
+    fontSize: isTablet ? Typography.size.sm : 12,
+    marginBottom: 4,
+    fontFamily: Typography.family.regular,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  passportNumber: {
+    fontSize: isTablet ? Typography.size.lg : 17,
+    fontWeight: '700',
+    fontFamily: Typography.family.bold,
+    letterSpacing: 1.5,
+  },
+  copyButton: {
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  copyButtonBlur: {
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(96, 255, 218, 0.4)',
+  },
+  passportInfo: {
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(96, 255, 218, 0.2)',
+  },
+  passportInfoText: {
+    fontSize: isTablet ? Typography.size.sm : 12,
+    fontFamily: Typography.family.regular,
+    lineHeight: 18,
   },
 });

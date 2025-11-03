@@ -8,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (identifier: string, password: string, loginMode?: 'email' | 'passport') => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signInWithApple: () => Promise<{ error: any }>;
@@ -57,12 +57,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+  const signIn = async (identifier: string, password: string, loginMode: 'email' | 'passport' = 'email') => {
+    try {
+      if (loginMode === 'passport') {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('trading_passport_number', identifier.toUpperCase())
+          .maybeSingle();
+
+        if (profileError || !profile) {
+          return { error: { message: 'Invalid trading passport number' } };
+        }
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email: profile.email,
+          password,
+        });
+        return { error };
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: identifier,
+          password,
+        });
+        return { error };
+      }
+    } catch (err: any) {
+      return { error: { message: err.message || 'Login failed' } };
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone?: string) => {

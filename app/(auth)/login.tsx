@@ -13,7 +13,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { Mail, Lock, Eye, EyeOff, Chrome, Apple as AppleIcon } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Chrome, Apple as AppleIcon, CreditCard } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -31,8 +31,12 @@ import {
   QuantumElevation,
 } from '@/constants/quantum-glass';
 
+type LoginMode = 'email' | 'passport';
+
 export default function Login() {
+  const [loginMode, setLoginMode] = useState<LoginMode>('email');
   const [email, setEmail] = useState('');
+  const [tradingPassport, setTradingPassport] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -74,8 +78,10 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please enter email and password');
+    const identifier = loginMode === 'email' ? email : tradingPassport;
+
+    if (!identifier || !password) {
+      setError(`Please enter ${loginMode === 'email' ? 'email' : 'trading passport'} and password`);
       return;
     }
 
@@ -83,7 +89,7 @@ export default function Login() {
     setError('');
 
     try {
-      if (rememberMe) {
+      if (rememberMe && loginMode === 'email') {
         await AsyncStorage.setItem('rememberMe', 'true');
         await AsyncStorage.setItem('savedEmail', email);
       } else {
@@ -91,7 +97,7 @@ export default function Login() {
         await AsyncStorage.removeItem('savedEmail');
       }
 
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(identifier, password, loginMode);
 
       if (error) {
         setError(error.message);
@@ -112,6 +118,15 @@ export default function Login() {
     } catch (err) {
       setError('An error occurred. Please try again.');
       setLoading(false);
+    }
+  };
+
+  const toggleLoginMode = () => {
+    const newMode: LoginMode = loginMode === 'email' ? 'passport' : 'email';
+    setLoginMode(newMode);
+    setError('');
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
   };
 
@@ -203,15 +218,51 @@ export default function Login() {
                 style={styles.formGradient}
               >
                 <View style={styles.form}>
-                  <QuantumInput
-                    icon={<Mail size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
-                    placeholder="Email address"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    editable={!loading}
-                  />
+                  <View style={styles.loginModeToggle}>
+                    <TouchableOpacity
+                      style={[styles.modeButton, loginMode === 'email' && styles.modeButtonActive]}
+                      onPress={() => loginMode !== 'email' && toggleLoginMode()}
+                      activeOpacity={0.7}
+                      disabled={loading}
+                    >
+                      <Mail size={18} color={loginMode === 'email' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
+                      <Text style={[styles.modeButtonText, loginMode === 'email' && styles.modeButtonTextActive]}>
+                        Email
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modeButton, loginMode === 'passport' && styles.modeButtonActive]}
+                      onPress={() => loginMode !== 'passport' && toggleLoginMode()}
+                      activeOpacity={0.7}
+                      disabled={loading}
+                    >
+                      <CreditCard size={18} color={loginMode === 'passport' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
+                      <Text style={[styles.modeButtonText, loginMode === 'passport' && styles.modeButtonTextActive]}>
+                        Trading Passport
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {loginMode === 'email' ? (
+                    <QuantumInput
+                      icon={<Mail size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                      placeholder="Email address"
+                      value={email}
+                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      editable={!loading}
+                    />
+                  ) : (
+                    <QuantumInput
+                      icon={<CreditCard size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                      placeholder="Trading Passport (e.g., TP-XXXX-XXXX-XXXX)"
+                      value={tradingPassport}
+                      onChangeText={setTradingPassport}
+                      autoCapitalize="characters"
+                      editable={!loading}
+                    />
+                  )}
 
                   <QuantumInput
                     icon={<Lock size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
@@ -477,6 +528,39 @@ const styles = StyleSheet.create({
   },
   form: {
     padding: QuantumSpacing[5],
+  },
+  loginModeToggle: {
+    flexDirection: 'row',
+    gap: QuantumSpacing[2],
+    marginBottom: QuantumSpacing[4],
+    padding: 4,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: QuantumRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  modeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: QuantumSpacing[3],
+    paddingHorizontal: QuantumSpacing[2],
+    borderRadius: QuantumRadius.sm,
+    gap: 8,
+    backgroundColor: 'transparent',
+  },
+  modeButtonActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  modeButtonText: {
+    color: QuantumColors.mistWhite,
+    fontSize: QuantumTypography.size.caption,
+    fontWeight: '600',
+    fontFamily: QuantumTypography.family.semibold,
+  },
+  modeButtonTextActive: {
+    color: '#000000',
   },
   optionsRow: {
     flexDirection: 'row',

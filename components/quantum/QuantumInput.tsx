@@ -159,10 +159,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+    zIndex: 1,
   },
   iconContainer: {
     marginRight: 12,
-    opacity: 0.7,
+    opacity: 0.8,
+    zIndex: 2,
   },
   input: {
     flex: 1,
@@ -170,6 +172,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: QuantumTypography.family.body,
     fontWeight: '500',
+    zIndex: 2,
+    minHeight: 42,
+    paddingVertical: 0,
   },
   rightIconContainer: {
     padding: 8,
