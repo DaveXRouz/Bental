@@ -17,14 +17,6 @@ import NotificationCenterModal from '@/components/modals/NotificationCenterModal
 import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
 import { useNotifications } from '@/hooks/useNotifications';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { DataStreamBackground } from '@/components/backgrounds';
 
 const S = 8;
@@ -58,79 +50,6 @@ export default function HomeScreen() {
   const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
   const { unreadCount: notificationCount } = useNotifications(user?.id);
 
-  const rotation1 = useSharedValue(0);
-  const rotation2 = useSharedValue(0);
-  const rotation3 = useSharedValue(0);
-  const floatY1 = useSharedValue(0);
-  const floatY2 = useSharedValue(0);
-  const floatY3 = useSharedValue(0);
-  const floatX1 = useSharedValue(0);
-  const floatX2 = useSharedValue(0);
-  const floatX3 = useSharedValue(0);
-  const scale1 = useSharedValue(1);
-  const scale2 = useSharedValue(1);
-  const scale3 = useSharedValue(1);
-  const opacity1 = useSharedValue(0.3);
-  const opacity2 = useSharedValue(0.25);
-  const opacity3 = useSharedValue(0.2);
-
-  useEffect(() => {
-    startAnimations();
-  }, []);
-
-  const startAnimations = () => {
-    const ultraSmoothEasing = Easing.bezier(0.34, 1.56, 0.64, 1);
-
-    rotation1.value = withRepeat(withTiming(360, { duration: 45000, easing: Easing.linear }), -1, false);
-    rotation2.value = withRepeat(withTiming(-360, { duration: 55000, easing: Easing.linear }), -1, false);
-    rotation3.value = withRepeat(withTiming(360, { duration: 65000, easing: Easing.linear }), -1, false);
-
-    floatY1.value = withRepeat(withTiming(35, { duration: 8500, easing: ultraSmoothEasing }), -1, true);
-    floatY2.value = withRepeat(withTiming(-40, { duration: 9000, easing: ultraSmoothEasing }), -1, true);
-    floatY3.value = withRepeat(withTiming(30, { duration: 8000, easing: ultraSmoothEasing }), -1, true);
-
-    floatX1.value = withRepeat(withTiming(25, { duration: 7500, easing: ultraSmoothEasing }), -1, true);
-    floatX2.value = withRepeat(withTiming(-30, { duration: 8000, easing: ultraSmoothEasing }), -1, true);
-    floatX3.value = withRepeat(withTiming(20, { duration: 7000, easing: ultraSmoothEasing }), -1, true);
-
-    scale1.value = withRepeat(withTiming(1.15, { duration: 6500, easing: ultraSmoothEasing }), -1, true);
-    scale2.value = withRepeat(withTiming(1.2, { duration: 7000, easing: ultraSmoothEasing }), -1, true);
-    scale3.value = withRepeat(withTiming(1.1, { duration: 6000, easing: ultraSmoothEasing }), -1, true);
-
-    opacity1.value = withRepeat(withTiming(0.6, { duration: 5500, easing: ultraSmoothEasing }), -1, true);
-    opacity2.value = withRepeat(withTiming(0.5, { duration: 6000, easing: ultraSmoothEasing }), -1, true);
-    opacity3.value = withRepeat(withTiming(0.45, { duration: 5000, easing: ultraSmoothEasing }), -1, true);
-  };
-
-  const animatedStyle1 = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: floatX1.value },
-      { translateY: floatY1.value },
-      { rotateZ: `${rotation1.value}deg` },
-      { scale: scale1.value },
-    ],
-    opacity: opacity1.value,
-  }));
-
-  const animatedStyle2 = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: floatX2.value },
-      { translateY: floatY2.value },
-      { rotateZ: `${rotation2.value}deg` },
-      { scale: scale2.value },
-    ],
-    opacity: opacity2.value,
-  }));
-
-  const animatedStyle3 = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: floatX3.value },
-      { translateY: floatY3.value },
-      { rotateZ: `${rotation3.value}deg` },
-      { scale: scale3.value },
-    ],
-    opacity: opacity3.value,
-  }));
 
   const fetchDashboardData = useCallback(async () => {
     if (!user?.id) {
@@ -277,16 +196,11 @@ export default function HomeScreen() {
     [performanceData]
   );
 
-  const shapeSize1 = useMemo(() => Math.min(280, width * 0.7), [width]);
-  const shapeSize2 = useMemo(() => Math.min(220, width * 0.55), [width]);
-  const shapeSize3 = useMemo(() => Math.min(200, width * 0.5), [width]);
 
   if (loading) {
     return (
       <View style={styles.container}>
-        <Animated.View style={[styles.shape3D, styles.shape1, animatedStyle1]}>
-          <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.05)']} style={styles.shapeGradient} />
-        </Animated.View>
+        <DataStreamBackground />
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Dashboard</Text>
         </View>

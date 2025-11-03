@@ -6,13 +6,6 @@ import { BlurView } from 'expo-blur';
 import { Briefcase, Star } from 'lucide-react-native';
 import { colors, Spacing, Typography, zIndex } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 
 import HoldingsView from '@/components/portfolio/HoldingsView';
 import WatchlistView from '@/components/portfolio/WatchlistView';
@@ -26,25 +19,6 @@ export default function PortfolioScreen() {
   const { user } = useAuth();
   const [activeSegment, setActiveSegment] = useState<SegmentType>('holdings');
 
-  const rotation1 = useSharedValue(0);
-  const floatY1 = useSharedValue(0);
-  const scale1 = useSharedValue(1);
-
-  useEffect(() => {
-    const ultraSmoothEasing = Easing.bezier(0.34, 1.56, 0.64, 1);
-    rotation1.value = withRepeat(withTiming(360, { duration: 50000, easing: Easing.linear }), -1, false);
-    floatY1.value = withRepeat(withTiming(40, { duration: 9000, easing: ultraSmoothEasing }), -1, true);
-    scale1.value = withRepeat(withTiming(1.15, { duration: 7000, easing: ultraSmoothEasing }), -1, true);
-  }, []);
-
-  const animatedStyle1 = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: floatY1.value },
-      { rotateZ: `${rotation1.value}deg` },
-      { scale: scale1.value },
-    ],
-    opacity: 0.25,
-  }));
 
   return (
     <View style={styles.container}>

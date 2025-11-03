@@ -27,13 +27,6 @@ import { colors, radius, spacing, shadows, zIndex } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { SearchAutocomplete } from '@/components/markets/SearchAutocomplete';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -91,44 +84,6 @@ export default function MarketsScreen() {
   const [gainers, setGainers] = useState<Stock[]>(MOCK_GAINERS);
   const [losers, setLosers] = useState<Stock[]>(MOCK_LOSERS);
 
-  const rotation1 = useSharedValue(0);
-  const rotation2 = useSharedValue(0);
-  const floatY1 = useSharedValue(0);
-  const floatY2 = useSharedValue(0);
-  const scale1 = useSharedValue(1);
-  const scale2 = useSharedValue(1);
-  const opacity1 = useSharedValue(0.3);
-  const opacity2 = useSharedValue(0.25);
-
-  useEffect(() => {
-    const ultraSmoothEasing = Easing.bezier(0.34, 1.56, 0.64, 1);
-    rotation1.value = withRepeat(withTiming(360, { duration: 50000, easing: Easing.linear }), -1, false);
-    rotation2.value = withRepeat(withTiming(-360, { duration: 60000, easing: Easing.linear }), -1, false);
-    floatY1.value = withRepeat(withTiming(40, { duration: 9000, easing: ultraSmoothEasing }), -1, true);
-    floatY2.value = withRepeat(withTiming(-35, { duration: 8500, easing: ultraSmoothEasing }), -1, true);
-    scale1.value = withRepeat(withTiming(1.15, { duration: 7000, easing: ultraSmoothEasing }), -1, true);
-    scale2.value = withRepeat(withTiming(1.2, { duration: 7500, easing: ultraSmoothEasing }), -1, true);
-    opacity1.value = withRepeat(withTiming(0.5, { duration: 6000, easing: ultraSmoothEasing }), -1, true);
-    opacity2.value = withRepeat(withTiming(0.45, { duration: 5500, easing: ultraSmoothEasing }), -1, true);
-  }, []);
-
-  const animatedStyle1 = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: floatY1.value },
-      { rotateZ: `${rotation1.value}deg` },
-      { scale: scale1.value },
-    ],
-    opacity: opacity1.value,
-  }));
-
-  const animatedStyle2 = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: floatY2.value },
-      { rotateZ: `${rotation2.value}deg` },
-      { scale: scale2.value },
-    ],
-    opacity: opacity2.value,
-  }));
 
   const onRefresh = async () => {
     setRefreshing(true);

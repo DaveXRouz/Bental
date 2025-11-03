@@ -13,14 +13,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, CreditCard } from 'lucide-react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  withSequence,
-  Easing,
-} from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -52,86 +44,13 @@ export default function LoginScreen() {
   const [passwordError, setPasswordError] = useState('');
   const [touched, setTouched] = useState({ email: false, passport: false, password: false });
 
-  const orb1X = useSharedValue(0);
-  const orb1Y = useSharedValue(0);
-  const orb2X = useSharedValue(0);
-  const orb2Y = useSharedValue(0);
-  const orb1Scale = useSharedValue(1);
-  const orb2Scale = useSharedValue(1);
-
   useEffect(() => {
     const loadRememberMe = async () => {
       const value = await AsyncStorage.getItem('rememberMe');
       setRememberMe(value === 'true');
     };
     loadRememberMe();
-
-    orb1X.value = withRepeat(
-      withSequence(
-        withTiming(50, { duration: 20000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-50, { duration: 20000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-    orb1Y.value = withRepeat(
-      withSequence(
-        withTiming(-30, { duration: 25000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(30, { duration: 25000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-    orb1Scale.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 15000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.8, { duration: 15000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-
-    orb2X.value = withRepeat(
-      withSequence(
-        withTiming(-40, { duration: 22000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(40, { duration: 22000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-    orb2Y.value = withRepeat(
-      withSequence(
-        withTiming(40, { duration: 28000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-40, { duration: 28000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
-    orb2Scale.value = withRepeat(
-      withSequence(
-        withTiming(0.9, { duration: 18000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1.3, { duration: 18000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
-    );
   }, []);
-
-  const orb1Style = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: orb1X.value },
-      { translateY: orb1Y.value },
-      { scale: orb1Scale.value },
-    ],
-  }));
-
-  const orb2Style = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: orb2X.value },
-      { translateY: orb2Y.value },
-      { scale: orb2Scale.value },
-    ],
-  }));
 
   const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
