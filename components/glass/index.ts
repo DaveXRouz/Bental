@@ -6,3 +6,5 @@ export { GlassSection } from './GlassSection';
 export { GlassHero } from './GlassHero';
 export { TabBadge } from './TabBadge';
 export { DynamicGlassTabBar } from './DynamicGlassTabBar';
+export { WelcomeScreen } from './WelcomeScreen';
+export { ParallaxBackground } from './ParallaxBackground';

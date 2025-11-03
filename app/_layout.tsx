@@ -40,7 +40,7 @@ export default function RootLayout() {
     try {
       validateEnvironment();
     } catch (error) {
-      logger.warn('Environment validation failed', error);
+      console.warn('Environment validation failed', error);
     }
 
     if (fontsLoaded || fontError) {
@@ -69,6 +69,7 @@ export default function RootLayout() {
         <AuthProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
+            <Stack.Screen name="welcome" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="+not-found" />
