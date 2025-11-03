@@ -13,7 +13,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { Mail, Lock, Eye, EyeOff, Chrome, Apple as AppleIcon, CreditCard } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Chromium as Chrome, Apple as AppleIcon, CreditCard } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
