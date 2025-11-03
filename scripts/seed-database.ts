@@ -9,12 +9,8 @@ import { createClient } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 
 // Supabase configuration
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
-}
+const SUPABASE_URL = 'https://tnjgqdpxvkciiqdrdkyz.supabase.co';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjExNjU3MiwiZXhwIjoyMDc3NjkyNTcyfQ.q5bcaIT4zCqKZW0Tkx8zFsvfWJYz62q_L6iW7x5dADk';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 

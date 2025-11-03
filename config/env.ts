@@ -15,8 +15,8 @@ export const ENV = {
   localeDefault: (process.env.EXPO_PUBLIC_LOCALE_DEFAULT || 'en') as 'en' | 'fr',
 
   supabase: {
-    url: process.env.SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL || '',
-    anonKey: process.env.SUPABASE_ANON_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
+    url: 'https://tnjgqdpxvkciiqdrdkyz.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMTY1NzIsImV4cCI6MjA3NzY5MjU3Mn0.fzuasx1yM-PkjO-d4OowSPNfMMeLmtAeci2skmCZS5k',
   },
 
   market: {
@@ -37,11 +37,6 @@ export const useMockData = isLocal || !FEATURES.liveMarket;
 export const isDemoMode = useMockData;
 
 export function validateEnvironment() {
-  const missingKeys: string[] = [];
-
-  if (!ENV.supabase.url) missingKeys.push('SUPABASE_URL');
-  if (!ENV.supabase.anonKey) missingKeys.push('SUPABASE_ANON_KEY');
-
-  // Environment validation complete - app will use mock data if keys missing
+  // Environment validation complete - credentials are hardcoded
   return true;
 }

@@ -5,10 +5,6 @@ declare global {
       EXPO_PUBLIC_DEMO_MODE: string;
       EXPO_PUBLIC_LOCALE_DEFAULT: 'en' | 'fr';
 
-      // Supabase
-      EXPO_PUBLIC_SUPABASE_URL: string;
-      EXPO_PUBLIC_SUPABASE_ANON_KEY: string;
-
       // Market Data APIs
       EXPO_PUBLIC_FINNHUB_API_KEY?: string;
       EXPO_PUBLIC_ALPHAVANTAGE_API_KEY?: string;
