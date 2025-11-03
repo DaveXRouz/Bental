@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { theme } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows, ACCENT_GRADIENT } from '@/constants/theme';
 
 interface SegmentedProps {
   options: string[];
@@ -54,12 +54,12 @@ export function Segmented({ options, selected, onSelect }: SegmentedProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.pill,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
     padding: 4,
     position: 'relative',
     borderWidth: 1,
-    borderColor: theme.colors.stroke,
+    borderColor: colors.border,
   },
   indicator: {
     position: 'absolute',
@@ -67,26 +67,26 @@ const styles = StyleSheet.create({
     left: 4,
     bottom: 4,
     width: '50%',
-    backgroundColor: theme.colors.accent,
-    borderRadius: theme.radii.pill,
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
     zIndex: 0,
   },
   option: {
     flex: 1,
-    paddingVertical: theme.spacing(1.25),
-    paddingHorizontal: theme.spacing(2),
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
     minHeight: 44,
   },
   optionText: {
-    ...theme.typography.label,
-    color: theme.colors.textSecondary,
+    fontSize: typography.size.md, fontWeight: "500",
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   optionTextActive: {
-    color: theme.colors.background,
+    color: colors.background,
     fontWeight: '600',
   },
 });

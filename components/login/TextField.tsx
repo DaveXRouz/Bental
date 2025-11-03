@@ -7,7 +7,7 @@ import {
   TextInputProps,
   Animated,
 } from 'react-native';
-import { theme } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows } from '@/constants/theme';
 
 interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
@@ -51,8 +51,8 @@ export function TextField({
   const borderColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      error ? theme.colors.error : theme.colors.stroke,
-      error ? theme.colors.error : theme.colors.strokeFocus,
+      error ? colors.error : colors.border,
+      error ? colors.error : colors.borderFocus,
     ],
   });
 
@@ -69,7 +69,7 @@ export function TextField({
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <TextInput
           style={styles.input}
-          placeholderTextColor={theme.colors.placeholder}
+          placeholderTextColor={colors.placeholder}
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...props}
@@ -83,41 +83,41 @@ export function TextField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: theme.spacing(2),
+    marginBottom: spacing.md,
   },
   label: {
-    ...theme.typography.label,
-    color: theme.colors.text,
-    marginBottom: theme.spacing(1),
+    fontSize: typography.size.md, fontWeight: "500",
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: theme.colors.stroke,
-    paddingHorizontal: theme.spacing(2),
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
   },
   inputContainerFocused: {
-    ...theme.shadows.glow,
+    ...shadows.glow,
   },
   iconContainer: {
-    marginRight: theme.spacing(1.5),
+    marginRight: spacing.md,
   },
   rightIconContainer: {
-    marginLeft: theme.spacing(1),
+    marginLeft: spacing.md,
   },
   input: {
     flex: 1,
     ...theme.typography.body,
-    color: theme.colors.text,
+    color: colors.text,
     height: '100%',
   },
   error: {
     ...theme.typography.caption,
-    color: theme.colors.error,
-    marginTop: theme.spacing(0.5),
+    color: colors.error,
+    marginTop: spacing.md,
   },
 });

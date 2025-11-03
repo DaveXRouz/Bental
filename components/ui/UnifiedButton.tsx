@@ -18,7 +18,7 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { DesignSystem } from '@/constants/design-system';
+import { colors, spacing, typography, radius } from '@/constants/theme';
 
 interface UnifiedButtonProps {
   title: string;
@@ -86,19 +86,19 @@ export function UnifiedButton({
 
   const getFontSize = () => {
     switch (size) {
-      case 'sm': return DesignSystem.typography.fontSize.sm;
-      case 'md': return DesignSystem.typography.fontSize.base;
-      case 'lg': return DesignSystem.typography.fontSize.md;
-      default: return DesignSystem.typography.fontSize.base;
+      case 'sm': return colors.typography.fontSize.sm;
+      case 'md': return colors.typography.fontSize.base;
+      case 'lg': return colors.typography.fontSize.md;
+      default: return colors.typography.fontSize.base;
     }
   };
 
   const getPadding = () => {
     switch (size) {
-      case 'sm': return DesignSystem.spacing[3];
-      case 'md': return DesignSystem.spacing[4];
-      case 'lg': return DesignSystem.spacing[6];
-      default: return DesignSystem.spacing[4];
+      case 'sm': return colors.spacing[3];
+      case 'md': return colors.spacing[4];
+      case 'lg': return colors.spacing[6];
+      default: return colors.spacing[4];
     }
   };
 
@@ -129,17 +129,17 @@ export function UnifiedButton({
       >
         <LinearGradient
           colors={[
-            DesignSystem.colors.brand.primary,
-            DesignSystem.colors.brand.tertiary,
-            DesignSystem.colors.brand.secondary,
+            colors.colors.brand.primary,
+            colors.colors.brand.tertiary,
+            colors.colors.brand.secondary,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.gradient, { borderRadius: DesignSystem.borderRadius.lg }]}
+          style={[styles.gradient, { borderRadius: colors.borderRadius.lg }]}
         >
           <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
             {loading ? (
-              <ActivityIndicator color={DesignSystem.colors.text.inverse} size="small" />
+              <ActivityIndicator color={colors.colors.text.inverse} size="small" />
             ) : (
               <>
                 {icon && iconPosition === 'left' && (
@@ -149,9 +149,9 @@ export function UnifiedButton({
                   style={[
                     styles.text,
                     {
-                      color: DesignSystem.colors.text.inverse,
+                      color: colors.colors.text.inverse,
                       fontSize: getFontSize(),
-                      fontFamily: DesignSystem.typography.fontFamily.semibold,
+                      fontFamily: colors.typography.fontFamily.semibold,
                     },
                     textStyle,
                   ]}
@@ -199,7 +199,7 @@ export function UnifiedButton({
           style={[
             styles.secondaryButton,
             {
-              borderRadius: DesignSystem.borderRadius.lg,
+              borderRadius: colors.borderRadius.lg,
               height: getHeight(),
             },
           ]}
@@ -208,11 +208,11 @@ export function UnifiedButton({
             colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={[styles.gradient, { borderRadius: DesignSystem.borderRadius.lg }]}
+            style={[styles.gradient, { borderRadius: colors.borderRadius.lg }]}
           >
             <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
               {loading ? (
-                <ActivityIndicator color={DesignSystem.colors.text.primary} size="small" />
+                <ActivityIndicator color={colors.colors.text.primary} size="small" />
               ) : (
                 <>
                   {icon && iconPosition === 'left' && (
@@ -222,9 +222,9 @@ export function UnifiedButton({
                     style={[
                       styles.text,
                       {
-                        color: DesignSystem.colors.text.primary,
+                        color: colors.colors.text.primary,
                         fontSize: getFontSize(),
-                        fontFamily: DesignSystem.typography.fontFamily.semibold,
+                        fontFamily: colors.typography.fontFamily.semibold,
                       },
                       textStyle,
                     ]}
@@ -257,9 +257,9 @@ export function UnifiedButton({
           {
             height: getHeight(),
             width: fullWidth ? '100%' : undefined,
-            backgroundColor: DesignSystem.colors.semantic.error,
+            backgroundColor: colors.colors.semantic.error,
             opacity: isDisabled ? 0.5 : 1,
-            borderRadius: DesignSystem.borderRadius.lg,
+            borderRadius: colors.borderRadius.lg,
           },
           style,
         ]}
@@ -272,7 +272,7 @@ export function UnifiedButton({
       >
         <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
           {loading ? (
-            <ActivityIndicator color={DesignSystem.colors.text.primary} size="small" />
+            <ActivityIndicator color={colors.colors.text.primary} size="small" />
           ) : (
             <>
               {icon && iconPosition === 'left' && (
@@ -282,9 +282,9 @@ export function UnifiedButton({
                 style={[
                   styles.text,
                   {
-                    color: DesignSystem.colors.text.primary,
+                    color: colors.colors.text.primary,
                     fontSize: getFontSize(),
-                    fontFamily: DesignSystem.typography.fontFamily.semibold,
+                    fontFamily: colors.typography.fontFamily.semibold,
                   },
                   textStyle,
                 ]}
@@ -314,7 +314,7 @@ export function UnifiedButton({
         {
           height: getHeight(),
           width: fullWidth ? '100%' : undefined,
-          borderRadius: DesignSystem.borderRadius.lg,
+          borderRadius: colors.borderRadius.lg,
           opacity: isDisabled ? 0.5 : 1,
         },
         style,
@@ -328,7 +328,7 @@ export function UnifiedButton({
     >
       <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
         {loading ? (
-          <ActivityIndicator color={DesignSystem.colors.text.secondary} size="small" />
+          <ActivityIndicator color={colors.colors.text.secondary} size="small" />
         ) : (
           <>
             {icon && iconPosition === 'left' && (
@@ -338,9 +338,9 @@ export function UnifiedButton({
               style={[
                 styles.text,
                 {
-                  color: DesignSystem.colors.text.secondary,
+                  color: colors.colors.text.secondary,
                   fontSize: getFontSize(),
-                  fontFamily: DesignSystem.typography.fontFamily.medium,
+                  fontFamily: colors.typography.fontFamily.medium,
                 },
                 textStyle,
               ]}
@@ -360,7 +360,7 @@ export function UnifiedButton({
 const styles = StyleSheet.create({
   button: {
     overflow: 'hidden',
-    ...DesignSystem.shadows.lg,
+    ...colors.shadows.lg,
   },
   gradient: {
     flex: 1,
@@ -371,26 +371,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: DesignSystem.spacing[2],
+    gap: colors.spacing[2],
   },
   text: {
     textAlign: 'center',
-    letterSpacing: DesignSystem.typography.letterSpacing.wide,
+    letterSpacing: colors.typography.letterSpacing.wide,
   },
   secondaryButton: {
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: DesignSystem.colors.border.default,
-    ...DesignSystem.shadows.sm,
+    borderColor: colors.colors.border.default,
+    ...colors.shadows.sm,
   },
   ghostButton: {
     borderWidth: 1,
-    borderColor: DesignSystem.colors.border.subtle,
+    borderColor: colors.colors.border.subtle,
   },
   iconLeft: {
-    marginRight: DesignSystem.spacing[1],
+    marginRight: colors.spacing[1],
   },
   iconRight: {
-    marginLeft: DesignSystem.spacing[1],
+    marginLeft: colors.spacing[1],
   },
 });

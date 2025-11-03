@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { theme, ACCENT_GRADIENT } from '@/constants/theme';
+import { colors, spacing, typography, radius, ACCENT_GRADIENT } from '@/constants/theme';
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -38,7 +38,7 @@ export function PrimaryButton({
         style={styles.gradient}
       >
         {loading ? (
-          <ActivityIndicator color={theme.colors.white} />
+          <ActivityIndicator color={colors.white} />
         ) : (
           <Text style={styles.text}>{title}</Text>
         )}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: 56,
-    borderRadius: theme.radii.lg,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     minHeight: 44,
   },
@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    ...theme.typography.label,
-    color: theme.colors.white,
+    fontSize: typography.size.md, fontWeight: "500",
+    color: colors.white,
     fontWeight: '600',
   },
 });

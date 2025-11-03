@@ -15,7 +15,7 @@ import { QuantumFieldBackground } from '@/components/backgrounds';
 import { GlassCard } from '@/components/login/GlassCard';
 import { PasswordField } from '@/components/login/PasswordField';
 import { PrimaryButton } from '@/components/login/PrimaryButton';
-import { validatePasswordStrength } from '@/utils/password-strength';
+import { calculatePasswordStrength } from '@/utils/password-strength';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function ResetPasswordScreen() {
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState({ password: false, confirm: false });
 
-  const passwordStrength = validatePasswordStrength(password);
+  const passwordStrength = calculatePasswordStrength(password);
 
   useFocusEffect(
     useCallback(() => {

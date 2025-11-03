@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import { theme } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows } from '@/constants/theme';
 
 interface OAuthButtonProps {
   onPress: () => void;
@@ -29,18 +29,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 48,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: theme.colors.stroke,
-    paddingHorizontal: theme.spacing(2),
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
     minHeight: 44,
   },
   iconContainer: {
-    marginRight: theme.spacing(1.5),
+    marginRight: spacing.md,
   },
   label: {
-    ...theme.typography.label,
-    color: theme.colors.text,
+    fontSize: typography.size.md, fontWeight: "500",
+    color: colors.text,
   },
 });

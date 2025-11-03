@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { TextField } from './TextField';
-import { theme } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows } from '@/constants/theme';
 
 interface PasswordFieldProps {
   label: string;
@@ -12,6 +12,8 @@ interface PasswordFieldProps {
   error?: string;
   icon?: React.ReactNode;
   onBlur?: () => void;
+  showStrength?: boolean;
+  editable?: boolean;
 }
 
 export function PasswordField({
@@ -37,9 +39,9 @@ export function PasswordField({
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           {isSecure ? (
-            <Eye size={20} color={theme.colors.textSecondary} />
+            <Eye size={20} color={colors.textSecondary} />
           ) : (
-            <EyeOff size={20} color={theme.colors.textSecondary} />
+            <EyeOff size={20} color={colors.textSecondary} />
           )}
         </TouchableOpacity>
       }
@@ -49,8 +51,8 @@ export function PasswordField({
 
 const styles = StyleSheet.create({
   eyeButton: {
-    padding: theme.spacing(1),
-    marginLeft: theme.spacing(1),
+    padding: spacing.md,
+    marginLeft: spacing.md,
     minWidth: 44,
     minHeight: 44,
     alignItems: 'center',

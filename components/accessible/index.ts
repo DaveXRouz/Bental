@@ -4,8 +4,6 @@ export { AccessibleCarousel } from './AccessibleCarousel';
 export { AccessibleInfiniteScroll } from './AccessibleInfiniteScroll';
 export { AccessibleSelect } from './AccessibleSelect';
 export { AccessibleStatusBanner } from './AccessibleStatusBanner';
-export { ImprovedButton } from './ImprovedButton';
-export { InclusiveButton } from './InclusiveButton';
 export { LiveRegion } from './LiveRegion';
 export { ResponsiveGrid } from './ResponsiveGrid';
 export { SkipLink } from './SkipLink';

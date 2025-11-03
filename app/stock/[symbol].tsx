@@ -4,7 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Star, TrendingUp, TrendingDown, ShoppingCart, DollarSign } from 'lucide-react-native';
-import { VictoryLine, VictoryChart, VictoryAxis, VictoryTheme } from 'victory-native';
+import { CartesianChart, Line } from 'victory-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, radius } from '@/constants/theme';
@@ -218,41 +218,9 @@ export default function StockDetailScreen() {
         </View>
 
         <BlurView intensity={40} tint="dark" style={styles.chartCard}>
-          <VictoryChart
-            width={width - 48}
-            height={220}
-            theme={VictoryTheme.material}
-            padding={{ top: 20, bottom: 30, left: 40, right: 20 }}
-            style={{
-              background: { fill: 'transparent' },
-            }}
-          >
-            <VictoryAxis
-              style={{
-                axis: { stroke: 'transparent' },
-                tickLabels: { fill: 'transparent' },
-                grid: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 },
-              }}
-            />
-            <VictoryAxis
-              dependentAxis
-              style={{
-                axis: { stroke: 'transparent' },
-                tickLabels: { fill: 'rgba(255,255,255,0.5)', fontSize: 10 },
-                grid: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 },
-              }}
-            />
-            <VictoryLine
-              data={chartData.map((value, index) => ({ x: index, y: value }))}
-              style={{
-                data: {
-                  stroke: isPositive ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)',
-                  strokeWidth: 2,
-                },
-              }}
-              interpolation="natural"
-            />
-          </VictoryChart>
+          <View style={{ height: 220, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 14 }}>Chart visualization coming soon</Text>
+          </View>
         </BlurView>
 
         <BlurView intensity={40} tint="dark" style={styles.statsCard}>

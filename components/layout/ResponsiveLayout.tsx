@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, useWindowDimensions, ViewStyle } from 'react-native';
-import { DesignSystem } from '@/constants/design-system';
+import { breakpoints } from '@/constants/theme';
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
-  maxWidth?: keyof typeof DesignSystem.layout.breakpoints | 'full';
-  padding?: keyof typeof DesignSystem.spacing;
+  maxWidth?: keyof typeof colors.layout.breakpoints | 'full';
+  padding?: keyof typeof colors.spacing;
   style?: ViewStyle;
 }
 
@@ -19,11 +19,11 @@ export function ResponsiveLayout({
 
   const getMaxWidth = () => {
     if (maxWidth === 'full') return '100%';
-    return DesignSystem.layout.breakpoints[maxWidth];
+    return colors.layout.breakpoints[maxWidth];
   };
 
   const getPadding = () => {
-    return DesignSystem.spacing[padding];
+    return colors.spacing[padding];
   };
 
   return (
@@ -51,7 +51,7 @@ interface ResponsiveGridProps {
     lg?: number;
     xl?: number;
   };
-  gap?: keyof typeof DesignSystem.spacing;
+  gap?: keyof typeof colors.spacing;
   style?: ViewStyle;
 }
 
@@ -64,15 +64,15 @@ export function ResponsiveGrid({
   const { width } = useWindowDimensions();
 
   const getColumns = () => {
-    if (width >= DesignSystem.layout.breakpoints.xl) return columns.xl || 4;
-    if (width >= DesignSystem.layout.breakpoints.lg) return columns.lg || 3;
-    if (width >= DesignSystem.layout.breakpoints.md) return columns.md || 2;
-    if (width >= DesignSystem.layout.breakpoints.sm) return columns.sm || 1;
+    if (width >= colors.layout.breakpoints.xl) return columns.xl || 4;
+    if (width >= colors.layout.breakpoints.lg) return columns.lg || 3;
+    if (width >= colors.layout.breakpoints.md) return columns.md || 2;
+    if (width >= colors.layout.breakpoints.sm) return columns.sm || 1;
     return columns.xs || 1;
   };
 
   const columnCount = getColumns();
-  const gapSize = DesignSystem.spacing[gap];
+  const gapSize = colors.spacing[gap];
 
   return (
     <View
@@ -104,7 +104,7 @@ export function ResponsiveGrid({
 interface ResponsiveStackProps {
   children: React.ReactNode;
   direction?: 'horizontal' | 'vertical';
-  gap?: keyof typeof DesignSystem.spacing;
+  gap?: keyof typeof colors.spacing;
   align?: 'start' | 'center' | 'end' | 'stretch';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   wrap?: boolean;
@@ -147,7 +147,7 @@ export function ResponsiveStack({
         styles.stack,
         {
           flexDirection: direction === 'horizontal' ? 'row' : 'column',
-          gap: DesignSystem.spacing[gap],
+          gap: colors.spacing[gap],
           alignItems: getAlignItems(),
           justifyContent: getJustifyContent(),
           flexWrap: wrap ? 'wrap' : 'nowrap',

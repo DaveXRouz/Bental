@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Plus, X, TrendingUp, TrendingDown, Star } from 'lucide-react-native';
 import { colors, Spacing, Typography } from '@/constants/theme';
 import { formatCurrency, safePercentage } from '@/utils/formatting';
 import { AccessibleCarousel } from '@/components/accessible/AccessibleCarousel';
-import { ImprovedButton } from '@/components/accessible/ImprovedButton';
+import { TouchableOpacity } from 'react-native';
 
 interface WatchlistItem {
   id: string;
@@ -179,7 +179,7 @@ export function Watchlist({ items, onAdd, onRemove, onItemPress }: Props) {
                   accessibilityHint="Enter a stock ticker symbol like AAPL or BTC"
                 />
 
-                <ImprovedButton
+                <TouchableOpacity
                   title={loading ? 'Adding...' : 'Add Symbol'}
                   onPress={handleAdd}
                   loading={loading}

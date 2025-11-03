@@ -7,12 +7,12 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { DesignSystem } from '@/constants/design-system';
+import { colors, spacing, typography, radius } from '@/constants/theme';
 
 interface UnifiedCardProps {
   children: React.ReactNode;
   variant?: 'default' | 'elevated' | 'outlined' | 'filled';
-  padding?: keyof typeof DesignSystem.spacing;
+  padding?: keyof typeof colors.spacing;
   onPress?: () => void;
   style?: ViewStyle;
 }
@@ -44,7 +44,7 @@ export function UnifiedCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const paddingValue = DesignSystem.spacing[padding];
+  const paddingValue = colors.spacing[padding];
 
   if (variant === 'elevated') {
     const CardContent = onPress ? AnimatedPressable : View;
@@ -132,33 +132,33 @@ export function UnifiedCard({
 
 const styles = StyleSheet.create({
   defaultCard: {
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     borderWidth: 1,
-    borderColor: DesignSystem.colors.border.default,
+    borderColor: colors.colors.border.default,
     overflow: 'hidden',
-    backgroundColor: DesignSystem.colors.surface.card,
-    ...DesignSystem.shadows.sm,
+    backgroundColor: colors.colors.surface.card,
+    ...colors.shadows.sm,
   },
   elevatedCard: {
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: DesignSystem.colors.border.default,
+    borderColor: colors.colors.border.default,
     overflow: 'hidden',
-    backgroundColor: DesignSystem.colors.surface.cardElevated,
-    ...DesignSystem.shadows.md,
+    backgroundColor: colors.colors.surface.cardElevated,
+    ...colors.shadows.md,
   },
   outlinedCard: {
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: DesignSystem.colors.border.default,
+    borderColor: colors.colors.border.default,
     backgroundColor: 'transparent',
   },
   filledCard: {
-    borderRadius: DesignSystem.borderRadius.lg,
-    backgroundColor: DesignSystem.colors.surface.cardElevated,
-    ...DesignSystem.shadows.sm,
+    borderRadius: colors.borderRadius.lg,
+    backgroundColor: colors.colors.surface.cardElevated,
+    ...colors.shadows.sm,
   },
   gradient: {
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
   },
 });

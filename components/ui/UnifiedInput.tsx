@@ -17,7 +17,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { DesignSystem } from '@/constants/design-system';
+import { colors, spacing, typography, radius } from '@/constants/theme';
 
 interface UnifiedInputProps extends TextInputProps {
   label?: string;
@@ -46,10 +46,10 @@ export function UnifiedInput({
   const focusOpacity = useSharedValue(0);
 
   const getBorderColor = () => {
-    if (error) return DesignSystem.colors.semantic.error;
-    if (success) return DesignSystem.colors.semantic.success;
-    if (isFocused) return DesignSystem.colors.border.focus;
-    return DesignSystem.colors.border.default;
+    if (error) return colors.danger;
+    if (success) return colors.success;
+    if (isFocused) return colors.accent;
+    return colors.border;
   };
 
   const handleFocus = (e: any) => {
@@ -60,12 +60,12 @@ export function UnifiedInput({
       } catch (error) {}
     }
     focusWidth.value = withTiming(2, {
-      duration: DesignSystem.animation.duration.fast,
-      easing: Easing.bezier(...DesignSystem.animation.easing.spring),
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
     });
     focusOpacity.value = withTiming(1, {
-      duration: DesignSystem.animation.duration.fast,
-      easing: Easing.bezier(...DesignSystem.animation.easing.spring),
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
     });
     textInputProps.onFocus?.(e);
   };
@@ -73,12 +73,12 @@ export function UnifiedInput({
   const handleBlur = (e: any) => {
     setIsFocused(false);
     focusWidth.value = withTiming(0, {
-      duration: DesignSystem.animation.duration.fast,
-      easing: Easing.bezier(...DesignSystem.animation.easing.spring),
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
     });
     focusOpacity.value = withTiming(0, {
-      duration: DesignSystem.animation.duration.fast,
-      easing: Easing.bezier(...DesignSystem.animation.easing.spring),
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
     });
     textInputProps.onBlur?.(e);
   };
@@ -126,7 +126,7 @@ export function UnifiedInput({
               <TextInput
                 {...textInputProps}
                 style={[styles.input, textInputProps.style]}
-                placeholderTextColor={DesignSystem.colors.text.tertiary}
+                placeholderTextColor={colors.colors.text.tertiary}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
               />
@@ -149,8 +149,8 @@ export function UnifiedInput({
           <LinearGradient
             colors={
               error
-                ? [DesignSystem.colors.semantic.error, 'rgba(255, 77, 77, 0.2)']
-                : [DesignSystem.colors.brand.primary, DesignSystem.colors.brand.secondary]
+                ? [colors.danger, 'rgba(255, 77, 77, 0.2)']
+                : [colors.colors.brand.primary, colors.colors.brand.secondary]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -170,19 +170,19 @@ export function UnifiedInput({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: DesignSystem.spacing[4],
+    marginBottom: colors.spacing[4],
   },
   labelContainer: {
-    marginBottom: DesignSystem.spacing[2],
+    marginBottom: colors.spacing[2],
   },
   label: {
-    fontSize: DesignSystem.typography.fontSize.sm,
-    fontFamily: DesignSystem.typography.fontFamily.medium,
-    color: DesignSystem.colors.text.secondary,
-    letterSpacing: DesignSystem.typography.letterSpacing.normal,
+    fontSize: colors.typography.fontSize.sm,
+    fontFamily: colors.typography.fontFamily.medium,
+    color: colors.colors.text.secondary,
+    letterSpacing: colors.typography.letterSpacing.normal,
   },
   required: {
-    color: DesignSystem.colors.semantic.error,
+    color: colors.danger,
   },
   container: {
     position: 'relative',
@@ -190,26 +190,26 @@ const styles = StyleSheet.create({
   },
   blurContainer: {
     flex: 1,
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     overflow: 'hidden',
     borderWidth: 1.5,
-    ...DesignSystem.shadows.sm,
+    ...colors.shadows.sm,
   },
   gradient: {
     flex: 1,
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   content: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: DesignSystem.spacing[4],
-    paddingVertical: DesignSystem.spacing[1],
+    paddingHorizontal: colors.spacing[4],
+    paddingVertical: colors.spacing[1],
     zIndex: 1,
   },
   iconContainer: {
-    marginRight: DesignSystem.spacing[3],
+    marginRight: colors.spacing[3],
     opacity: 0.65,
     zIndex: 2,
     width: 20,
@@ -219,18 +219,18 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: DesignSystem.typography.fontSize.base,
-    color: DesignSystem.colors.text.inverse,
-    fontFamily: DesignSystem.typography.fontFamily.medium,
+    fontSize: colors.typography.fontSize.base,
+    color: colors.colors.text.inverse,
+    fontFamily: colors.typography.fontFamily.medium,
     fontWeight: '500',
     zIndex: 2,
     height: 48,
     paddingVertical: 0,
-    letterSpacing: DesignSystem.typography.letterSpacing.normal,
+    letterSpacing: colors.typography.letterSpacing.normal,
   },
   rightIconContainer: {
-    padding: DesignSystem.spacing[2],
-    marginLeft: DesignSystem.spacing[1],
+    padding: colors.spacing[2],
+    marginLeft: colors.spacing[1],
     width: 36,
     height: 36,
     justifyContent: 'center',
@@ -238,23 +238,23 @@ const styles = StyleSheet.create({
   },
   focusRing: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
     overflow: 'hidden',
-    ...DesignSystem.shadows.glow,
+    ...colors.shadows.glow,
   },
   focusGradient: {
     flex: 1,
-    borderRadius: DesignSystem.borderRadius.lg,
+    borderRadius: colors.borderRadius.lg,
   },
   helperText: {
-    color: DesignSystem.colors.text.tertiary,
-    fontSize: DesignSystem.typography.fontSize.xs,
-    fontFamily: DesignSystem.typography.fontFamily.medium,
-    marginTop: DesignSystem.spacing[2],
-    marginLeft: DesignSystem.spacing[1],
-    letterSpacing: DesignSystem.typography.letterSpacing.normal,
+    color: colors.colors.text.tertiary,
+    fontSize: colors.typography.fontSize.xs,
+    fontFamily: colors.typography.fontFamily.medium,
+    marginTop: colors.spacing[2],
+    marginLeft: colors.spacing[1],
+    letterSpacing: colors.typography.letterSpacing.normal,
   },
   errorText: {
-    color: DesignSystem.colors.semantic.error,
+    color: colors.danger,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { theme } from '@/constants/theme';
+import { colors, radius, spacing, shadows } from '@/constants/theme';
 import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
 
 interface GlassCardProps {
@@ -26,18 +26,18 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     maxWidth: 420,
-    borderRadius: theme.radii.xl,
+    borderRadius: radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: theme.colors.stroke,
-    ...theme.shadows.md,
+    borderColor: colors.border,
+    ...shadows.md,
   },
   blur: {
     overflow: 'hidden',
-    borderRadius: theme.radii.xl,
+    borderRadius: radius.xl,
   },
   content: {
-    padding: theme.spacing(3),
+    padding: spacing.md,
     backgroundColor: 'rgba(11, 13, 16, 0.4)',
   },
 });
