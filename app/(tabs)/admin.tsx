@@ -14,6 +14,7 @@ import { BarChart3, Users, DollarSign, Activity, Database, TrendingUp, AlertCirc
 import { supabase } from '@/lib/supabase';
 import { GlassCard } from '@/components/glass';
 import AdminPasswordResetModal from '@/components/modals/AdminPasswordResetModal';
+import { useAuth } from '@/contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
@@ -30,6 +31,7 @@ interface SystemStats {
 }
 
 export default function AdminDashboard() {
+  const { session } = useAuth();
   const [stats, setStats] = useState<SystemStats>({
     totalUsers: 0,
     activeUsers: 0,
@@ -46,9 +48,11 @@ export default function AdminDashboard() {
   const [passwordResetModalVisible, setPasswordResetModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchStats();
-    fetchRecentActivity();
-  }, []);
+    if (session?.user) {
+      fetchStats();
+      fetchRecentActivity();
+    }
+  }, [session]);
 
   const fetchStats = async () => {
     try {

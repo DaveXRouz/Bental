@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminPanelDashboard() {
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut, session } = useAuth();
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
@@ -33,8 +33,10 @@ export default function AdminPanelDashboard() {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (session?.user) {
+      fetchStats();
+    }
+  }, [session]);
 
   const fetchStats = async () => {
     try {
