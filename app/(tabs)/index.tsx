@@ -12,8 +12,8 @@ import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { NotificationBadge } from '@/components/dashboard/NotificationBadge';
 import { BottomInsetSpacer, TAB_BAR_HEIGHT_CONSTANT } from '@/components/ui/BottomInsetSpacer';
 import TransferModal from '@/components/modals/TransferModal';
-import DepositModal from '@/components/modals/DepositModal';
-import WithdrawModal from '@/components/modals/WithdrawModal';
+import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
+import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
 import NotificationCenterModal from '@/components/modals/NotificationCenterModal';
 import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -145,7 +145,6 @@ export default function HomeScreen() {
   }, [user?.id, createSnapshot]);
 
   useEffect(() => {
-    console.clear();
     fetchDashboardData();
   }, [fetchDashboardData]);
 
@@ -225,8 +224,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TransferModal visible={transferModalVisible} onClose={() => setTransferModalVisible(false)} />
-      <DepositModal visible={depositModalVisible} onClose={() => setDepositModalVisible(false)} />
-      <WithdrawModal visible={withdrawModalVisible} onClose={() => setWithdrawModalVisible(false)} />
+      <UnifiedDepositModal visible={depositModalVisible} onClose={() => setDepositModalVisible(false)} />
+      <UnifiedWithdrawModal visible={withdrawModalVisible} onClose={() => setWithdrawModalVisible(false)} />
       <NotificationCenterModal visible={notificationModalVisible} onClose={() => setNotificationModalVisible(false)} />
       <View style={styles.container}>
         <DataStreamBackground />

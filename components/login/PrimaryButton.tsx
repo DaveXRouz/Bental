@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { theme, ACCENT_GRADIENT } from '@/theme';
+import { theme, ACCENT_GRADIENT } from '@/constants/theme';
 
 interface PrimaryButtonProps {
   onPress: () => void;

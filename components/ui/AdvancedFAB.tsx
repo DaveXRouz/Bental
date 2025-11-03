@@ -38,28 +38,24 @@ const defaultActions: FABAction[] = [
     label: 'Buy',
     icon: TrendingUp,
     color: '#10B981',
-    onPress: () => console.log('Buy'),
   },
   {
     id: 'sell',
     label: 'Sell',
     icon: TrendingDown,
     color: '#EF4444',
-    onPress: () => console.log('Sell'),
   },
   {
     id: 'limit',
     label: 'Limit Order',
     icon: DollarSign,
     color: '#F59E0B',
-    onPress: () => console.log('Limit Order'),
   },
   {
     id: 'recurring',
     label: 'Auto-Invest',
     icon: Repeat,
     color: '#8B5CF6',
-    onPress: () => console.log('Auto-Invest'),
   },
 ];
 

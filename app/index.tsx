@@ -29,7 +29,6 @@ export default function Index() {
   }, [session, loading]);
 
   useEffect(() => {
-    console.log('[Index] Auth state:', { loading, hasSession: !!session, userRole });
   }, [loading, session, userRole]);
 
   if (loading || roleLoading) {

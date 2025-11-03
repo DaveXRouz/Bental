@@ -16,7 +16,7 @@ import { Mail, Lock, CreditCard } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { theme } from '@/theme';
+import { colors, spacing, typography, radius } from '@/constants/theme';
 import { GlassCard } from '@/components/login/GlassCard';
 import { Segmented } from '@/components/login/Segmented';
 import { TextField } from '@/components/login/TextField';
@@ -54,7 +54,6 @@ export default function LoginScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      console.clear();
       setEmail('');
       setTradingPassport('');
       setPassword('');
@@ -244,7 +243,7 @@ export default function LoginScreen() {
                   textContentType="username"
                   error={emailError}
                   onBlur={() => handleBlur('email')}
-                  icon={<Mail size={20} color={theme.colors.textSecondary} />}
+                  icon={<Mail size={20} color={colors.textSecondary} />}
                 />
               ) : (
                 <TextField
@@ -260,7 +259,7 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   error={passportError}
                   onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={20} color={theme.colors.textSecondary} />}
+                  icon={<CreditCard size={20} color={colors.textSecondary} />}
                 />
               )}
 
@@ -279,7 +278,7 @@ export default function LoginScreen() {
                 placeholder="Enter your password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
-                icon={<Lock size={20} color={theme.colors.textSecondary} />}
+                icon={<Lock size={20} color={colors.textSecondary} />}
               />
 
               <View style={styles.rememberRow}>
@@ -287,8 +286,8 @@ export default function LoginScreen() {
                   <Switch
                     value={rememberMe}
                     onValueChange={setRememberMe}
-                    trackColor={{ false: theme.colors.surface, true: theme.colors.accent }}
-                    thumbColor={theme.colors.white}
+                    trackColor={{ false: colors.surface, true: colors.accent }}
+                    thumbColor={colors.white}
                     accessibilityLabel="Remember me"
                   />
                   <Text style={styles.rememberText}>Remember</Text>
@@ -322,14 +321,14 @@ export default function LoginScreen() {
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<GoogleIcon size={20} color={theme.colors.text} />}
+                    icon={<GoogleIcon size={20} color={colors.text} />}
                     label="Google"
                   />
                 </View>
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<AppleIcon size={20} color={theme.colors.text} />}
+                    icon={<AppleIcon size={20} color={colors.text} />}
                     label="Apple"
                   />
                 </View>
@@ -338,13 +337,13 @@ export default function LoginScreen() {
               <View style={styles.footer}>
                 <View style={styles.socialIcons}>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
-                    <Twitter size={18} color={theme.colors.textSecondary} />
+                    <Twitter size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
-                    <Linkedin size={18} color={theme.colors.textSecondary} />
+                    <Linkedin size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
-                    <Github size={18} color={theme.colors.textSecondary} />
+                    <Github size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.footerLinks}>
@@ -372,14 +371,14 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
   },
   backgroundContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
   },
   orb: {
     position: 'absolute',
@@ -389,19 +388,19 @@ const styles = StyleSheet.create({
     opacity: 0.25,
   },
   orb1: {
-    backgroundColor: theme.colors.accent,
+    backgroundColor: colors.accent,
     top: -100,
     left: -100,
-    shadowColor: theme.colors.accent,
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 100,
   },
   orb2: {
-    backgroundColor: theme.colors.accentSecondary,
+    backgroundColor: colors.accentDark,
     bottom: -100,
     right: -100,
-    shadowColor: theme.colors.accentSecondary,
+    shadowColor: colors.accentDark,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 100,
@@ -409,8 +408,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing(2),
-    paddingVertical: theme.spacing(4),
+    paddingHorizontal: spacing.md * 2,
+    paddingVertical: spacing.md * 4,
   },
   content: {
     width: '100%',
@@ -418,67 +417,71 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    ...theme.typography.h4,
-    color: theme.colors.text,
-    marginBottom: theme.spacing(3),
+    fontSize: typography.size.xxl,
+    fontWeight: typography.weight.semibold,
+    color: colors.text,
+    marginBottom: spacing.md * 3,
     textAlign: 'center',
   },
   segmentedContainer: {
-    marginBottom: theme.spacing(3),
+    marginBottom: spacing.md * 3,
   },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.spacing(3),
+    marginBottom: spacing.md * 3,
   },
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: spacing.md * 1,
   },
   rememberText: {
-    ...theme.typography.label,
-    color: theme.colors.text,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
+    color: colors.text,
   },
   forgotText: {
-    ...theme.typography.label,
-    color: theme.colors.accent,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.medium,
+    color: colors.accent,
   },
   signInContainer: {
-    marginBottom: theme.spacing(3),
+    marginBottom: spacing.md * 3,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: theme.spacing(3),
+    marginVertical: spacing.md * 3,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: theme.colors.stroke,
+    backgroundColor: colors.border,
   },
   dividerText: {
-    ...theme.typography.small,
-    color: theme.colors.textSecondary,
-    marginHorizontal: theme.spacing(2),
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.regular,
+    color: colors.textSecondary,
+    marginHorizontal: spacing.md * 2,
   },
   oauthContainer: {
     flexDirection: width >= 400 ? 'row' : 'column',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(3),
+    gap: spacing.md * 2,
+    marginBottom: spacing.md * 3,
   },
   oauthButton: {
     flex: width >= 400 ? 1 : undefined,
   },
   footer: {
     alignItems: 'center',
-    marginTop: theme.spacing(2),
+    marginTop: spacing.md * 2,
   },
   socialIcons: {
     flexDirection: 'row',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    gap: spacing.md * 2,
+    marginBottom: spacing.md * 2,
   },
   socialIcon: {
     width: 44,
@@ -489,14 +492,16 @@ const styles = StyleSheet.create({
   footerLinks: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: spacing.md * 1,
   },
   footerLink: {
-    ...theme.typography.small,
-    color: theme.colors.textSecondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.regular,
+    color: colors.textSecondary,
   },
   footerDot: {
-    ...theme.typography.small,
-    color: theme.colors.textSecondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.regular,
+    color: colors.textSecondary,
   },
 });

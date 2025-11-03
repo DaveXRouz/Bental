@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { TextField } from './TextField';
-import { theme } from '@/theme';
+import { theme } from '@/constants/theme';
 
 interface PasswordFieldProps {
   label: string;

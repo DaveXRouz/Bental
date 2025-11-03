@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { theme } from '@/theme';
+import { theme } from '@/constants/theme';
 
 interface SegmentedProps {
   options: string[];

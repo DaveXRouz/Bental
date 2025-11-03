@@ -7,7 +7,7 @@ import {
   TextInputProps,
   Animated,
 } from 'react-native';
-import { theme } from '@/theme';
+import { theme } from '@/constants/theme';
 
 interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;

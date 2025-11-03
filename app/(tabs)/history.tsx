@@ -108,7 +108,6 @@ export default function TransactionHistoryScreen() {
             });
           }
         } catch (err) {
-          console.log('Deposits table not available');
         }
       }
 
@@ -134,7 +133,6 @@ export default function TransactionHistoryScreen() {
             });
           }
         } catch (err) {
-          console.log('Withdrawals table not available');
         }
       }
 

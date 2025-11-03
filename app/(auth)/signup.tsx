@@ -19,14 +19,7 @@ import { useBrandImages } from '@/services/media';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { UnifiedInput } from '@/components/ui/UnifiedInput';
 import { UnifiedButton } from '@/components/ui/UnifiedButton';
-import {
-  QuantumColors,
-  QuantumTypography,
-  QuantumRadius,
-  QuantumSpacing,
-  QuantumGlass,
-  QuantumElevation,
-} from '@/constants/quantum-glass';
+import { colors, typography, radius, spacing, shadows } from '@/constants/theme';
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('');
@@ -281,7 +274,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: QuantumColors.deepSpace,
+    backgroundColor: colors.deepSpace,
   },
   backgroundImage: {
     ...StyleSheet.absoluteFillObject,
@@ -295,13 +288,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: QuantumSpacing[5],
-    paddingVertical: QuantumSpacing[6],
+    paddingHorizontal: spacing[5],
+    paddingVertical: spacing[6],
   },
   header: {
     alignItems: 'center',
-    marginBottom: QuantumSpacing[5],
-    marginTop: QuantumSpacing[4],
+    marginBottom: spacing[5],
+    marginTop: spacing[4],
   },
   logoContainer: {
     width: 80,
@@ -310,54 +303,54 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: QuantumSpacing[3],
+    marginBottom: spacing[3],
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   title: {
-    fontSize: QuantumTypography.size.h1,
+    fontSize: typography.size.h1,
     fontWeight: '700',
-    color: QuantumColors.frostWhite,
-    fontFamily: QuantumTypography.family.heading,
-    marginBottom: QuantumSpacing[2],
+    color: colors.frostWhite,
+    fontFamily: typography.family.heading,
+    marginBottom: spacing[2],
     letterSpacing: -0.8,
   },
   subtitle: {
-    fontSize: QuantumTypography.size.body,
-    color: QuantumColors.mistWhite,
-    fontFamily: QuantumTypography.family.body,
+    fontSize: typography.size.body,
+    color: colors.mistWhite,
+    fontFamily: typography.family.body,
   },
   formBlur: {
-    borderRadius: QuantumRadius.lg,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: QuantumGlass.border.inner,
-    ...QuantumElevation.E2,
+    borderColor: glassMorphism.border.inner,
+    ...shadows.E2,
   },
   formGradient: {
-    borderRadius: QuantumRadius.lg,
+    borderRadius: radius.lg,
   },
   form: {
-    padding: QuantumSpacing[5],
+    padding: spacing[5],
   },
   errorContainer: {
     backgroundColor: 'rgba(255,77,77,0.12)',
-    borderRadius: QuantumRadius.sm,
-    padding: QuantumSpacing[3],
-    marginBottom: QuantumSpacing[4],
+    borderRadius: radius.sm,
+    padding: spacing[3],
+    marginBottom: spacing[4],
     borderWidth: 1,
     borderColor: 'rgba(255,77,77,0.3)',
   },
   errorText: {
-    color: QuantumColors.danger,
-    fontSize: QuantumTypography.size.caption,
+    color: colors.danger,
+    fontSize: typography.size.caption,
     textAlign: 'center',
-    fontFamily: QuantumTypography.family.medium,
+    fontFamily: typography.family.medium,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: QuantumSpacing[4],
+    marginVertical: spacing[4],
   },
   divider: {
     flex: 1,
@@ -366,36 +359,36 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     color: 'rgba(248,250,252,0.5)',
-    fontSize: QuantumTypography.size.small,
+    fontSize: typography.size.small,
     fontWeight: '600',
-    marginHorizontal: QuantumSpacing[3],
-    letterSpacing: QuantumTypography.letterSpacing.wide,
+    marginHorizontal: spacing[3],
+    letterSpacing: typography.letterSpacing.wide,
     textTransform: 'uppercase',
   },
   secondaryButton: {
     backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: QuantumRadius.md,
-    paddingVertical: QuantumSpacing[3],
+    borderRadius: radius.md,
+    paddingVertical: spacing[3],
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
   secondaryButtonText: {
-    color: QuantumColors.frostWhite,
-    fontSize: QuantumTypography.size.caption,
+    color: colors.frostWhite,
+    fontSize: typography.size.caption,
     fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
+    fontFamily: typography.family.semibold,
   },
   footer: {
-    fontSize: QuantumTypography.size.small,
+    fontSize: typography.size.small,
     color: 'rgba(248,250,252,0.4)',
     textAlign: 'center',
-    marginTop: QuantumSpacing[5],
-    paddingHorizontal: QuantumSpacing[5],
+    marginTop: spacing[5],
+    paddingHorizontal: spacing[5],
   },
   socialButtonsRow: {
     flexDirection: 'row',
-    gap: QuantumSpacing[3],
-    marginBottom: QuantumSpacing[4],
+    gap: spacing[3],
+    marginBottom: spacing[4],
   },
 });

@@ -9,7 +9,6 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
-    console.clear();
     fetchLogs();
   }, []);
 

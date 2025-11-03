@@ -169,6 +169,26 @@ export const glassMorphism = {
   },
 };
 
+export const GLASS = {
+  bg: 'rgba(255, 255, 255, 0.08)',
+  bgMedium: 'rgba(255, 255, 255, 0.12)',
+  bgHeavy: 'rgba(255, 255, 255, 0.18)',
+  bgDark: 'rgba(0, 0, 0, 0.3)',
+  border: 'rgba(255, 255, 255, 0.15)',
+  borderLight: 'rgba(255, 255, 255, 0.08)',
+  borderDark: 'rgba(255, 255, 255, 0.12)',
+  shadow: 'rgba(0, 0, 0, 0.5)',
+  text: colors.white,
+  white: colors.white,
+  black: colors.black,
+  danger: '#EF4444',
+  radius: 16,
+  radiusLg: 20,
+  blur: 20,
+  blurHeavy: 40,
+  spacing: 8,
+};
+
 export const blur = {
   sm: 12,
   md: 20,
@@ -357,5 +377,7 @@ export const VerifiedBadgeSize = {
   md: 20,
   lg: 24,
 };
+
+export const ACCENT_GRADIENT = ['#22D3EE', '#3B82F6'];
 
 export default theme;
