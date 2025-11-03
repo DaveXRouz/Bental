@@ -20,8 +20,8 @@ import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
-import { QuantumInput } from '@/components/quantum/QuantumInput';
-import { EnhancedButton } from '@/components/ui/EnhancedButton';
+import { UnifiedInput } from '@/components/ui/UnifiedInput';
+import { UnifiedButton } from '@/components/ui/UnifiedButton';
 import { validateEmail, validateTradingPassport, validatePassword } from '@/utils/validation';
 import {
   QuantumColors,
@@ -295,7 +295,7 @@ export default function Login() {
                   </View>
 
                   {loginMode === 'email' ? (
-                    <QuantumInput
+                    <UnifiedInput
                       icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                       placeholder="Email address"
                       value={email}
@@ -306,7 +306,7 @@ export default function Login() {
                       error={emailError}
                     />
                   ) : (
-                    <QuantumInput
+                    <UnifiedInput
                       icon={<CreditCard size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                       placeholder="Trading Passport (TP-XXXX-XXXX-XXXX)"
                       value={tradingPassport}
@@ -317,7 +317,7 @@ export default function Login() {
                     />
                   )}
 
-                  <QuantumInput
+                  <UnifiedInput
                     icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                     placeholder="Password"
                     value={password}
@@ -371,12 +371,13 @@ export default function Login() {
                     </View>
                   ) : null}
 
-                  <EnhancedButton
+                  <UnifiedButton
                     title="Sign In"
                     onPress={handleLogin}
                     disabled={loading}
                     loading={loading}
                     variant="primary"
+                    fullWidth
                   />
 
                   <View style={styles.dividerContainer}>
@@ -386,20 +387,24 @@ export default function Login() {
                   </View>
 
                   <View style={styles.socialButtonsRow}>
-                    <EnhancedButton
+                    <UnifiedButton
                       title="Google"
                       onPress={handleGoogleSignIn}
                       disabled={loading}
-                      variant="social"
+                      variant="secondary"
+                      size="md"
                       icon={<Chrome size={20} color="#FFFFFF" />}
+                      style={{ flex: 1 }}
                     />
 
-                    <EnhancedButton
+                    <UnifiedButton
                       title="Apple"
                       onPress={handleAppleSignIn}
                       disabled={loading}
-                      variant="social"
+                      variant="secondary"
+                      size="md"
                       icon={<AppleIcon size={20} color="#FFFFFF" />}
+                      style={{ flex: 1 }}
                     />
                   </View>
                 </View>
@@ -452,7 +457,7 @@ export default function Login() {
                         Enter your email address and we'll send you a link to reset your password.
                       </Text>
 
-                      <QuantumInput
+                      <UnifiedInput
                         icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                         placeholder="Email address"
                         value={resetEmail}
