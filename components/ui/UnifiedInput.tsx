@@ -17,7 +17,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { colors, spacing, typography, radius } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows } from '@/constants/theme';
 
 interface UnifiedInputProps extends TextInputProps {
   label?: string;
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: radius.lg,
     overflow: 'hidden',
-    ...shadows.glow,
+    ...shadows.glass,
   },
   focusGradient: {
     flex: 1,
