@@ -51,8 +51,8 @@ export function TextField({
   const borderColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      error ? colors.error : colors.border,
-      error ? colors.error : colors.borderFocus,
+      error ? colors.danger : colors.border,
+      error ? colors.danger : colors.accent,
     ],
   });
 
@@ -69,7 +69,7 @@ export function TextField({
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <TextInput
           style={styles.input}
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor={colors.textMuted}
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...props}
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   inputContainerFocused: {
-    ...shadows.glow,
+    ...shadows.md,
   },
   iconContainer: {
     marginRight: spacing.md,
@@ -111,13 +111,15 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    ...theme.typography.body,
+    fontSize: typography.size.md,
+    fontFamily: typography.family.regular,
     color: colors.text,
     height: '100%',
   },
   error: {
-    ...theme.typography.caption,
-    color: colors.error,
-    marginTop: spacing.md,
+    fontSize: typography.size.sm,
+    fontFamily: typography.family.regular,
+    color: colors.danger,
+    marginTop: spacing.xs,
   },
 });

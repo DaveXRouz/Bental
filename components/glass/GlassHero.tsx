@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Image, Pressable, Platform } from 'react-native
 import { BlurView } from 'expo-blur';
 import { CheckCircle2, Calendar, MessageCircle } from 'lucide-react-native';
 import { useThemeStore } from '@/stores/useThemeStore';
-import { theme, Spacing, Typography, BorderRadius } from '@/constants/theme';
+import { colors, shadows, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { MotiView } from 'moti';
 import * as WebBrowser from 'expo-web-browser';
 import Constants from 'expo-constants';
@@ -68,8 +68,8 @@ export function GlassHero({
                   resizeMode="cover"
                 />
                 {verified && (
-                  <View style={[styles.verifiedBadge, { backgroundColor: theme.colors.surface }]}>
-                    <CheckCircle2 size={16} color={theme.colors.success} strokeWidth={2.5} />
+                  <View style={[styles.verifiedBadge, { backgroundColor: colors.surface }]}>
+                    <CheckCircle2 size={16} color={colors.success} strokeWidth={2.5} />
                   </View>
                 )}
               </View>
@@ -92,8 +92,8 @@ export function GlassHero({
                 },
               ]}
             >
-              <Calendar size={18} color={theme.colors.background} strokeWidth={2} />
-              <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+              <Calendar size={18} color={colors.background} strokeWidth={2} />
+              <Text style={[styles.primaryButtonText, { color: colors.background }]}>
                 Schedule Call
               </Text>
             </Pressable>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    ...theme.shadows.sm,
+    ...shadows.sm,
   },
   inner: {
     padding: Spacing.lg,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: theme.colors.background,
+    borderColor: colors.background,
   },
   info: {
     flex: 1,
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.md,
     gap: Spacing.xs,
-    ...theme.shadows.sm,
+    ...shadows.sm,
   },
   primaryButtonText: {
     fontSize: Typography.size.sm,

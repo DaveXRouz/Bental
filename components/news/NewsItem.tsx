@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { ExternalLink } from 'lucide-react-native';
 import { useThemeStore } from '@/stores/useThemeStore';
-import { theme, Spacing, Typography, BorderRadius } from '@/constants/theme';
+import { colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { NewsArticle } from '@/services/news/types';
 
 interface NewsItemProps {
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     overflow: 'hidden',
     borderWidth: 1,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
   },
   content: {
     flexDirection: 'row',
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 8,
-    backgroundColor: theme.colors.surfaceAlt,
+    backgroundColor: colors.surfaceAlt,
   },
   textContainer: {
     flex: 1,
