@@ -41,8 +41,8 @@ export default function AdminPanelDashboard() {
   const fetchStats = async () => {
     try {
       const [usersRes, accountsRes, holdingsRes] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('accounts').select('id', { count: 'exact' }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('holdings').select('market_value'),
       ]);
 
