@@ -20,8 +20,9 @@ import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
+import { XLogo } from '@/components/branding/XLogo';
 import { QuantumInput } from '@/components/quantum/QuantumInput';
-import { PlasmaCapsule } from '@/components/quantum/PlasmaCapsule';
+import { EnhancedButton } from '@/components/ui/EnhancedButton';
 import {
   QuantumColors,
   QuantumTypography,
@@ -195,6 +196,8 @@ export default function Login() {
       >
         <View style={styles.content}>
           <View style={styles.header}>
+            <XLogo size={110} reduceMotion={reduceMotion} />
+            <Text style={styles.brandName}>X</Text>
             <Text style={styles.title}>I know,{'\n'}something else.</Text>
             <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
@@ -271,11 +274,12 @@ export default function Login() {
                     </View>
                   ) : null}
 
-                  <PlasmaCapsule
+                  <EnhancedButton
                     title="Sign In"
                     onPress={handleLogin}
                     disabled={loading}
                     loading={loading}
+                    variant="primary"
                   />
 
                   <View style={styles.dividerContainer}>
@@ -285,33 +289,21 @@ export default function Login() {
                   </View>
 
                   <View style={styles.socialButtonsRow}>
-                    <TouchableOpacity
-                      style={styles.socialButton}
+                    <EnhancedButton
+                      title="Google"
                       onPress={handleGoogleSignIn}
                       disabled={loading}
-                      activeOpacity={0.7}
-                    >
-                      <BlurView intensity={18} tint="dark" style={styles.socialBlur}>
-                        <View style={styles.socialButtonContent}>
-                          <Chrome size={20} color="#FFFFFF" />
-                          <Text style={styles.socialButtonText}>Google</Text>
-                        </View>
-                      </BlurView>
-                    </TouchableOpacity>
+                      variant="social"
+                      icon={<Chrome size={20} color="#FFFFFF" />}
+                    />
 
-                    <TouchableOpacity
-                      style={styles.socialButton}
+                    <EnhancedButton
+                      title="Apple"
                       onPress={handleAppleSignIn}
                       disabled={loading}
-                      activeOpacity={0.7}
-                    >
-                      <BlurView intensity={18} tint="dark" style={styles.socialBlur}>
-                        <View style={styles.socialButtonContent}>
-                          <AppleIcon size={20} color="#FFFFFF" />
-                          <Text style={styles.socialButtonText}>Apple</Text>
-                        </View>
-                      </BlurView>
-                    </TouchableOpacity>
+                      variant="social"
+                      icon={<AppleIcon size={20} color="#FFFFFF" />}
+                    />
                   </View>
                 </View>
               </LinearGradient>
@@ -435,24 +427,41 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: QuantumSpacing[6],
+    marginBottom: QuantumSpacing[7],
+    paddingTop: QuantumSpacing[4],
+  },
+  brandName: {
+    fontSize: Platform.select({ web: 56, default: 48 }),
+    fontWeight: '800',
+    color: '#FFFFFF',
+    fontFamily: QuantumTypography.family.heading,
+    marginTop: QuantumSpacing[4],
+    marginBottom: QuantumSpacing[5],
+    letterSpacing: -2,
+    textAlign: 'center',
+    textShadowColor: 'rgba(96, 255, 218, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
   title: {
-    fontSize: Platform.select({ web: 42, default: QuantumTypography.size.h1 }),
+    fontSize: Platform.select({ web: 38, default: 32 }),
     fontWeight: '700',
     color: QuantumColors.frostWhite,
     fontFamily: QuantumTypography.family.heading,
-    marginBottom: QuantumSpacing[3],
-    letterSpacing: -1.2,
+    marginBottom: QuantumSpacing[2],
+    letterSpacing: -1,
     textAlign: 'center',
-    lineHeight: Platform.select({ web: 52, default: 46 }),
+    lineHeight: Platform.select({ web: 48, default: 40 }),
+    opacity: 0.95,
   },
   subtitle: {
-    fontSize: Platform.select({ web: 18, default: QuantumTypography.size.body }),
-    color: QuantumColors.mistWhite,
+    fontSize: Platform.select({ web: 17, default: 16 }),
+    color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: QuantumTypography.family.body,
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    fontWeight: '500',
   },
   formContainer: {
     width: '100%',
@@ -493,8 +502,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxActive: {
-    backgroundColor: QuantumColors.ionTeal,
-    borderColor: QuantumColors.ionTeal,
+    backgroundColor: '#60FFDA',
+    borderColor: '#60FFDA',
   },
   checkmark: {
     width: 10,
@@ -508,7 +517,7 @@ const styles = StyleSheet.create({
     fontFamily: QuantumTypography.family.medium,
   },
   signupLink: {
-    color: QuantumColors.frostWhite,
+    color: '#78DCFF',
     fontSize: QuantumTypography.size.caption,
     fontWeight: '600',
     fontFamily: QuantumTypography.family.semibold,
@@ -557,32 +566,6 @@ const styles = StyleSheet.create({
   socialButtonsRow: {
     flexDirection: 'row',
     gap: QuantumSpacing[3],
-  },
-  socialButton: {
-    flex: 1,
-    height: 56,
-    borderRadius: QuantumRadius.md,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  socialBlur: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  socialButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  socialButtonText: {
-    color: '#FFFFFF',
-    fontSize: QuantumTypography.size.caption,
-    fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
-    letterSpacing: 0.3,
   },
   modalOverlay: {
     flex: 1,
