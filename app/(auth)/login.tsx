@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import AuthFooter from '@/components/ui/AuthFooter';
-import { QuantumBackground } from '@/components/quantum/QuantumBackground';
+import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
 import { ShieldCrest } from '@/components/quantum/ShieldCrest';
 import { QuantumInput } from '@/components/quantum/QuantumInput';
 import { PlasmaCapsule } from '@/components/quantum/PlasmaCapsule';
@@ -188,7 +188,7 @@ export default function Login() {
 
   return (
     <View style={styles.container}>
-      <QuantumBackground reduceMotion={reduceMotion} />
+      <Silk3DBackground reduceMotion={reduceMotion} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -198,8 +198,8 @@ export default function Login() {
           <View style={styles.header}>
             <ShieldCrest size={130} reduceMotion={reduceMotion} />
 
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+            <Text style={styles.title}>I know,{'\n'}something else.</Text>
+            <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -430,32 +430,37 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: QuantumSpacing[5],
+    paddingHorizontal: Platform.select({ web: QuantumSpacing[6], default: QuantumSpacing[5] }),
     paddingVertical: QuantumSpacing[6],
+    maxWidth: Platform.select({ web: 1200, default: '100%' }),
+    alignSelf: 'center',
+    width: '100%',
   },
   header: {
     alignItems: 'center',
-    marginBottom: QuantumSpacing[5],
+    marginBottom: QuantumSpacing[6],
   },
   title: {
-    fontSize: QuantumTypography.size.h1,
+    fontSize: Platform.select({ web: 42, default: QuantumTypography.size.h1 }),
     fontWeight: '700',
     color: QuantumColors.frostWhite,
     fontFamily: QuantumTypography.family.heading,
-    marginTop: QuantumSpacing[4],
-    marginBottom: QuantumSpacing[2],
-    letterSpacing: QuantumTypography.letterSpacing.tight,
+    marginTop: QuantumSpacing[5],
+    marginBottom: QuantumSpacing[3],
+    letterSpacing: -1.2,
     textAlign: 'center',
+    lineHeight: Platform.select({ web: 52, default: 46 }),
   },
   subtitle: {
-    fontSize: QuantumTypography.size.body,
+    fontSize: Platform.select({ web: 18, default: QuantumTypography.size.body }),
     color: QuantumColors.mistWhite,
     fontFamily: QuantumTypography.family.body,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   formContainer: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: Platform.select({ web: 460, default: 420 }),
     alignSelf: 'center',
   },
   formBlur: {
