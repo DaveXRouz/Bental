@@ -36,7 +36,7 @@ export default function Index() {
   }
 
   if (session) {
-    if (userRole === 'admin' && Platform.OS === 'web') {
+    if (userRole === 'admin') {
       return <Redirect href="/admin-panel" />;
     }
     return <Redirect href="/(tabs)" />;

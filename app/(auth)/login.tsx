@@ -183,7 +183,17 @@ export default function LoginScreen() {
       }
 
       if (data?.user) {
-        router.replace('/(tabs)');
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (profile?.role === 'admin') {
+          router.replace('/admin-panel');
+        } else {
+          router.replace('/(tabs)');
+        }
       }
     } catch (err) {
       setPasswordError('An error occurred. Please try again.');

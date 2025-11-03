@@ -1,8 +1,43 @@
 import { View, StyleSheet } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import { FixedBottomNav } from '@/components/navigation/FixedBottomNav';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function TabLayout() {
+  const { session } = useAuth();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .maybeSingle();
+
+      setUserRole(profile?.role || 'user');
+      setLoading(false);
+    };
+
+    checkUserRole();
+  }, [session]);
+
+  if (loading) {
+    return null;
+  }
+
+  if (userRole === 'admin') {
+    return <Redirect href="/admin-panel" />;
+  }
+
   return (
     <View style={styles.container}>
       <Tabs

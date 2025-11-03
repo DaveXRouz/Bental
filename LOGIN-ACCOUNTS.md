@@ -6,7 +6,7 @@
 
 ## 👨‍💼 ADMIN ACCOUNT
 
-**Purpose:** Full admin access with admin panel
+**Purpose:** Admin-only access - Command Center ONLY
 
 ```
 Email:    michael.chen@demo.com
@@ -16,16 +16,18 @@ Name:     Michael Chen
 ```
 
 ### What You'll See:
-✅ **Admin Panel Tab** - Access to system administration
-✅ **Dashboard** - Full trading app functionality
+✅ **Admin Panel ONLY** - Complete command center interface
 ✅ **User Management** - Reset passwords, manage users
 ✅ **System Stats** - Total users, accounts, holdings value
 ✅ **Configuration** - Feature flags, app settings
 ✅ **Activity Logs** - System audit trail
+❌ **NO Trading App** - No portfolio, markets, or trading features
 
-### Admin Panel Access:
-- Navigate to the "Admin" tab in the bottom navigation
-- Or go directly to: `/admin-panel`
+### Admin Experience:
+- **Automatic redirect** to `/admin-panel` after login
+- **No access** to trading features (portfolio, markets, trading)
+- **Admin-only interface** - separate from client app
+- **Web-based only** - Admin panel requires desktop browser
 
 ---
 
@@ -60,8 +62,8 @@ Name:     Amanda Taylor
 ### Test 1: Login as Admin
 1. Open app in browser: Press `w` in terminal
 2. Login with: `michael.chen@demo.com` / `Welcome2025!`
-3. You should see **Admin tab** in bottom navigation
-4. Click Admin tab to access admin panel
+3. **Automatically redirected** to Admin Panel (no tabs)
+4. See admin control center interface ONLY
 5. View system stats, users, configuration
 
 ### Test 2: Login as Client (New Browser/Incognito)
@@ -75,8 +77,8 @@ Name:     Amanda Taylor
 1. Open two browser windows
 2. Window 1: Login as admin (michael.chen@demo.com)
 3. Window 2: Login as client (amanda.taylor@demo.com)
-4. Compare the different navigation tabs
-5. Admin has extra "Admin" tab at the bottom
+4. Compare the completely different interfaces
+5. Admin sees ONLY admin panel, Client sees ONLY trading app
 
 ---
 
@@ -84,11 +86,11 @@ Name:     Amanda Taylor
 
 | Feature | Admin | Client |
 |---------|-------|--------|
-| Dashboard | ✅ | ✅ |
-| Portfolio | ✅ | ✅ |
-| Markets | ✅ | ✅ |
-| Trading | ✅ | ✅ |
-| History | ✅ | ✅ |
+| Dashboard | ❌ | ✅ |
+| Portfolio | ❌ | ✅ |
+| Markets | ❌ | ✅ |
+| Trading | ❌ | ✅ |
+| History | ❌ | ✅ |
 | **Admin Panel** | ✅ | ❌ |
 | **User Management** | ✅ | ❌ |
 | **System Config** | ✅ | ❌ |
@@ -145,17 +147,21 @@ Michael (admin) has:
 
 ### Admin Account (Michael)
 ```
-Bottom Navigation Tabs:
-[ Home ] [ Portfolio ] [ Markets ] [ Trade ] [ Admin ] [ More ]
-                                              ^^^^^^^^
-                                           ADMIN TAB HERE
+NO TABS - Admin Panel Full Screen Interface
+┌────────────────────────────────────────┐
+│  ADMIN PANEL - Command Center          │
+│  • User Management                     │
+│  • System Configuration                │
+│  • Activity Logs                       │
+│  • Feature Flags                       │
+└────────────────────────────────────────┘
 ```
 
 ### Client Account (Amanda)
 ```
 Bottom Navigation Tabs:
 [ Home ] [ Portfolio ] [ Markets ] [ Trade ] [ More ]
-                                    (No Admin Tab)
+     Full Trading App Experience
 ```
 
 ---
