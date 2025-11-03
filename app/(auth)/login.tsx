@@ -198,7 +198,6 @@ export default function Login() {
           <View style={styles.header}>
             <XLogo size={110} reduceMotion={reduceMotion} />
             <Text style={styles.brandName}>X</Text>
-            <Text style={styles.title}>I know,{'\n'}something else.</Text>
             <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
 
