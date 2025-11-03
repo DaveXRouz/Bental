@@ -1,5 +1,6 @@
 import { Modal, View, Text, StyleSheet, Pressable, Platform } from 'react-native';
-import { WebView } from 'react-native-webview';
+// WebView disabled - install react-native-webview if needed
+// import { WebView } from 'react-native-webview';
 import { BlurView } from 'expo-blur';
 import { X } from 'lucide-react-native';
 import { useThemeStore } from '@/stores/useThemeStore';
@@ -64,11 +65,17 @@ export function NewsModalWebView({ visible, article, onClose }: NewsModalWebView
           </View>
         </BlurView>
 
-        <WebView
+        {/* WebView disabled - install react-native-webview if needed */}
+        {/* <WebView
           source={{ uri: article.url }}
           style={styles.webview}
           startInLoadingState
-        />
+        /> */}
+        <View style={styles.webview}>
+          <Text style={{ color: colors.text, padding: 20, textAlign: 'center' }}>
+            WebView not available. Opening in browser instead.
+          </Text>
+        </View>
       </View>
     </Modal>
   );

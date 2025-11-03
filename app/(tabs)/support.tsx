@@ -21,7 +21,8 @@ import {
   ChevronUp,
   ExternalLink,
 } from 'lucide-react-native';
-import { WebView } from 'react-native-webview';
+// WebView disabled - install react-native-webview if needed
+// import { WebView } from 'react-native-webview';
 import * as Haptics from 'expo-haptics';
 import { colors, Spacing, Typography } from '@/constants/theme';
 
@@ -92,26 +93,27 @@ export default function SupportScreen() {
     Linking.openURL(`https://wa.me/${phone}`);
   };
 
-  if (showChat && SUPPORT_URL) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.chatHeader}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setShowChat(false)}
-          >
-            <ChevronDown size={24} color={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.chatTitle}>Live Chat</Text>
-        </View>
-        <WebView
-          source={{ uri: SUPPORT_URL }}
-          style={styles.webview}
-          startInLoadingState
-        />
-      </View>
-    );
-  }
+  // WebView disabled - install react-native-webview if needed
+  // if (showChat && SUPPORT_URL) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <View style={styles.chatHeader}>
+  //         <TouchableOpacity
+  //           style={styles.backButton}
+  //           onPress={() => setShowChat(false)}
+  //         >
+  //           <ChevronDown size={24} color={colors.white} />
+  //         </TouchableOpacity>
+  //         <Text style={styles.chatTitle}>Live Chat</Text>
+  //       </View>
+  //       <WebView
+  //         source={{ uri: SUPPORT_URL }}
+  //         style={styles.webview}
+  //         startInLoadingState
+  //       />
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={styles.container}>
