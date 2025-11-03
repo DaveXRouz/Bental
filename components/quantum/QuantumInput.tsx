@@ -167,8 +167,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: QuantumTypography.size.body,
-    color: QuantumColors.frostWhite,
+    color: '#FFFFFF',
     fontFamily: QuantumTypography.family.body,
+    fontWeight: '500',
   },
   rightIconContainer: {
     padding: 8,
