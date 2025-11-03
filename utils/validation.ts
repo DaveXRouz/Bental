@@ -44,3 +44,35 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
+export const validateEmail = (email: string): { isValid: boolean; error?: string } => {
+  if (!email) return { isValid: false, error: 'Email is required' };
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { isValid: false, error: 'Invalid email format' };
+  }
+
+  return { isValid: true };
+};
+
+export const validateTradingPassport = (passport: string): { isValid: boolean; error?: string } => {
+  if (!passport) return { isValid: false, error: 'Trading passport is required' };
+
+  const passportRegex = /^TP-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  if (!passportRegex.test(passport.toUpperCase())) {
+    return { isValid: false, error: 'Invalid trading passport format (TP-XXXX-XXXX-XXXX)' };
+  }
+
+  return { isValid: true };
+};
+
+export const validatePassword = (password: string): { isValid: boolean; error?: string } => {
+  if (!password) return { isValid: false, error: 'Password is required' };
+
+  if (password.length < 6) {
+    return { isValid: false, error: 'Password must be at least 6 characters' };
+  }
+
+  return { isValid: true };
+};

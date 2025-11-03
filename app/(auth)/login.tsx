@@ -22,6 +22,7 @@ import AuthFooter from '@/components/ui/AuthFooter';
 import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
 import { QuantumInput } from '@/components/quantum/QuantumInput';
 import { EnhancedButton } from '@/components/ui/EnhancedButton';
+import { validateEmail, validateTradingPassport, validatePassword } from '@/utils/validation';
 import {
   QuantumColors,
   QuantumTypography,
@@ -39,6 +40,9 @@ export default function Login() {
   const [tradingPassport, setTradingPassport] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passportError, setPassportError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -78,12 +82,11 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
-    const identifier = loginMode === 'email' ? email : tradingPassport;
-
-    if (!identifier || !password) {
-      setError(`Please enter ${loginMode === 'email' ? 'email' : 'trading passport'} and password`);
+    if (!validateInputs()) {
       return;
     }
+
+    const identifier = loginMode === 'email' ? email : tradingPassport;
 
     setLoading(true);
     setError('');
@@ -125,9 +128,57 @@ export default function Login() {
     const newMode: LoginMode = loginMode === 'email' ? 'passport' : 'email';
     setLoginMode(newMode);
     setError('');
+    setEmailError('');
+    setPassportError('');
+    setPasswordError('');
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setEmailError('');
+    setError('');
+  };
+
+  const handlePassportChange = (text: string) => {
+    const formatted = text.toUpperCase();
+    setTradingPassport(formatted);
+    setPassportError('');
+    setError('');
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordError('');
+    setError('');
+  };
+
+  const validateInputs = (): boolean => {
+    let isValid = true;
+
+    if (loginMode === 'email') {
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        setEmailError(emailValidation.error || '');
+        isValid = false;
+      }
+    } else {
+      const passportValidation = validateTradingPassport(tradingPassport);
+      if (!passportValidation.isValid) {
+        setPassportError(passportValidation.error || '');
+        isValid = false;
+      }
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setPasswordError(passwordValidation.error || '');
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleGoogleSignIn = async () => {
@@ -248,19 +299,21 @@ export default function Login() {
                       icon={<Mail size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
                       placeholder="Email address"
                       value={email}
-                      onChangeText={setEmail}
+                      onChangeText={handleEmailChange}
                       autoCapitalize="none"
                       keyboardType="email-address"
                       editable={!loading}
+                      error={emailError}
                     />
                   ) : (
                     <QuantumInput
                       icon={<CreditCard size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
-                      placeholder="Trading Passport (e.g., TP-XXXX-XXXX-XXXX)"
+                      placeholder="Trading Passport (TP-XXXX-XXXX-XXXX)"
                       value={tradingPassport}
-                      onChangeText={setTradingPassport}
+                      onChangeText={handlePassportChange}
                       autoCapitalize="characters"
                       editable={!loading}
+                      error={passportError}
                     />
                   )}
 
@@ -268,9 +321,10 @@ export default function Login() {
                     icon={<Lock size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
                     placeholder="Password"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={handlePasswordChange}
                     secureTextEntry={!showPassword}
                     editable={!loading}
+                    error={passwordError}
                     rightIcon={
                       showPassword ? (
                         <EyeOff size={18} color={QuantumColors.mistWhite} />
@@ -513,7 +567,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    maxWidth: Platform.select({ web: 460, default: 420 }),
+    maxWidth: Platform.select({ web: 480, default: 440 }),
     alignSelf: 'center',
   },
   formBlur: {
@@ -527,37 +581,39 @@ const styles = StyleSheet.create({
     borderRadius: QuantumRadius.lg,
   },
   form: {
-    padding: QuantumSpacing[5],
+    padding: QuantumSpacing[6],
   },
   loginModeToggle: {
     flexDirection: 'row',
-    gap: QuantumSpacing[2],
-    marginBottom: QuantumSpacing[4],
+    gap: 8,
+    marginBottom: 24,
     padding: 4,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     borderRadius: QuantumRadius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   modeButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: QuantumSpacing[3],
-    paddingHorizontal: QuantumSpacing[2],
-    borderRadius: QuantumRadius.sm,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     gap: 8,
     backgroundColor: 'transparent',
+    minHeight: 44,
   },
   modeButtonActive: {
     backgroundColor: '#FFFFFF',
   },
   modeButtonText: {
     color: QuantumColors.mistWhite,
-    fontSize: QuantumTypography.size.caption,
+    fontSize: 13,
     fontWeight: '600',
     fontFamily: QuantumTypography.family.semibold,
+    letterSpacing: 0.2,
   },
   modeButtonTextActive: {
     color: '#000000',
@@ -566,7 +622,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: QuantumSpacing[3],
+    marginBottom: 16,
+    marginTop: 4,
   },
   checkboxContainer: {
     flexDirection: 'row',
