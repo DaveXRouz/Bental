@@ -1,805 +1,568 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  AccessibilityInfo,
-  Modal,
-  ActivityIndicator,
+  ScrollView,
+  SafeAreaView,
+  Switch,
+  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { Mail, Lock, Eye, EyeOff, Chromium as Chrome, Apple as AppleIcon, CreditCard } from 'lucide-react-native';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'expo-router';
+import { Mail, Lock, CreditCard } from 'lucide-react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+  Easing,
+} from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Haptics from 'expo-haptics';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import AuthFooter from '@/components/ui/AuthFooter';
-import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
-import { UnifiedInput } from '@/components/ui/UnifiedInput';
-import { UnifiedButton } from '@/components/ui/UnifiedButton';
-import { validateEmail, validateTradingPassport, validatePassword } from '@/utils/validation';
-import {
-  QuantumColors,
-  QuantumTypography,
-  QuantumRadius,
-  QuantumSpacing,
-  QuantumGlass,
-  QuantumElevation,
-} from '@/constants/quantum-glass';
+import { theme } from '@/theme';
+import { GlassCard } from '@/components/login/GlassCard';
+import { Segmented } from '@/components/login/Segmented';
+import { TextField } from '@/components/login/TextField';
+import { PasswordField } from '@/components/login/PasswordField';
+import { PrimaryButton } from '@/components/login/PrimaryButton';
+import { OAuthButton } from '@/components/login/OAuthButton';
+import { Chrome as GoogleIcon, Apple as AppleIcon, Twitter, Linkedin, Github } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 type LoginMode = 'email' | 'passport';
 
-export default function Login() {
+export default function LoginScreen() {
+  const router = useRouter();
+  const { signIn } = useAuth();
   const [loginMode, setLoginMode] = useState<LoginMode>('email');
   const [email, setEmail] = useState('');
   const [tradingPassport, setTradingPassport] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passportError, setPassportError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetError, setResetError] = useState('');
-  const [resetSuccess, setResetSuccess] = useState(false);
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
-  const router = useRouter();
-  const { returnUrl } = useLocalSearchParams<{ returnUrl?: string }>();
+  const [touched, setTouched] = useState({ email: false, passport: false, password: false });
+
+  const orb1X = useSharedValue(0);
+  const orb1Y = useSharedValue(0);
+  const orb2X = useSharedValue(0);
+  const orb2Y = useSharedValue(0);
+  const orb1Scale = useSharedValue(1);
+  const orb2Scale = useSharedValue(1);
 
   useEffect(() => {
-    loadRememberedEmail();
-    checkReducedMotion();
+    const loadRememberMe = async () => {
+      const value = await AsyncStorage.getItem('rememberMe');
+      setRememberMe(value === 'true');
+    };
+    loadRememberMe();
+
+    orb1X.value = withRepeat(
+      withSequence(
+        withTiming(50, { duration: 20000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-50, { duration: 20000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+    orb1Y.value = withRepeat(
+      withSequence(
+        withTiming(-30, { duration: 25000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(30, { duration: 25000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+    orb1Scale.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: 15000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.8, { duration: 15000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+
+    orb2X.value = withRepeat(
+      withSequence(
+        withTiming(-40, { duration: 22000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(40, { duration: 22000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+    orb2Y.value = withRepeat(
+      withSequence(
+        withTiming(40, { duration: 28000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-40, { duration: 28000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+    orb2Scale.value = withRepeat(
+      withSequence(
+        withTiming(0.9, { duration: 18000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.3, { duration: 18000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
   }, []);
 
-  const checkReducedMotion = async () => {
-    if (Platform.OS !== 'web') {
-      const isReduceMotionEnabled = await AccessibilityInfo.isReduceMotionEnabled();
-      setReduceMotion(isReduceMotionEnabled);
-    }
+  const orb1Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: orb1X.value },
+      { translateY: orb1Y.value },
+      { scale: orb1Scale.value },
+    ],
+  }));
+
+  const orb2Style = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: orb2X.value },
+      { translateY: orb2Y.value },
+      { scale: orb2Scale.value },
+    ],
+  }));
+
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
-  const loadRememberedEmail = async () => {
-    try {
-      const remembered = await AsyncStorage.getItem('rememberMe');
-      const savedEmail = await AsyncStorage.getItem('savedEmail');
-      if (remembered === 'true' && savedEmail) {
-        setEmail(savedEmail);
-        setRememberMe(true);
-      }
-    } catch (error) {
-      // Silent fail
-    }
+  const validatePassport = (passport: string): boolean => {
+    return passport.length >= 6;
   };
 
-  const handleLogin = async () => {
-    if (!validateInputs()) {
-      return;
-    }
+  const handleBlur = (field: 'email' | 'passport' | 'password') => {
+    setTouched({ ...touched, [field]: true });
 
-    const identifier = loginMode === 'email' ? email : tradingPassport;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      if (rememberMe && loginMode === 'email') {
-        await AsyncStorage.setItem('rememberMe', 'true');
-        await AsyncStorage.setItem('savedEmail', email);
+    if (field === 'email' && loginMode === 'email') {
+      if (!email) {
+        setEmailError('Email is required');
+      } else if (!validateEmail(email)) {
+        setEmailError('Please enter a valid email');
       } else {
-        await AsyncStorage.removeItem('rememberMe');
-        await AsyncStorage.removeItem('savedEmail');
+        setEmailError('');
       }
+    }
 
-      const { error } = await signIn(identifier, password, loginMode);
-
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        if (Platform.OS !== 'web') {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        }
+    if (field === 'passport' && loginMode === 'passport') {
+      if (!tradingPassport) {
+        setPassportError('Trading Passport is required');
+      } else if (!validatePassport(tradingPassport)) {
+        setPassportError('Please enter a valid Trading Passport');
       } else {
-        if (Platform.OS !== 'web') {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }
-        if (returnUrl) {
-          router.replace(returnUrl as any);
-        } else {
-          router.replace('/(tabs)');
-        }
+        setPassportError('');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-      setLoading(false);
+    }
+
+    if (field === 'password') {
+      if (!password) {
+        setPasswordError('Password is required');
+      } else if (password.length < 6) {
+        setPasswordError('Password must be at least 6 characters');
+      } else {
+        setPasswordError('');
+      }
     }
   };
 
-  const toggleLoginMode = () => {
-    const newMode: LoginMode = loginMode === 'email' ? 'passport' : 'email';
-    setLoginMode(newMode);
-    setError('');
-    setEmailError('');
-    setPassportError('');
-    setPasswordError('');
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  };
+  const handleSignIn = async () => {
+    setTouched({ email: true, passport: true, password: true });
 
-  const handleEmailChange = (text: string) => {
-    setEmail(text);
-    setEmailError('');
-    setError('');
-  };
-
-  const handlePassportChange = (text: string) => {
-    const formatted = text.toUpperCase();
-    setTradingPassport(formatted);
-    setPassportError('');
-    setError('');
-  };
-
-  const handlePasswordChange = (text: string) => {
-    setPassword(text);
-    setPasswordError('');
-    setError('');
-  };
-
-  const validateInputs = (): boolean => {
-    let isValid = true;
+    let hasErrors = false;
 
     if (loginMode === 'email') {
-      const emailValidation = validateEmail(email);
-      if (!emailValidation.isValid) {
-        setEmailError(emailValidation.error || '');
-        isValid = false;
+      if (!email) {
+        setEmailError('Email is required');
+        hasErrors = true;
+      } else if (!validateEmail(email)) {
+        setEmailError('Please enter a valid email');
+        hasErrors = true;
       }
     } else {
-      const passportValidation = validateTradingPassport(tradingPassport);
-      if (!passportValidation.isValid) {
-        setPassportError(passportValidation.error || '');
-        isValid = false;
+      if (!tradingPassport) {
+        setPassportError('Trading Passport is required');
+        hasErrors = true;
+      } else if (!validatePassport(tradingPassport)) {
+        setPassportError('Please enter a valid Trading Passport');
+        hasErrors = true;
       }
     }
 
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.isValid) {
-      setPasswordError(passwordValidation.error || '');
-      isValid = false;
+    if (!password) {
+      setPasswordError('Password is required');
+      hasErrors = true;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      hasErrors = true;
     }
 
-    return isValid;
-  };
+    if (hasErrors) return;
 
-  const handleGoogleSignIn = async () => {
     setLoading(true);
-    setError('');
+
     try {
-      const { error } = await signInWithGoogle();
-      if (error) {
-        setError(error.message);
+      await AsyncStorage.setItem('rememberMe', rememberMe.toString());
+
+      let loginEmail = email;
+
+      if (loginMode === 'passport') {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('trading_passport_number', tradingPassport)
+          .maybeSingle();
+
+        if (!profile?.email) {
+          setPassportError('Invalid Trading Passport');
+          setLoading(false);
+          return;
+        }
+
+        loginEmail = profile.email;
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleAppleSignIn = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const { error } = await signInWithApple();
-      if (error) {
-        setError(error.message);
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!resetEmail) {
-      setResetError('Please enter your email address');
-      return;
-    }
-
-    setResetLoading(true);
-    setResetError('');
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password,
       });
 
       if (error) {
-        setResetError(error.message);
-      } else {
-        setResetSuccess(true);
+        if (loginMode === 'email') {
+          setEmailError('Invalid email or password');
+        } else {
+          setPassportError('Invalid Trading Passport or password');
+        }
+        setPasswordError('Invalid email or password');
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        router.replace('/(tabs)');
       }
     } catch (err) {
-      setResetError('An error occurred. Please try again.');
+      setPasswordError('An error occurred. Please try again.');
     } finally {
-      setResetLoading(false);
+      setLoading(false);
     }
   };
 
-  const closeForgotPasswordModal = () => {
-    setShowForgotPassword(false);
-    setResetEmail('');
-    setResetError('');
-    setResetSuccess(false);
-  };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  };
+  const isFormValid =
+    (loginMode === 'email' ? email && validateEmail(email) : tradingPassport && validatePassport(tradingPassport)) &&
+    password &&
+    password.length >= 6;
 
   return (
-    <View style={styles.container}>
-      <Silk3DBackground reduceMotion={reduceMotion} />
-
+    <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View style={styles.content}>
-          <View style={styles.formContainer}>
-            <BlurView intensity={QuantumGlass.blur.card} tint="dark" style={styles.formBlur}>
-              <LinearGradient
-                colors={[QuantumGlass.fill.gradient.top, QuantumGlass.fill.gradient.bottom]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.formGradient}
-              >
-                <View style={styles.form}>
-                  <View style={styles.loginModeToggle}>
-                    <TouchableOpacity
-                      style={[styles.modeButton, loginMode === 'email' && styles.modeButtonActive]}
-                      onPress={() => loginMode !== 'email' && toggleLoginMode()}
-                      activeOpacity={0.7}
-                      disabled={loading}
-                    >
-                      <Mail size={18} color={loginMode === 'email' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
-                      <Text style={[styles.modeButtonText, loginMode === 'email' && styles.modeButtonTextActive]}>
-                        Email
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modeButton, loginMode === 'passport' && styles.modeButtonActive]}
-                      onPress={() => loginMode !== 'passport' && toggleLoginMode()}
-                      activeOpacity={0.7}
-                      disabled={loading}
-                    >
-                      <CreditCard size={18} color={loginMode === 'passport' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
-                      <Text style={[styles.modeButtonText, loginMode === 'passport' && styles.modeButtonTextActive]}>
-                        Trading Passport
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+        <View style={styles.backgroundContainer}>
+          <Animated.View style={[styles.orb, styles.orb1, orb1Style]} />
+          <Animated.View style={[styles.orb, styles.orb2, orb2Style]} />
+        </View>
 
-                  {loginMode === 'email' ? (
-                    <UnifiedInput
-                      icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
-                      placeholder="Email address"
-                      value={email}
-                      onChangeText={handleEmailChange}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                      editable={!loading}
-                      error={emailError}
-                    />
-                  ) : (
-                    <UnifiedInput
-                      icon={<CreditCard size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
-                      placeholder="Trading Passport (TP-XXXX-XXXX-XXXX)"
-                      value={tradingPassport}
-                      onChangeText={handlePassportChange}
-                      autoCapitalize="characters"
-                      editable={!loading}
-                      error={passportError}
-                    />
-                  )}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <GlassCard>
+              <Text style={styles.title}>Welcome back</Text>
 
-                  <UnifiedInput
-                    icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={handlePasswordChange}
-                    secureTextEntry={!showPassword}
-                    editable={!loading}
-                    error={passwordError}
-                    rightIcon={
-                      showPassword ? (
-                        <EyeOff size={18} color="rgba(11, 22, 33, 0.6)" />
-                      ) : (
-                        <Eye size={18} color="rgba(11, 22, 33, 0.6)" />
-                      )
+              <View style={styles.segmentedContainer}>
+                <Segmented
+                  options={['Email', 'Trading Passport']}
+                  selected={loginMode === 'email' ? 0 : 1}
+                  onSelect={(index) => {
+                    setLoginMode(index === 0 ? 'email' : 'passport');
+                    setEmailError('');
+                    setPassportError('');
+                  }}
+                />
+              </View>
+
+              {loginMode === 'email' ? (
+                <TextField
+                  label="Email"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (touched.email) {
+                      setEmailError('');
                     }
-                    onRightIconPress={toggleShowPassword}
+                  }}
+                  placeholder="your@email.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="username"
+                  error={touched.email ? emailError : ''}
+                  onBlur={() => handleBlur('email')}
+                  icon={<Mail size={20} color={theme.colors.textSecondary} />}
+                />
+              ) : (
+                <TextField
+                  label="Trading Passport"
+                  value={tradingPassport}
+                  onChangeText={(text) => {
+                    setTradingPassport(text);
+                    if (touched.passport) {
+                      setPassportError('');
+                    }
+                  }}
+                  placeholder="Enter your Trading Passport"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  error={touched.passport ? passportError : ''}
+                  onBlur={() => handleBlur('passport')}
+                  icon={<CreditCard size={20} color={theme.colors.textSecondary} />}
+                />
+              )}
+
+              <PasswordField
+                label="Password"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (touched.password) {
+                    setPasswordError('');
+                  }
+                }}
+                placeholder="Enter your password"
+                error={touched.password ? passwordError : ''}
+                onBlur={() => handleBlur('password')}
+                icon={<Lock size={20} color={theme.colors.textSecondary} />}
+              />
+
+              <View style={styles.rememberRow}>
+                <View style={styles.rememberContainer}>
+                  <Switch
+                    value={rememberMe}
+                    onValueChange={setRememberMe}
+                    trackColor={{ false: theme.colors.surface, true: theme.colors.accent }}
+                    thumbColor={theme.colors.white}
+                    accessibilityLabel="Remember me"
                   />
+                  <Text style={styles.rememberText}>Remember</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {}}
+                  accessibilityLabel="Forgot password"
+                  accessibilityRole="button"
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={styles.forgotText}>Forgot?</Text>
+                </TouchableOpacity>
+              </View>
 
-                  <View style={styles.optionsRow}>
-                    <TouchableOpacity
-                      style={styles.checkboxContainer}
-                      onPress={() => setRememberMe(!rememberMe)}
-                      activeOpacity={0.7}
-                    >
-                      <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
-                        {rememberMe && <View style={styles.checkmark} />}
-                      </View>
-                      <Text style={styles.checkboxLabel}>Remember</Text>
-                    </TouchableOpacity>
+              <View style={styles.signInContainer}>
+                <PrimaryButton
+                  title="Sign In"
+                  onPress={handleSignIn}
+                  disabled={!isFormValid || loading}
+                  loading={loading}
+                />
+              </View>
 
-                    <TouchableOpacity
-                      onPress={() => router.push('/(auth)/signup')}
-                      activeOpacity={0.7}
-                      disabled={loading}
-                    >
-                      <Text style={styles.signupLink}>Sign Up</Text>
-                    </TouchableOpacity>
-                  </View>
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+                <View style={styles.dividerLine} />
+              </View>
 
-                  <TouchableOpacity
-                    onPress={() => setShowForgotPassword(true)}
-                    activeOpacity={0.7}
-                    disabled={loading}
-                    style={styles.forgotPasswordButton}
-                  >
-                    <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
+              <View style={styles.oauthContainer}>
+                <View style={styles.oauthButton}>
+                  <OAuthButton
+                    onPress={() => {}}
+                    icon={<GoogleIcon size={20} color={theme.colors.text} />}
+                    label="Google"
+                  />
+                </View>
+                <View style={styles.oauthButton}>
+                  <OAuthButton
+                    onPress={() => {}}
+                    icon={<AppleIcon size={20} color={theme.colors.text} />}
+                    label="Apple"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.footer}>
+                <View style={styles.socialIcons}>
+                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
+                    <Twitter size={18} color={theme.colors.textSecondary} />
                   </TouchableOpacity>
-
-                  {error ? (
-                    <View style={styles.errorContainer}>
-                      <Text style={styles.errorText}>{error}</Text>
-                    </View>
-                  ) : null}
-
-                  <UnifiedButton
-                    title="Sign In"
-                    onPress={handleLogin}
-                    disabled={loading}
-                    loading={loading}
-                    variant="primary"
-                    fullWidth
-                  />
-
-                  <View style={styles.dividerContainer}>
-                    <View style={styles.divider} />
-                    <Text style={styles.dividerText}>or continue with</Text>
-                    <View style={styles.divider} />
-                  </View>
-
-                  <View style={styles.socialButtonsRow}>
-                    <UnifiedButton
-                      title="Google"
-                      onPress={handleGoogleSignIn}
-                      disabled={loading}
-                      variant="secondary"
-                      size="md"
-                      icon={<Chrome size={20} color="#FFFFFF" />}
-                      style={{ flex: 1 }}
-                    />
-
-                    <UnifiedButton
-                      title="Apple"
-                      onPress={handleAppleSignIn}
-                      disabled={loading}
-                      variant="secondary"
-                      size="md"
-                      icon={<AppleIcon size={20} color="#FFFFFF" />}
-                      style={{ flex: 1 }}
-                    />
-                  </View>
+                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
+                    <Linkedin size={18} color={theme.colors.textSecondary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
+                    <Github size={18} color={theme.colors.textSecondary} />
+                  </TouchableOpacity>
                 </View>
-              </LinearGradient>
-            </BlurView>
+                <View style={styles.footerLinks}>
+                  <TouchableOpacity accessibilityLabel="Privacy">
+                    <Text style={styles.footerLink}>Privacy</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.footerDot}>·</Text>
+                  <TouchableOpacity accessibilityLabel="Terms">
+                    <Text style={styles.footerLink}>Terms</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.footerDot}>·</Text>
+                  <TouchableOpacity accessibilityLabel="Contact">
+                    <Text style={styles.footerLink}>Contact</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </GlassCard>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
-
-      <Modal
-        visible={showForgotPassword}
-        transparent
-        animationType="fade"
-        onRequestClose={closeForgotPasswordModal}
-      >
-        <View style={styles.modalOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.modalKeyboardView}
-          >
-            <BlurView intensity={20} tint="dark" style={styles.modalContainer}>
-              <LinearGradient
-                colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.03)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.modalGradient}
-              >
-                <View style={styles.modalContent}>
-                  <Text style={styles.modalTitle}>
-                    {resetSuccess ? 'Check Your Email' : 'Reset Password'}
-                  </Text>
-
-                  {resetSuccess ? (
-                    <>
-                      <Text style={styles.modalDescription}>
-                        We've sent a password reset link to {resetEmail}. Please check your email
-                        and follow the instructions.
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.modalButton}
-                        onPress={closeForgotPasswordModal}
-                        activeOpacity={0.85}
-                      >
-                        <Text style={styles.modalButtonText}>Done</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.modalDescription}>
-                        Enter your email address and we'll send you a link to reset your password.
-                      </Text>
-
-                      <UnifiedInput
-                        icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
-                        placeholder="Email address"
-                        value={resetEmail}
-                        onChangeText={setResetEmail}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                        editable={!resetLoading}
-                      />
-
-                      {resetError ? (
-                        <View style={styles.modalErrorContainer}>
-                          <Text style={styles.modalErrorText}>{resetError}</Text>
-                        </View>
-                      ) : null}
-
-                      <View style={styles.modalButtonsRow}>
-                        <TouchableOpacity
-                          style={styles.modalButtonSecondary}
-                          onPress={closeForgotPasswordModal}
-                          activeOpacity={0.85}
-                          disabled={resetLoading}
-                        >
-                          <Text style={styles.modalButtonSecondaryText}>Cancel</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={[styles.modalButton, resetLoading && styles.buttonDisabled]}
-                          onPress={handleForgotPassword}
-                          activeOpacity={0.85}
-                          disabled={resetLoading}
-                        >
-                          {resetLoading ? (
-                            <ActivityIndicator color="#000000" size="small" />
-                          ) : (
-                            <Text style={styles.modalButtonText}>Send Reset Link</Text>
-                          )}
-                        </TouchableOpacity>
-                      </View>
-                    </>
-                  )}
-                </View>
-              </LinearGradient>
-            </BlurView>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-
-      <AuthFooter />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: QuantumColors.deepSpace,
   },
-  keyboardView: {
-    flex: 1,
+  backgroundContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: theme.colors.background,
+  },
+  orb: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    opacity: 0.25,
+  },
+  orb1: {
+    backgroundColor: theme.colors.accent,
+    top: -100,
+    left: -100,
+    shadowColor: theme.colors.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 100,
+  },
+  orb2: {
+    backgroundColor: theme.colors.accentSecondary,
+    bottom: -100,
+    right: -100,
+    shadowColor: theme.colors.accentSecondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 100,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing(2),
+    paddingVertical: theme.spacing(4),
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Platform.select({ web: QuantumSpacing[6], default: QuantumSpacing[5] }),
-    paddingVertical: QuantumSpacing[6],
-    maxWidth: Platform.select({ web: 1200, default: '100%' }),
-    alignSelf: 'center',
     width: '100%',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: QuantumSpacing[7],
-    paddingTop: QuantumSpacing[4],
-  },
-  brandName: {
-    fontSize: Platform.select({ web: 120, default: 96 }),
-    fontWeight: '900',
-    color: '#FFFFFF',
-    fontFamily: QuantumTypography.family.heading,
-    marginTop: QuantumSpacing[2],
-    marginBottom: QuantumSpacing[6],
-    letterSpacing: -4,
-    textAlign: 'center',
-    textShadowColor: 'rgba(96, 255, 218, 0.8)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 30,
-    ...Platform.select({
-      web: {
-        textShadow: '0 4px 30px rgba(96, 255, 218, 0.8), 0 8px 60px rgba(96, 255, 218, 0.4), 0 0 80px rgba(96, 255, 218, 0.3)',
-      },
-    }),
+    maxWidth: 420,
+    alignSelf: 'center',
   },
   title: {
-    fontSize: Platform.select({ web: 38, default: 32 }),
-    fontWeight: '700',
-    color: QuantumColors.frostWhite,
-    fontFamily: QuantumTypography.family.heading,
-    marginBottom: QuantumSpacing[2],
-    letterSpacing: -1,
+    ...theme.typography.h4,
+    color: theme.colors.text,
+    marginBottom: theme.spacing(3),
     textAlign: 'center',
-    lineHeight: Platform.select({ web: 48, default: 40 }),
-    opacity: 0.95,
   },
-  subtitle: {
-    fontSize: Platform.select({ web: 17, default: 16 }),
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: QuantumTypography.family.body,
-    textAlign: 'center',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    fontWeight: '500',
+  segmentedContainer: {
+    marginBottom: theme.spacing(3),
   },
-  formContainer: {
-    width: '100%',
-    maxWidth: Platform.select({ web: 480, default: 440 }),
-    alignSelf: 'center',
-  },
-  formBlur: {
-    borderRadius: QuantumRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: QuantumGlass.border.inner,
-    ...QuantumElevation.E2,
-  },
-  formGradient: {
-    borderRadius: QuantumRadius.lg,
-  },
-  form: {
-    padding: QuantumSpacing[6],
-  },
-  loginModeToggle: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 24,
-    padding: 4,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    borderRadius: QuantumRadius.md,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  modeButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    gap: 8,
-    backgroundColor: 'transparent',
-    minHeight: 44,
-  },
-  modeButtonActive: {
-    backgroundColor: '#FFFFFF',
-  },
-  modeButtonText: {
-    color: QuantumColors.mistWhite,
-    fontSize: 13,
-    fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
-    letterSpacing: 0.2,
-  },
-  modeButtonTextActive: {
-    color: '#000000',
-  },
-  optionsRow: {
+  rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    marginTop: 4,
+    marginBottom: theme.spacing(3),
   },
-  checkboxContainer: {
+  rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: theme.spacing(1),
   },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
-    marginRight: QuantumSpacing[2],
-    justifyContent: 'center',
-    alignItems: 'center',
+  rememberText: {
+    ...theme.typography.label,
+    color: theme.colors.text,
   },
-  checkboxActive: {
-    backgroundColor: '#60FFDA',
-    borderColor: '#60FFDA',
+  forgotText: {
+    ...theme.typography.label,
+    color: theme.colors.accent,
   },
-  checkmark: {
-    width: 10,
-    height: 10,
-    backgroundColor: '#000000',
-    borderRadius: 2,
-  },
-  checkboxLabel: {
-    color: QuantumColors.mistWhite,
-    fontSize: QuantumTypography.size.caption,
-    fontFamily: QuantumTypography.family.medium,
-  },
-  signupLink: {
-    color: '#78DCFF',
-    fontSize: QuantumTypography.size.caption,
-    fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
-  },
-  forgotPasswordButton: {
-    alignSelf: 'center',
-    marginBottom: QuantumSpacing[4],
-  },
-  forgotPasswordText: {
-    color: QuantumColors.mistWhite,
-    fontSize: QuantumTypography.size.caption,
-    fontFamily: QuantumTypography.family.medium,
-  },
-  errorContainer: {
-    backgroundColor: 'rgba(255,77,77,0.12)',
-    borderRadius: QuantumRadius.sm,
-    padding: QuantumSpacing[3],
-    marginBottom: QuantumSpacing[4],
-    borderWidth: 1,
-    borderColor: 'rgba(255,77,77,0.3)',
-  },
-  errorText: {
-    color: QuantumColors.danger,
-    fontSize: QuantumTypography.size.caption,
-    textAlign: 'center',
-    fontFamily: QuantumTypography.family.medium,
+  signInContainer: {
+    marginBottom: theme.spacing(3),
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: QuantumSpacing[4],
+    marginVertical: theme.spacing(3),
   },
-  divider: {
+  dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: theme.colors.stroke,
   },
   dividerText: {
-    color: 'rgba(248,250,252,0.5)',
-    fontSize: QuantumTypography.size.small,
-    fontWeight: '600',
-    marginHorizontal: QuantumSpacing[3],
-    letterSpacing: QuantumTypography.letterSpacing.wide,
-    textTransform: 'uppercase',
+    ...theme.typography.small,
+    color: theme.colors.textSecondary,
+    marginHorizontal: theme.spacing(2),
   },
-  socialButtonsRow: {
+  oauthContainer: {
+    flexDirection: width >= 400 ? 'row' : 'column',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+  },
+  oauthButton: {
+    flex: width >= 400 ? 1 : undefined,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: theme.spacing(2),
+  },
+  socialIcons: {
     flexDirection: 'row',
-    gap: QuantumSpacing[3],
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    justifyContent: 'center',
+  socialIcon: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
-    padding: QuantumSpacing[4],
+    justifyContent: 'center',
   },
-  modalKeyboardView: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  modalContainer: {
-    borderRadius: QuantumRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  modalGradient: {
-    borderRadius: QuantumRadius.lg,
-  },
-  modalContent: {
-    padding: QuantumSpacing[5],
-  },
-  modalTitle: {
-    fontSize: QuantumTypography.size.h2,
-    fontWeight: '700',
-    color: QuantumColors.frostWhite,
-    fontFamily: QuantumTypography.family.heading,
-    marginBottom: QuantumSpacing[3],
-    textAlign: 'center',
-  },
-  modalDescription: {
-    fontSize: QuantumTypography.size.caption,
-    color: QuantumColors.mistWhite,
-    fontFamily: QuantumTypography.family.body,
-    textAlign: 'center',
-    marginBottom: QuantumSpacing[5],
-    lineHeight: 20,
-  },
-  modalErrorContainer: {
-    backgroundColor: 'rgba(255,77,77,0.12)',
-    borderRadius: QuantumRadius.sm,
-    padding: QuantumSpacing[3],
-    marginBottom: QuantumSpacing[4],
-    borderWidth: 1,
-    borderColor: 'rgba(255,77,77,0.3)',
-  },
-  modalErrorText: {
-    color: QuantumColors.danger,
-    fontSize: QuantumTypography.size.caption,
-    textAlign: 'center',
-    fontFamily: QuantumTypography.family.medium,
-  },
-  modalButtonsRow: {
+  footerLinks: {
     flexDirection: 'row',
-    gap: QuantumSpacing[3],
-  },
-  modalButton: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: QuantumRadius.sm,
-    paddingVertical: QuantumSpacing[3],
     alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
+    gap: theme.spacing(1),
   },
-  buttonDisabled: {
-    opacity: 0.5,
+  footerLink: {
+    ...theme.typography.small,
+    color: theme.colors.textSecondary,
   },
-  modalButtonText: {
-    color: '#000000',
-    fontSize: QuantumTypography.size.body,
-    fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
-  },
-  modalButtonSecondary: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: QuantumRadius.sm,
-    paddingVertical: QuantumSpacing[3],
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    minHeight: 48,
-  },
-  modalButtonSecondaryText: {
-    color: '#FFFFFF',
-    fontSize: QuantumTypography.size.body,
-    fontWeight: '600',
-    fontFamily: QuantumTypography.family.semibold,
+  footerDot: {
+    ...theme.typography.small,
+    color: theme.colors.textSecondary,
   },
 });

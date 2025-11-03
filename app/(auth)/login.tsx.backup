@@ -1,0 +1,805 @@
+import { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  AccessibilityInfo,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { Mail, Lock, Eye, EyeOff, Chromium as Chrome, Apple as AppleIcon, CreditCard } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { supabase } from '@/lib/supabase';
+import AuthFooter from '@/components/ui/AuthFooter';
+import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
+import { UnifiedInput } from '@/components/ui/UnifiedInput';
+import { UnifiedButton } from '@/components/ui/UnifiedButton';
+import { validateEmail, validateTradingPassport, validatePassword } from '@/utils/validation';
+import {
+  QuantumColors,
+  QuantumTypography,
+  QuantumRadius,
+  QuantumSpacing,
+  QuantumGlass,
+  QuantumElevation,
+} from '@/constants/quantum-glass';
+
+type LoginMode = 'email' | 'passport';
+
+export default function Login() {
+  const [loginMode, setLoginMode] = useState<LoginMode>('email');
+  const [email, setEmail] = useState('');
+  const [tradingPassport, setTradingPassport] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passportError, setPassportError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
+  const router = useRouter();
+  const { returnUrl } = useLocalSearchParams<{ returnUrl?: string }>();
+
+  useEffect(() => {
+    loadRememberedEmail();
+    checkReducedMotion();
+  }, []);
+
+  const checkReducedMotion = async () => {
+    if (Platform.OS !== 'web') {
+      const isReduceMotionEnabled = await AccessibilityInfo.isReduceMotionEnabled();
+      setReduceMotion(isReduceMotionEnabled);
+    }
+  };
+
+  const loadRememberedEmail = async () => {
+    try {
+      const remembered = await AsyncStorage.getItem('rememberMe');
+      const savedEmail = await AsyncStorage.getItem('savedEmail');
+      if (remembered === 'true' && savedEmail) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    } catch (error) {
+      // Silent fail
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!validateInputs()) {
+      return;
+    }
+
+    const identifier = loginMode === 'email' ? email : tradingPassport;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      if (rememberMe && loginMode === 'email') {
+        await AsyncStorage.setItem('rememberMe', 'true');
+        await AsyncStorage.setItem('savedEmail', email);
+      } else {
+        await AsyncStorage.removeItem('rememberMe');
+        await AsyncStorage.removeItem('savedEmail');
+      }
+
+      const { error } = await signIn(identifier, password, loginMode);
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+      } else {
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+        if (returnUrl) {
+          router.replace(returnUrl as any);
+        } else {
+          router.replace('/(tabs)');
+        }
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const toggleLoginMode = () => {
+    const newMode: LoginMode = loginMode === 'email' ? 'passport' : 'email';
+    setLoginMode(newMode);
+    setError('');
+    setEmailError('');
+    setPassportError('');
+    setPasswordError('');
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setEmailError('');
+    setError('');
+  };
+
+  const handlePassportChange = (text: string) => {
+    const formatted = text.toUpperCase();
+    setTradingPassport(formatted);
+    setPassportError('');
+    setError('');
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordError('');
+    setError('');
+  };
+
+  const validateInputs = (): boolean => {
+    let isValid = true;
+
+    if (loginMode === 'email') {
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        setEmailError(emailValidation.error || '');
+        isValid = false;
+      }
+    } else {
+      const passportValidation = validateTradingPassport(tradingPassport);
+      if (!passportValidation.isValid) {
+        setPassportError(passportValidation.error || '');
+        isValid = false;
+      }
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setPasswordError(passwordValidation.error || '');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { error } = await signInWithApple();
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!resetEmail) {
+      setResetError('Please enter your email address');
+      return;
+    }
+
+    setResetLoading(true);
+    setResetError('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        setResetError(error.message);
+      } else {
+        setResetSuccess(true);
+      }
+    } catch (err) {
+      setResetError('An error occurred. Please try again.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const closeForgotPasswordModal = () => {
+    setShowForgotPassword(false);
+    setResetEmail('');
+    setResetError('');
+    setResetSuccess(false);
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Silk3DBackground reduceMotion={reduceMotion} />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.content}>
+          <View style={styles.formContainer}>
+            <BlurView intensity={QuantumGlass.blur.card} tint="dark" style={styles.formBlur}>
+              <LinearGradient
+                colors={[QuantumGlass.fill.gradient.top, QuantumGlass.fill.gradient.bottom]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.formGradient}
+              >
+                <View style={styles.form}>
+                  <View style={styles.loginModeToggle}>
+                    <TouchableOpacity
+                      style={[styles.modeButton, loginMode === 'email' && styles.modeButtonActive]}
+                      onPress={() => loginMode !== 'email' && toggleLoginMode()}
+                      activeOpacity={0.7}
+                      disabled={loading}
+                    >
+                      <Mail size={18} color={loginMode === 'email' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
+                      <Text style={[styles.modeButtonText, loginMode === 'email' && styles.modeButtonTextActive]}>
+                        Email
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modeButton, loginMode === 'passport' && styles.modeButtonActive]}
+                      onPress={() => loginMode !== 'passport' && toggleLoginMode()}
+                      activeOpacity={0.7}
+                      disabled={loading}
+                    >
+                      <CreditCard size={18} color={loginMode === 'passport' ? '#000000' : QuantumColors.mistWhite} strokeWidth={1.5} />
+                      <Text style={[styles.modeButtonText, loginMode === 'passport' && styles.modeButtonTextActive]}>
+                        Trading Passport
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {loginMode === 'email' ? (
+                    <UnifiedInput
+                      icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                      placeholder="Email address"
+                      value={email}
+                      onChangeText={handleEmailChange}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      editable={!loading}
+                      error={emailError}
+                    />
+                  ) : (
+                    <UnifiedInput
+                      icon={<CreditCard size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                      placeholder="Trading Passport (TP-XXXX-XXXX-XXXX)"
+                      value={tradingPassport}
+                      onChangeText={handlePassportChange}
+                      autoCapitalize="characters"
+                      editable={!loading}
+                      error={passportError}
+                    />
+                  )}
+
+                  <UnifiedInput
+                    icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={handlePasswordChange}
+                    secureTextEntry={!showPassword}
+                    editable={!loading}
+                    error={passwordError}
+                    rightIcon={
+                      showPassword ? (
+                        <EyeOff size={18} color="rgba(11, 22, 33, 0.6)" />
+                      ) : (
+                        <Eye size={18} color="rgba(11, 22, 33, 0.6)" />
+                      )
+                    }
+                    onRightIconPress={toggleShowPassword}
+                  />
+
+                  <View style={styles.optionsRow}>
+                    <TouchableOpacity
+                      style={styles.checkboxContainer}
+                      onPress={() => setRememberMe(!rememberMe)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
+                        {rememberMe && <View style={styles.checkmark} />}
+                      </View>
+                      <Text style={styles.checkboxLabel}>Remember</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => router.push('/(auth)/signup')}
+                      activeOpacity={0.7}
+                      disabled={loading}
+                    >
+                      <Text style={styles.signupLink}>Sign Up</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => setShowForgotPassword(true)}
+                    activeOpacity={0.7}
+                    disabled={loading}
+                    style={styles.forgotPasswordButton}
+                  >
+                    <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
+                  </TouchableOpacity>
+
+                  {error ? (
+                    <View style={styles.errorContainer}>
+                      <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                  ) : null}
+
+                  <UnifiedButton
+                    title="Sign In"
+                    onPress={handleLogin}
+                    disabled={loading}
+                    loading={loading}
+                    variant="primary"
+                    fullWidth
+                  />
+
+                  <View style={styles.dividerContainer}>
+                    <View style={styles.divider} />
+                    <Text style={styles.dividerText}>or continue with</Text>
+                    <View style={styles.divider} />
+                  </View>
+
+                  <View style={styles.socialButtonsRow}>
+                    <UnifiedButton
+                      title="Google"
+                      onPress={handleGoogleSignIn}
+                      disabled={loading}
+                      variant="secondary"
+                      size="md"
+                      icon={<Chrome size={20} color="#FFFFFF" />}
+                      style={{ flex: 1 }}
+                    />
+
+                    <UnifiedButton
+                      title="Apple"
+                      onPress={handleAppleSignIn}
+                      disabled={loading}
+                      variant="secondary"
+                      size="md"
+                      icon={<AppleIcon size={20} color="#FFFFFF" />}
+                      style={{ flex: 1 }}
+                    />
+                  </View>
+                </View>
+              </LinearGradient>
+            </BlurView>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+
+      <Modal
+        visible={showForgotPassword}
+        transparent
+        animationType="fade"
+        onRequestClose={closeForgotPasswordModal}
+      >
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.modalKeyboardView}
+          >
+            <BlurView intensity={20} tint="dark" style={styles.modalContainer}>
+              <LinearGradient
+                colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.03)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.modalGradient}
+              >
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>
+                    {resetSuccess ? 'Check Your Email' : 'Reset Password'}
+                  </Text>
+
+                  {resetSuccess ? (
+                    <>
+                      <Text style={styles.modalDescription}>
+                        We've sent a password reset link to {resetEmail}. Please check your email
+                        and follow the instructions.
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.modalButton}
+                        onPress={closeForgotPasswordModal}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={styles.modalButtonText}>Done</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.modalDescription}>
+                        Enter your email address and we'll send you a link to reset your password.
+                      </Text>
+
+                      <UnifiedInput
+                        icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                        placeholder="Email address"
+                        value={resetEmail}
+                        onChangeText={setResetEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        editable={!resetLoading}
+                      />
+
+                      {resetError ? (
+                        <View style={styles.modalErrorContainer}>
+                          <Text style={styles.modalErrorText}>{resetError}</Text>
+                        </View>
+                      ) : null}
+
+                      <View style={styles.modalButtonsRow}>
+                        <TouchableOpacity
+                          style={styles.modalButtonSecondary}
+                          onPress={closeForgotPasswordModal}
+                          activeOpacity={0.85}
+                          disabled={resetLoading}
+                        >
+                          <Text style={styles.modalButtonSecondaryText}>Cancel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[styles.modalButton, resetLoading && styles.buttonDisabled]}
+                          onPress={handleForgotPassword}
+                          activeOpacity={0.85}
+                          disabled={resetLoading}
+                        >
+                          {resetLoading ? (
+                            <ActivityIndicator color="#000000" size="small" />
+                          ) : (
+                            <Text style={styles.modalButtonText}>Send Reset Link</Text>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                  )}
+                </View>
+              </LinearGradient>
+            </BlurView>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
+      <AuthFooter />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: QuantumColors.deepSpace,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: Platform.select({ web: QuantumSpacing[6], default: QuantumSpacing[5] }),
+    paddingVertical: QuantumSpacing[6],
+    maxWidth: Platform.select({ web: 1200, default: '100%' }),
+    alignSelf: 'center',
+    width: '100%',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: QuantumSpacing[7],
+    paddingTop: QuantumSpacing[4],
+  },
+  brandName: {
+    fontSize: Platform.select({ web: 120, default: 96 }),
+    fontWeight: '900',
+    color: '#FFFFFF',
+    fontFamily: QuantumTypography.family.heading,
+    marginTop: QuantumSpacing[2],
+    marginBottom: QuantumSpacing[6],
+    letterSpacing: -4,
+    textAlign: 'center',
+    textShadowColor: 'rgba(96, 255, 218, 0.8)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 30,
+    ...Platform.select({
+      web: {
+        textShadow: '0 4px 30px rgba(96, 255, 218, 0.8), 0 8px 60px rgba(96, 255, 218, 0.4), 0 0 80px rgba(96, 255, 218, 0.3)',
+      },
+    }),
+  },
+  title: {
+    fontSize: Platform.select({ web: 38, default: 32 }),
+    fontWeight: '700',
+    color: QuantumColors.frostWhite,
+    fontFamily: QuantumTypography.family.heading,
+    marginBottom: QuantumSpacing[2],
+    letterSpacing: -1,
+    textAlign: 'center',
+    lineHeight: Platform.select({ web: 48, default: 40 }),
+    opacity: 0.95,
+  },
+  subtitle: {
+    fontSize: Platform.select({ web: 17, default: 16 }),
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: QuantumTypography.family.body,
+    textAlign: 'center',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    fontWeight: '500',
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: Platform.select({ web: 480, default: 440 }),
+    alignSelf: 'center',
+  },
+  formBlur: {
+    borderRadius: QuantumRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: QuantumGlass.border.inner,
+    ...QuantumElevation.E2,
+  },
+  formGradient: {
+    borderRadius: QuantumRadius.lg,
+  },
+  form: {
+    padding: QuantumSpacing[6],
+  },
+  loginModeToggle: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+    padding: 4,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderRadius: QuantumRadius.md,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  modeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    gap: 8,
+    backgroundColor: 'transparent',
+    minHeight: 44,
+  },
+  modeButtonActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  modeButtonText: {
+    color: QuantumColors.mistWhite,
+    fontSize: 13,
+    fontWeight: '600',
+    fontFamily: QuantumTypography.family.semibold,
+    letterSpacing: 0.2,
+  },
+  modeButtonTextActive: {
+    color: '#000000',
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 4,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.3)',
+    marginRight: QuantumSpacing[2],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxActive: {
+    backgroundColor: '#60FFDA',
+    borderColor: '#60FFDA',
+  },
+  checkmark: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#000000',
+    borderRadius: 2,
+  },
+  checkboxLabel: {
+    color: QuantumColors.mistWhite,
+    fontSize: QuantumTypography.size.caption,
+    fontFamily: QuantumTypography.family.medium,
+  },
+  signupLink: {
+    color: '#78DCFF',
+    fontSize: QuantumTypography.size.caption,
+    fontWeight: '600',
+    fontFamily: QuantumTypography.family.semibold,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'center',
+    marginBottom: QuantumSpacing[4],
+  },
+  forgotPasswordText: {
+    color: QuantumColors.mistWhite,
+    fontSize: QuantumTypography.size.caption,
+    fontFamily: QuantumTypography.family.medium,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255,77,77,0.12)',
+    borderRadius: QuantumRadius.sm,
+    padding: QuantumSpacing[3],
+    marginBottom: QuantumSpacing[4],
+    borderWidth: 1,
+    borderColor: 'rgba(255,77,77,0.3)',
+  },
+  errorText: {
+    color: QuantumColors.danger,
+    fontSize: QuantumTypography.size.caption,
+    textAlign: 'center',
+    fontFamily: QuantumTypography.family.medium,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: QuantumSpacing[4],
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  dividerText: {
+    color: 'rgba(248,250,252,0.5)',
+    fontSize: QuantumTypography.size.small,
+    fontWeight: '600',
+    marginHorizontal: QuantumSpacing[3],
+    letterSpacing: QuantumTypography.letterSpacing.wide,
+    textTransform: 'uppercase',
+  },
+  socialButtonsRow: {
+    flexDirection: 'row',
+    gap: QuantumSpacing[3],
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: QuantumSpacing[4],
+  },
+  modalKeyboardView: {
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalContainer: {
+    borderRadius: QuantumRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  modalGradient: {
+    borderRadius: QuantumRadius.lg,
+  },
+  modalContent: {
+    padding: QuantumSpacing[5],
+  },
+  modalTitle: {
+    fontSize: QuantumTypography.size.h2,
+    fontWeight: '700',
+    color: QuantumColors.frostWhite,
+    fontFamily: QuantumTypography.family.heading,
+    marginBottom: QuantumSpacing[3],
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: QuantumTypography.size.caption,
+    color: QuantumColors.mistWhite,
+    fontFamily: QuantumTypography.family.body,
+    textAlign: 'center',
+    marginBottom: QuantumSpacing[5],
+    lineHeight: 20,
+  },
+  modalErrorContainer: {
+    backgroundColor: 'rgba(255,77,77,0.12)',
+    borderRadius: QuantumRadius.sm,
+    padding: QuantumSpacing[3],
+    marginBottom: QuantumSpacing[4],
+    borderWidth: 1,
+    borderColor: 'rgba(255,77,77,0.3)',
+  },
+  modalErrorText: {
+    color: QuantumColors.danger,
+    fontSize: QuantumTypography.size.caption,
+    textAlign: 'center',
+    fontFamily: QuantumTypography.family.medium,
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    gap: QuantumSpacing[3],
+  },
+  modalButton: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: QuantumRadius.sm,
+    paddingVertical: QuantumSpacing[3],
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  modalButtonText: {
+    color: '#000000',
+    fontSize: QuantumTypography.size.body,
+    fontWeight: '600',
+    fontFamily: QuantumTypography.family.semibold,
+  },
+  modalButtonSecondary: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: QuantumRadius.sm,
+    paddingVertical: QuantumSpacing[3],
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    minHeight: 48,
+  },
+  modalButtonSecondaryText: {
+    color: '#FFFFFF',
+    fontSize: QuantumTypography.size.body,
+    fontWeight: '600',
+    fontFamily: QuantumTypography.family.semibold,
+  },
+});
