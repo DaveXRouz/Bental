@@ -48,7 +48,28 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
     }
   }, [visible, initialData]);
 
+  const clearError = () => {
+    setError('');
+  };
+
+  const handleFullNameInput = (text: string) => {
+    setFullName(text);
+    clearError();
+  };
+
+  const handleEmailInput = (text: string) => {
+    setEmail(text);
+    clearError();
+  };
+
+  const handlePhoneInput = (text: string) => {
+    setPhone(text);
+    clearError();
+  };
+
   const validate = (): boolean => {
+    clearError();
+
     if (!fullName.trim()) {
       setError('Full name is required');
       return false;
@@ -193,10 +214,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             placeholder="Enter your full name"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={fullName}
-                            onChangeText={(text) => {
-                              setFullName(text);
-                              setError('');
-                            }}
+                            onChangeText={handleFullNameInput}
                             autoCapitalize="words"
                             editable={!loading}
                             accessible={true}
@@ -215,10 +233,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             placeholder="Enter your email"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={email}
-                            onChangeText={(text) => {
-                              setEmail(text);
-                              setError('');
-                            }}
+                            onChangeText={handleEmailInput}
                             autoCapitalize="none"
                             keyboardType="email-address"
                             editable={!loading}
@@ -241,10 +256,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             placeholder="Enter your phone number"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={phone}
-                            onChangeText={(text) => {
-                              setPhone(text);
-                              setError('');
-                            }}
+                            onChangeText={handlePhoneInput}
                             keyboardType="phone-pad"
                             editable={!loading}
                             accessible={true}

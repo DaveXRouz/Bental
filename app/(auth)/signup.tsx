@@ -32,7 +32,38 @@ export default function SignUp() {
   const router = useRouter();
   const { images } = useBrandImages();
 
+  const clearError = () => {
+    setError('');
+  };
+
+  const handleFullNameChange = (text: string) => {
+    setFullName(text);
+    clearError();
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    clearError();
+  };
+
+  const handlePhoneChange = (text: string) => {
+    setPhone(text);
+    clearError();
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    clearError();
+  };
+
+  const handleConfirmPasswordChange = (text: string) => {
+    setConfirmPassword(text);
+    clearError();
+  };
+
   const handleSignUp = async () => {
+    clearError();
+
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Please fill in all required fields');
       return;
@@ -49,7 +80,6 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    setError('');
 
     const { error } = await signUp(email, password, fullName, phone);
 
@@ -63,7 +93,7 @@ export default function SignUp() {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    setError('');
+    clearError();
     try {
       const { error } = await signInWithGoogle();
       if (error) {
@@ -78,7 +108,7 @@ export default function SignUp() {
 
   const handleAppleSignIn = async () => {
     setLoading(true);
-    setError('');
+    clearError();
     try {
       const { error } = await signInWithApple();
       if (error) {
@@ -135,7 +165,7 @@ export default function SignUp() {
                     placeholder="Full Name"
                     placeholderTextColor="rgba(248,250,252,0.4)"
                     value={fullName}
-                    onChangeText={setFullName}
+                    onChangeText={handleFullNameChange}
                     autoCapitalize="words"
                   />
                 </View>
@@ -147,7 +177,7 @@ export default function SignUp() {
                     placeholder="Email address"
                     placeholderTextColor="rgba(248,250,252,0.4)"
                     value={email}
-                    onChangeText={setEmail}
+                    onChangeText={handleEmailChange}
                     autoCapitalize="none"
                     keyboardType="email-address"
                   />
@@ -160,7 +190,7 @@ export default function SignUp() {
                     placeholder="Phone (optional)"
                     placeholderTextColor="rgba(248,250,252,0.4)"
                     value={phone}
-                    onChangeText={setPhone}
+                    onChangeText={handlePhoneChange}
                     keyboardType="phone-pad"
                   />
                 </View>
@@ -172,7 +202,7 @@ export default function SignUp() {
                     placeholder="Password"
                     placeholderTextColor="rgba(248,250,252,0.4)"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={handlePasswordChange}
                     secureTextEntry
                   />
                 </View>
@@ -184,7 +214,7 @@ export default function SignUp() {
                     placeholder="Confirm Password"
                     placeholderTextColor="rgba(248,250,252,0.4)"
                     value={confirmPassword}
-                    onChangeText={setConfirmPassword}
+                    onChangeText={handleConfirmPasswordChange}
                     secureTextEntry
                   />
                 </View>

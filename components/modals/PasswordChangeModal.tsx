@@ -54,14 +54,35 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
     }
   }, [visible]);
 
+  const clearAllErrors = () => {
+    setError('');
+    setFieldErrors({});
+  };
+
+  const handleCurrentPasswordChange = (text: string) => {
+    setCurrentPassword(text);
+    clearAllErrors();
+  };
+
+  const handleNewPasswordChange = (text: string) => {
+    setNewPassword(text);
+    clearAllErrors();
+  };
+
+  const handleConfirmPasswordChange = (text: string) => {
+    setConfirmPassword(text);
+    clearAllErrors();
+  };
+
   const validate = (): boolean => {
+    clearAllErrors();
+
     try {
       changePasswordSchema.parse({
         currentPassword,
         newPassword,
         confirmPassword,
       });
-      setFieldErrors({});
       return true;
     } catch (err: any) {
       const errors: Record<string, string> = {};
@@ -178,11 +199,7 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
                             placeholder="Enter current password"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={currentPassword}
-                            onChangeText={(text) => {
-                              setCurrentPassword(text);
-                              setError('');
-                              setFieldErrors({});
-                            }}
+                            onChangeText={handleCurrentPasswordChange}
                             secureTextEntry={!showCurrentPassword}
                             autoCapitalize="none"
                             editable={!loading}
@@ -223,11 +240,7 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
                             placeholder="Enter new password"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={newPassword}
-                            onChangeText={(text) => {
-                              setNewPassword(text);
-                              setError('');
-                              setFieldErrors({});
-                            }}
+                            onChangeText={handleNewPasswordChange}
                             secureTextEntry={!showNewPassword}
                             autoCapitalize="none"
                             editable={!loading}
@@ -314,11 +327,7 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
                             placeholder="Confirm new password"
                             placeholderTextColor="rgba(148, 163, 184, 0.5)"
                             value={confirmPassword}
-                            onChangeText={(text) => {
-                              setConfirmPassword(text);
-                              setError('');
-                              setFieldErrors({});
-                            }}
+                            onChangeText={handleConfirmPasswordChange}
                             secureTextEntry={!showConfirmPassword}
                             autoCapitalize="none"
                             editable={!loading}
