@@ -2,13 +2,11 @@ import { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,9 +14,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { User, Mail, Phone, Lock, Chrome, Apple as AppleIcon, Shield } from 'lucide-react-native';
-import { colors, Spacing, Typography, radii, shadows } from '@/constants/theme';
 import { useBrandImages } from '@/services/media';
 import AuthFooter from '@/components/ui/AuthFooter';
+import { UnifiedInput } from '@/components/ui/UnifiedInput';
+import { UnifiedButton } from '@/components/ui/UnifiedButton';
+import {
+  QuantumColors,
+  QuantumTypography,
+  QuantumRadius,
+  QuantumSpacing,
+  QuantumGlass,
+  QuantumElevation,
+} from '@/constants/quantum-glass';
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('');
@@ -158,66 +165,51 @@ export default function SignUp() {
               style={styles.formGradient}
             >
               <View style={styles.form}>
-                <View style={styles.inputContainer}>
-                  <User size={20} color={colors.text} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Full Name"
-                    placeholderTextColor="rgba(248,250,252,0.4)"
-                    value={fullName}
-                    onChangeText={handleFullNameChange}
-                    autoCapitalize="words"
-                  />
-                </View>
+                <UnifiedInput
+                  icon={<User size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChangeText={handleFullNameChange}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
 
-                <View style={styles.inputContainer}>
-                  <Mail size={20} color={colors.text} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Email address"
-                    placeholderTextColor="rgba(248,250,252,0.4)"
-                    value={email}
-                    onChangeText={handleEmailChange}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </View>
+                <UnifiedInput
+                  icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                  placeholder="Email address"
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!loading}
+                />
 
-                <View style={styles.inputContainer}>
-                  <Phone size={20} color={colors.text} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Phone (optional)"
-                    placeholderTextColor="rgba(248,250,252,0.4)"
-                    value={phone}
-                    onChangeText={handlePhoneChange}
-                    keyboardType="phone-pad"
-                  />
-                </View>
+                <UnifiedInput
+                  icon={<Phone size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                  placeholder="Phone (optional)"
+                  value={phone}
+                  onChangeText={handlePhoneChange}
+                  keyboardType="phone-pad"
+                  editable={!loading}
+                />
 
-                <View style={styles.inputContainer}>
-                  <Lock size={20} color={colors.text} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    placeholderTextColor="rgba(248,250,252,0.4)"
-                    value={password}
-                    onChangeText={handlePasswordChange}
-                    secureTextEntry
-                  />
-                </View>
+                <UnifiedInput
+                  icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  secureTextEntry
+                  editable={!loading}
+                />
 
-                <View style={styles.inputContainer}>
-                  <Lock size={20} color={colors.text} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Confirm Password"
-                    placeholderTextColor="rgba(248,250,252,0.4)"
-                    value={confirmPassword}
-                    onChangeText={handleConfirmPasswordChange}
-                    secureTextEntry
-                  />
-                </View>
+                <UnifiedInput
+                  icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChangeText={handleConfirmPasswordChange}
+                  secureTextEntry
+                  editable={!loading}
+                />
 
                 {error ? (
                   <View style={styles.errorContainer}>
@@ -225,25 +217,14 @@ export default function SignUp() {
                   </View>
                 ) : null}
 
-                <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
+                <UnifiedButton
+                  title="Create Account"
                   onPress={handleSignUp}
                   disabled={loading}
-                  activeOpacity={0.85}
-                >
-                  <LinearGradient
-                    colors={['rgba(255,255,255,1)' as const, 'rgba(235,235,235,1)' as const]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.buttonGradient}
-                  >
-                    {loading ? (
-                      <ActivityIndicator color={colors.black} size="small" />
-                    ) : (
-                      <Text style={styles.buttonText}>Create Account</Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
+                  loading={loading}
+                  variant="primary"
+                  fullWidth
+                />
 
                 <View style={styles.dividerContainer}>
                   <View style={styles.divider} />
@@ -252,29 +233,25 @@ export default function SignUp() {
                 </View>
 
                 <View style={styles.socialButtonsRow}>
-                  <TouchableOpacity
-                    style={styles.socialButton}
+                  <UnifiedButton
+                    title="Google"
                     onPress={handleGoogleSignIn}
                     disabled={loading}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.socialButtonContent}>
-                      <Chrome size={20} color="#FFFFFF" />
-                      <Text style={styles.socialButtonText}>Google</Text>
-                    </View>
-                  </TouchableOpacity>
+                    variant="secondary"
+                    size="md"
+                    icon={<Chrome size={20} color="#FFFFFF" />}
+                    style={{ flex: 1 }}
+                  />
 
-                  <TouchableOpacity
-                    style={styles.socialButton}
+                  <UnifiedButton
+                    title="Apple"
                     onPress={handleAppleSignIn}
                     disabled={loading}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.socialButtonContent}>
-                      <AppleIcon size={20} color="#FFFFFF" />
-                      <Text style={styles.socialButtonText}>Apple</Text>
-                    </View>
-                  </TouchableOpacity>
+                    variant="secondary"
+                    size="md"
+                    icon={<AppleIcon size={20} color="#FFFFFF" />}
+                    style={{ flex: 1 }}
+                  />
                 </View>
 
                 <TouchableOpacity
@@ -300,7 +277,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.black,
+    backgroundColor: QuantumColors.deepSpace,
   },
   backgroundImage: {
     ...StyleSheet.absoluteFillObject,
@@ -314,13 +291,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.xxxl,
+    paddingHorizontal: QuantumSpacing[5],
+    paddingVertical: QuantumSpacing[6],
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-    marginTop: Spacing.xl,
+    marginBottom: QuantumSpacing[5],
+    marginTop: QuantumSpacing[4],
   },
   logoContainer: {
     width: 80,
@@ -329,154 +306,92 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: QuantumSpacing[3],
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   title: {
-    fontSize: Typography.size.xxxl,
+    fontSize: QuantumTypography.size.h1,
     fontWeight: '700',
-    color: colors.text,
-    fontFamily: Typography.family.bold,
-    marginBottom: Spacing.xs,
+    color: QuantumColors.frostWhite,
+    fontFamily: QuantumTypography.family.heading,
+    marginBottom: QuantumSpacing[2],
     letterSpacing: -0.8,
   },
   subtitle: {
-    fontSize: Typography.size.md,
-    color: colors.textSecondary,
-    fontFamily: Typography.family.regular,
+    fontSize: QuantumTypography.size.body,
+    color: QuantumColors.mistWhite,
+    fontFamily: QuantumTypography.family.body,
   },
   formBlur: {
-    borderRadius: radii.modal,
+    borderRadius: QuantumRadius.lg,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    ...shadows.glass3D,
+    borderColor: QuantumGlass.border.inner,
+    ...QuantumElevation.E2,
   },
   formGradient: {
-    borderRadius: radii.modal,
+    borderRadius: QuantumRadius.lg,
   },
   form: {
-    padding: Spacing.xl,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: radii.card,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    marginBottom: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    height: 56,
-  },
-  inputIcon: {
-    marginRight: Spacing.sm,
-    opacity: 0.7,
-  },
-  input: {
-    flex: 1,
-    fontSize: Typography.size.md,
-    color: colors.text,
-    fontFamily: Typography.family.regular,
+    padding: QuantumSpacing[5],
   },
   errorContainer: {
-    backgroundColor: 'rgba(239,68,68,0.1)',
-    borderRadius: radii.card,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    backgroundColor: 'rgba(255,77,77,0.12)',
+    borderRadius: QuantumRadius.sm,
+    padding: QuantumSpacing[3],
+    marginBottom: QuantumSpacing[4],
     borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.3)',
+    borderColor: 'rgba(255,77,77,0.3)',
   },
   errorText: {
-    color: colors.danger,
-    fontSize: Typography.size.sm,
+    color: QuantumColors.danger,
+    fontSize: QuantumTypography.size.caption,
     textAlign: 'center',
-    fontFamily: Typography.family.medium,
-  },
-  button: {
-    borderRadius: radii.card,
-    overflow: 'hidden',
-    marginTop: Spacing.sm,
-    ...shadows.md,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonGradient: {
-    paddingVertical: Spacing.md + 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: colors.black,
-    fontSize: Typography.size.md,
-    fontWeight: '700',
-    fontFamily: Typography.family.bold,
-    letterSpacing: 0.4,
+    fontFamily: QuantumTypography.family.medium,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: Spacing.lg,
+    marginVertical: QuantumSpacing[4],
   },
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   dividerText: {
     color: 'rgba(248,250,252,0.5)',
-    fontSize: Typography.size.xs,
+    fontSize: QuantumTypography.size.small,
     fontWeight: '600',
-    marginHorizontal: Spacing.md,
-    letterSpacing: 1,
+    marginHorizontal: QuantumSpacing[3],
+    letterSpacing: QuantumTypography.letterSpacing.wide,
+    textTransform: 'uppercase',
   },
   secondaryButton: {
     backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: radii.card,
-    paddingVertical: Spacing.md,
+    borderRadius: QuantumRadius.md,
+    paddingVertical: QuantumSpacing[3],
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
   secondaryButtonText: {
-    color: colors.text,
-    fontSize: Typography.size.sm,
+    color: QuantumColors.frostWhite,
+    fontSize: QuantumTypography.size.caption,
     fontWeight: '600',
-    fontFamily: Typography.family.semibold,
+    fontFamily: QuantumTypography.family.semibold,
   },
   footer: {
-    fontSize: Typography.size.xs,
+    fontSize: QuantumTypography.size.small,
     color: 'rgba(248,250,252,0.4)',
     textAlign: 'center',
-    marginTop: Spacing.xl,
-    paddingHorizontal: Spacing.xl,
+    marginTop: QuantumSpacing[5],
+    paddingHorizontal: QuantumSpacing[5],
   },
   socialButtonsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: Spacing.lg,
-  },
-  socialButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: radii.card,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.10)',
-    paddingVertical: 14,
-  },
-  socialButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  socialButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    fontFamily: Typography.family.semibold,
-    letterSpacing: 0.3,
+    gap: QuantumSpacing[3],
+    marginBottom: QuantumSpacing[4],
   },
 });
