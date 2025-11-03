@@ -296,7 +296,7 @@ export default function Login() {
 
                   {loginMode === 'email' ? (
                     <QuantumInput
-                      icon={<Mail size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                      icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                       placeholder="Email address"
                       value={email}
                       onChangeText={handleEmailChange}
@@ -307,7 +307,7 @@ export default function Login() {
                     />
                   ) : (
                     <QuantumInput
-                      icon={<CreditCard size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                      icon={<CreditCard size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                       placeholder="Trading Passport (TP-XXXX-XXXX-XXXX)"
                       value={tradingPassport}
                       onChangeText={handlePassportChange}
@@ -318,7 +318,7 @@ export default function Login() {
                   )}
 
                   <QuantumInput
-                    icon={<Lock size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                    icon={<Lock size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                     placeholder="Password"
                     value={password}
                     onChangeText={handlePasswordChange}
@@ -327,9 +327,9 @@ export default function Login() {
                     error={passwordError}
                     rightIcon={
                       showPassword ? (
-                        <EyeOff size={18} color={QuantumColors.mistWhite} />
+                        <EyeOff size={18} color="rgba(11, 22, 33, 0.6)" />
                       ) : (
-                        <Eye size={18} color={QuantumColors.mistWhite} />
+                        <Eye size={18} color="rgba(11, 22, 33, 0.6)" />
                       )
                     }
                     onRightIconPress={toggleShowPassword}
@@ -453,7 +453,7 @@ export default function Login() {
                       </Text>
 
                       <QuantumInput
-                        icon={<Mail size={20} color={QuantumColors.mistWhite} strokeWidth={1.5} />}
+                        icon={<Mail size={20} color="rgba(11, 22, 33, 0.6)" strokeWidth={1.8} />}
                         placeholder="Email address"
                         value={resetEmail}
                         onChangeText={setResetEmail}

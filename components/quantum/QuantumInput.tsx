@@ -89,7 +89,10 @@ export function QuantumInput({
       <View style={styles.container}>
         <BlurView intensity={18} tint="dark" style={[styles.blurContainer, { borderColor: getBorderColor() }]}>
           <LinearGradient
-            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+            colors={isFocused
+              ? ['rgba(0, 245, 212, 0.12)', 'rgba(120, 220, 255, 0.08)']
+              : ['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.92)']
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={styles.gradient}
@@ -102,7 +105,7 @@ export function QuantumInput({
               <TextInput
                 {...textInputProps}
                 style={[styles.input, textInputProps.style]}
-                placeholderTextColor="rgba(255,255,255,0.45)"
+                placeholderTextColor="rgba(11, 22, 33, 0.45)"
                 onFocus={(e) => {
                   handleFocus();
                   textInputProps.onFocus?.(e);
@@ -163,14 +166,20 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.12)',
+    shadowColor: 'rgba(0, 245, 212, 0.15)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 2,
   },
   gradient: {
     flex: 1,
     borderRadius: QuantumRadius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   innerShadow: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.12)',
+    backgroundColor: 'transparent',
     borderRadius: QuantumRadius.md,
   },
   content: {
@@ -183,7 +192,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginRight: 12,
-    opacity: 0.85,
+    opacity: 0.65,
     zIndex: 2,
     width: 20,
     height: 20,
@@ -193,7 +202,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: '#0B1621',
     fontFamily: QuantumTypography.family.medium,
     fontWeight: '500',
     zIndex: 2,
@@ -213,6 +222,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: QuantumRadius.md,
     overflow: 'hidden',
+    shadowColor: 'rgba(0, 245, 212, 0.5)',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
   },
   focusGradient: {
     flex: 1,

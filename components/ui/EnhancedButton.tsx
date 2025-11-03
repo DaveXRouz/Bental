@@ -47,7 +47,7 @@ export function EnhancedButton({
   const getGradientColors = () => {
     switch (variant) {
       case 'primary':
-        return ['#60FFDA', '#78DCFF', '#A0C8FF'];
+        return ['#00F5D4', '#60FFDA', '#78DCFF'];
       case 'secondary':
         return ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)'];
       case 'social':
@@ -58,7 +58,7 @@ export function EnhancedButton({
   };
 
   const getTextColor = () => {
-    return variant === 'primary' ? '#000000' : '#FFFFFF';
+    return variant === 'primary' ? '#0B1621' : '#FFFFFF';
   };
 
   if (variant === 'social') {
@@ -145,11 +145,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'visible',
     marginVertical: 8,
-    shadowColor: 'rgba(96, 255, 218, 0.4)',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowColor: 'rgba(96, 255, 218, 0.45)',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
+    elevation: 12,
   },
   gradient: {
     flex: 1,
@@ -168,9 +168,9 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   text: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
   shimmerContainer: {
@@ -206,8 +206,13 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 14,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: 'rgba(255, 255, 255, 0.1)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   socialBlur: {
     flex: 1,
