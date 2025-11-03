@@ -20,7 +20,6 @@ import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
-import { ShieldCrest } from '@/components/quantum/ShieldCrest';
 import { QuantumInput } from '@/components/quantum/QuantumInput';
 import { PlasmaCapsule } from '@/components/quantum/PlasmaCapsule';
 import {
@@ -196,8 +195,6 @@ export default function Login() {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <ShieldCrest size={130} reduceMotion={reduceMotion} />
-
             <Text style={styles.title}>I know,{'\n'}something else.</Text>
             <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
@@ -445,7 +442,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: QuantumColors.frostWhite,
     fontFamily: QuantumTypography.family.heading,
-    marginTop: QuantumSpacing[5],
     marginBottom: QuantumSpacing[3],
     letterSpacing: -1.2,
     textAlign: 'center',
