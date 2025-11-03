@@ -196,7 +196,6 @@ export default function Login() {
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.brandName}>X</Text>
-            <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
 
           <View style={styles.formContainer}>
