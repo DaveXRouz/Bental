@@ -15,6 +15,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, User, Mail, Phone, Save, CheckCircle } from 'lucide-react-native';
 import { colors, Spacing, Typography, radii } from '@/constants/theme';
+import { getModalAccessibilityProps, getCloseButtonAccessibilityProps, getSubmitButtonAccessibilityProps, getCancelButtonAccessibilityProps, getErrorAccessibilityProps } from '@/utils/accessibility-enhancer';
 import { useProfile } from '@/hooks/useProfile';
 import * as Haptics from 'expo-haptics';
 
@@ -143,6 +144,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
       animationType="slide"
       transparent
       onRequestClose={onClose}
+      {...getModalAccessibilityProps('Edit profile', 'Update your personal information')}
     >
       <View style={styles.modalOverlay}>
         <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
@@ -164,6 +166,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                   onPress={onClose}
                   style={styles.closeButton}
                   activeOpacity={0.7}
+                  {...getCloseButtonAccessibilityProps('profile edit dialog')}
                 >
                   <X size={24} color={colors.text} />
                 </TouchableOpacity>
@@ -196,6 +199,9 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             }}
                             autoCapitalize="words"
                             editable={!loading}
+                            accessible={true}
+                            accessibilityLabel="Full name"
+                            accessibilityHint="Enter your full name"
                           />
                         </View>
                       </View>
@@ -216,6 +222,9 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             autoCapitalize="none"
                             keyboardType="email-address"
                             editable={!loading}
+                            accessible={true}
+                            accessibilityLabel="Email address"
+                            accessibilityHint="Enter your email address. Changing email requires verification"
                           />
                         </View>
                         <Text style={styles.helperText}>
@@ -238,13 +247,21 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                             }}
                             keyboardType="phone-pad"
                             editable={!loading}
+                            accessible={true}
+                            accessibilityLabel="Phone number"
+                            accessibilityHint="Optional phone number for notifications"
                           />
                         </View>
                         <Text style={styles.helperText}>Optional - for notifications</Text>
                       </View>
 
                       {error ? (
-                        <BlurView intensity={40} tint="dark" style={styles.errorContainer}>
+                        <BlurView
+                          intensity={40}
+                          tint="dark"
+                          style={styles.errorContainer}
+                          {...getErrorAccessibilityProps(error)}
+                        >
                           <Text style={styles.errorText}>{error}</Text>
                         </BlurView>
                       ) : null}
@@ -260,6 +277,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                     onPress={onClose}
                     activeOpacity={0.8}
                     disabled={loading}
+                    {...getCancelButtonAccessibilityProps()}
                   >
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
@@ -272,6 +290,7 @@ export default function ProfileEditModal({ visible, onClose, initialData }: Prof
                     onPress={email !== initialData.email ? handleEmailChange : handleSave}
                     disabled={!hasChanges() || loading}
                     activeOpacity={0.8}
+                    {...getSubmitButtonAccessibilityProps('Save profile changes', !hasChanges() || loading, loading)}
                   >
                     <LinearGradient
                       colors={

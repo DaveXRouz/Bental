@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
+import { getModalAccessibilityProps, getCloseButtonAccessibilityProps, getSubmitButtonAccessibilityProps, getCancelButtonAccessibilityProps } from '@/utils/accessibility-enhancer';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Plus, CreditCard, Building2, Check, Bitcoin, Truck } from 'lucide-react-native';
@@ -85,7 +86,13 @@ export default function DepositModal({ visible, onClose }: DepositModalProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+      {...getModalAccessibilityProps('Deposit funds', 'Add money to your account')}
+    >
       <View style={styles.modalOverlay}>
         <BlurView intensity={40} tint="dark" style={styles.blurOverlay}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
@@ -103,7 +110,11 @@ export default function DepositModal({ visible, onClose }: DepositModalProps) {
                 <Plus size={24} color="#10B981" />
                 <Text style={styles.headerTitle}>Deposit Funds</Text>
               </View>
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={onClose}
+                {...getCloseButtonAccessibilityProps('deposit dialog')}
+              >
                 <BlurView intensity={40} tint="dark" style={styles.closeButtonInner}>
                   <X size={20} color="#FFFFFF" />
                 </BlurView>

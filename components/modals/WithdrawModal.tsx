@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
+import { getModalAccessibilityProps, getCloseButtonAccessibilityProps, getSubmitButtonAccessibilityProps } from '@/utils/accessibility-enhancer';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowDown, Building2, AlertCircle } from 'lucide-react-native';
@@ -22,7 +23,13 @@ export default function WithdrawModal({ visible, onClose }: WithdrawModalProps) 
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+      {...getModalAccessibilityProps('Withdraw funds', 'Transfer money from your account')}
+    >
       <View style={styles.modalOverlay}>
         <BlurView intensity={40} tint="dark" style={styles.blurOverlay}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
@@ -40,7 +47,11 @@ export default function WithdrawModal({ visible, onClose }: WithdrawModalProps) 
                 <ArrowDown size={24} color="#F59E0B" />
                 <Text style={styles.headerTitle}>Withdraw Funds</Text>
               </View>
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={onClose}
+                {...getCloseButtonAccessibilityProps('withdraw dialog')}
+              >
                 <BlurView intensity={40} tint="dark" style={styles.closeButtonInner}>
                   <X size={20} color="#FFFFFF" />
                 </BlurView>

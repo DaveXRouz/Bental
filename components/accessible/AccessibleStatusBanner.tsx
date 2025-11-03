@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useReducedMotion, getSpringConfig } from '@/hooks/useReducedMotion';
 import {
   View,
   Text,
@@ -39,6 +40,7 @@ export function AccessibleStatusBanner({
   accessibilityAnnouncement,
 }: AccessibleStatusBannerProps) {
   const [slideAnim] = useState(new Animated.Value(position === 'top' ? -100 : 100));
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (visible) {
@@ -62,9 +64,7 @@ export function AccessibleStatusBanner({
       // Slide in animation
       Animated.spring(slideAnim, {
         toValue: 0,
-        useNativeDriver: true,
-        tension: 50,
-        friction: 8,
+        ...getSpringConfig(prefersReducedMotion),
       }).start();
 
       // Auto dismiss
