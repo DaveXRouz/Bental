@@ -61,6 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (identifier: string, password: string, loginMode: 'email' | 'passport' = 'email') => {
     try {
+      let emailToUse = identifier;
+
       if (loginMode === 'passport') {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -69,21 +71,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .maybeSingle();
 
         if (profileError || !profile) {
+          await supabase.rpc('record_login_attempt', {
+            p_email: identifier,
+            p_success: false,
+            p_failure_reason: 'Invalid trading passport',
+          });
           return { error: { message: 'Invalid trading passport number' } };
         }
-
-        const { error } = await supabase.auth.signInWithPassword({
-          email: profile.email,
-          password,
-        });
-        return { error };
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: identifier,
-          password,
-        });
-        return { error };
+        emailToUse = profile.email;
       }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailToUse,
+        password,
+      });
+
+      await supabase.rpc('record_login_attempt', {
+        p_email: emailToUse,
+        p_success: !error,
+        p_failure_reason: error?.message,
+      });
+
+      if (!error && data.user) {
+        await supabase.rpc('record_login_history', {
+          p_user_id: data.user.id,
+          p_device_type: Platform.OS,
+        });
+      }
+
+      return { error };
     } catch (err: any) {
       return { error: { message: err.message || 'Login failed' } };
     }
