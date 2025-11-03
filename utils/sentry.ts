@@ -8,37 +8,23 @@ interface Breadcrumb {
 }
 
 export function captureException(error: Error, context?: Record<string, any>) {
-  if (__DEV__) {
-    console.error('Error:', error, context);
-    return;
-  }
-  console.error('Production Error:', error, context);
+  // Logging disabled for production
 }
 
 export function captureMessage(message: string, level: SeverityLevel = 'info', context?: Record<string, any>) {
-  if (__DEV__) {
-    console.log(`Message [${level}]:`, message, context);
-    return;
-  }
-  console.log(`Production Message [${level}]:`, message, context);
+  // Logging disabled for production
 }
 
 export function setUser(user: { id: string; email?: string; username?: string }) {
-  if (__DEV__) {
-    console.log('User set:', user);
-  }
+  // Logging disabled for production
 }
 
 export function clearUser() {
-  if (__DEV__) {
-    console.log('User cleared');
-  }
+  // Logging disabled for production
 }
 
 export function addBreadcrumb(breadcrumb: Breadcrumb) {
-  if (__DEV__) {
-    console.log('Breadcrumb:', breadcrumb);
-  }
+  // Logging disabled for production
 }
 
 export const Sentry = {

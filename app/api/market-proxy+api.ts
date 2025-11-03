@@ -126,8 +126,6 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   } catch (error) {
-    console.error('[Market Proxy] Error:', error);
-
     return new Response(
       JSON.stringify({
         error: 'Internal proxy error',

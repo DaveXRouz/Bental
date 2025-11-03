@@ -20,7 +20,7 @@ import { LoadingProvider } from '@/contexts/LoadingContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useTickerStore } from '@/stores/useTickerStore';
 import { validateEnvironment } from '@/config/env';
-import { logger } from '@/lib/logger';
+// Logger removed for production
 
 SplashScreen.preventAutoHideAsync();
 

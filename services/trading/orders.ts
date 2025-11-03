@@ -48,13 +48,11 @@ export async function placeOrder(request: OrderRequest): Promise<{ success: bool
       .single();
 
     if (error) {
-      console.error('Order placement error:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true, order: data as Order };
   } catch (error: any) {
-    console.error('Order placement exception:', error);
     return { success: false, error: error.message || 'Failed to place order' };
   }
 }
@@ -69,13 +67,11 @@ export async function getAccountOrders(accountId: string, limit: number = 50): P
       .limit(limit);
 
     if (error) {
-      console.error('Failed to fetch orders:', error);
       return [];
     }
 
     return data as Order[];
   } catch (error) {
-    console.error('Exception fetching orders:', error);
     return [];
   }
 }
@@ -94,13 +90,11 @@ export async function cancelOrder(orderId: string, accountId: string): Promise<{
       .eq('status', 'pending');
 
     if (error) {
-      console.error('Order cancellation error:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error: any) {
-    console.error('Order cancellation exception:', error);
     return { success: false, error: error.message || 'Failed to cancel order' };
   }
 }
@@ -115,13 +109,11 @@ export async function getOrderById(orderId: string, accountId: string): Promise<
       .single();
 
     if (error) {
-      console.error('Failed to fetch order:', error);
       return null;
     }
 
     return data as Order;
   } catch (error) {
-    console.error('Exception fetching order:', error);
     return null;
   }
 }

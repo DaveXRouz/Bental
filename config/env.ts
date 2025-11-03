@@ -42,10 +42,6 @@ export function validateEnvironment() {
   if (!ENV.supabase.url) missingKeys.push('SUPABASE_URL');
   if (!ENV.supabase.anonKey) missingKeys.push('SUPABASE_ANON_KEY');
 
-  if (missingKeys.length > 0) {
-    console.warn(`Missing environment variables: ${missingKeys.join(', ')}`);
-    console.warn('App will run in offline mode with mock data');
-  }
-
+  // Environment validation complete - app will use mock data if keys missing
   return true;
 }
