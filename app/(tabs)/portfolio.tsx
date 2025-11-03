@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { QuantumFieldBackground } from '@/components/backgrounds';
 import { BlurView } from 'expo-blur';
 import { Briefcase, Star } from 'lucide-react-native';
 import { colors, Spacing, Typography, zIndex } from '@/constants/theme';
@@ -47,9 +48,7 @@ export default function PortfolioScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.shape3D, animatedStyle1]} pointerEvents="none">
-        <LinearGradient colors={['rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.05)']} style={styles.shapeGradient} />
-      </Animated.View>
+      <QuantumFieldBackground />
 
       <View style={styles.header} accessible={true} accessibilityLabel="Portfolio page header">
         <View style={styles.headerLeft}>

@@ -16,6 +16,7 @@ const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DataStreamBackground } from '@/components/backgrounds';
 import {
   TrendingUp,
   TrendingDown,
@@ -74,12 +75,7 @@ export default function TradeScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['rgba(16,185,129,0.15)', 'rgba(59,130,246,0.15)', 'transparent']}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
+      <DataStreamBackground />
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Quick Trade</Text>

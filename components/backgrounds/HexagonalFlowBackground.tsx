@@ -76,7 +76,7 @@ function AnimatedHex({ x, y, size, delay }: HexProps) {
     <AnimatedPolygon
       points={points}
       fill="none"
-      stroke="rgba(59, 130, 246, 0.3)"
+      stroke="rgba(255, 255, 255, 0.15)"
       strokeWidth="1"
       style={animatedStyle}
     />
@@ -168,7 +168,7 @@ export function HexagonalFlowBackground() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#0a0e1a', '#0f1729', '#1a1f35']}
+          colors={['#000000', '#050505', '#0a0a0a']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -180,7 +180,7 @@ export function HexagonalFlowBackground() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#050810', '#0a0e1a', '#0f1729', '#141b2e']}
+        colors={['#000000', '#050505', '#0a0a0a', '#101010']}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -188,7 +188,7 @@ export function HexagonalFlowBackground() {
 
       <Animated.View style={[styles.glow, styles.glow1, glow1Style]}>
         <LinearGradient
-          colors={['transparent', 'rgba(59, 130, 246, 0.2)', 'transparent']}
+          colors={['transparent', 'rgba(255, 255, 255, 0.05)', 'transparent']}
           style={styles.glowGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -197,7 +197,7 @@ export function HexagonalFlowBackground() {
 
       <Animated.View style={[styles.glow, styles.glow2, glow2Style]}>
         <LinearGradient
-          colors={['transparent', 'rgba(139, 92, 246, 0.15)', 'transparent']}
+          colors={['transparent', 'rgba(240, 240, 240, 0.04)', 'transparent']}
           style={styles.glowGradient}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -208,8 +208,8 @@ export function HexagonalFlowBackground() {
         <Svg width={SCREEN_WIDTH * 2} height={SCREEN_HEIGHT * 2} style={styles.svg}>
           <Defs>
             <RadialGradient id="hexGlow" cx="50%" cy="50%">
-              <Stop offset="0%" stopColor="rgba(59, 130, 246, 0.4)" stopOpacity="1" />
-              <Stop offset="100%" stopColor="rgba(59, 130, 246, 0)" stopOpacity="0" />
+              <Stop offset="0%" stopColor="rgba(255, 255, 255, 0.2)" stopOpacity="1" />
+              <Stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
             </RadialGradient>
           </Defs>
           <G>
@@ -228,7 +228,7 @@ export function HexagonalFlowBackground() {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#050810',
+    backgroundColor: '#000000',
     overflow: 'hidden',
   },
   hexContainer: {

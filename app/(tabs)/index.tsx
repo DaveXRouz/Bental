@@ -25,6 +25,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DataStreamBackground } from '@/components/backgrounds';
 
 const S = 8;
 
@@ -303,39 +304,7 @@ export default function HomeScreen() {
       <WithdrawModal visible={withdrawModalVisible} onClose={() => setWithdrawModalVisible(false)} />
       <NotificationCenterModal visible={notificationModalVisible} onClose={() => setNotificationModalVisible(false)} />
       <View style={styles.container}>
-        <Animated.View
-          style={[
-            styles.shape3D,
-            styles.shape1,
-            animatedStyle1,
-            { width: shapeSize1, height: shapeSize1, right: isTablet ? -100 : -120 }
-          ]}
-          pointerEvents="none"
-        >
-          <LinearGradient colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.05)']} style={styles.shapeGradient} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.shape3D,
-            styles.shape2,
-            animatedStyle2,
-            { width: shapeSize2, height: shapeSize2, left: isTablet ? -80 : -100 }
-          ]}
-          pointerEvents="none"
-        >
-          <LinearGradient colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)']} style={styles.shapeGradient} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.shape3D,
-            styles.shape3,
-            animatedStyle3,
-            { width: shapeSize3, height: shapeSize3, right: isTablet ? -60 : -80 }
-          ]}
-          pointerEvents="none"
-        >
-          <LinearGradient colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.02)']} style={styles.shapeGradient} />
-        </Animated.View>
+        <DataStreamBackground />
 
         <TickerRibbon />
 

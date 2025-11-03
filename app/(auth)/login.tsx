@@ -32,6 +32,7 @@ import { PasswordField } from '@/components/login/PasswordField';
 import { PrimaryButton } from '@/components/login/PrimaryButton';
 import { OAuthButton } from '@/components/login/OAuthButton';
 import { Chrome as GoogleIcon, Apple as AppleIcon, Twitter, Linkedin, Github } from 'lucide-react-native';
+import { QuantumFieldBackground } from '@/components/backgrounds';
 
 const { width } = Dimensions.get('window');
 
@@ -269,10 +270,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View style={styles.backgroundContainer}>
-          <Animated.View style={[styles.orb, styles.orb1, orb1Style]} />
-          <Animated.View style={[styles.orb, styles.orb2, orb2Style]} />
-        </View>
+        <QuantumFieldBackground />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}

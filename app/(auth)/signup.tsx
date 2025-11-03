@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { User, Mail, Phone, Lock, Chrome, Apple as AppleIcon, Shield } from 'lucide-react-native';
+import { QuantumFieldBackground } from '@/components/backgrounds';
 import { useBrandImages } from '@/services/media';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { UnifiedInput } from '@/components/ui/UnifiedInput';
@@ -130,16 +131,7 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: images.hero }}
-        style={styles.backgroundImage}
-        blurRadius={60}
-      />
-
-      <LinearGradient
-        colors={['rgba(0,0,0,0.96)' as const, 'rgba(0,0,0,0.88)' as const, 'rgba(0,0,0,0.96)' as const]}
-        style={styles.overlay}
-      />
+      <QuantumFieldBackground />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

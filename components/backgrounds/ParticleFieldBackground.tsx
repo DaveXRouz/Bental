@@ -52,10 +52,10 @@ export function ParticleFieldBackground() {
     if (prefersReducedMotion) return;
 
     const colors = [
-      'rgba(59, 130, 246, 0.6)',   // Blue
-      'rgba(16, 185, 129, 0.5)',   // Green
-      'rgba(139, 92, 246, 0.6)',   // Purple
-      'rgba(6, 182, 212, 0.5)',    // Cyan
+      'rgba(255, 255, 255, 0.4)',
+      'rgba(240, 240, 240, 0.35)',
+      'rgba(250, 250, 250, 0.4)',
+      'rgba(230, 230, 230, 0.35)',
     ];
 
     const newParticles: Particle[] = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
@@ -98,7 +98,7 @@ export function ParticleFieldBackground() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#0a0e1a', '#0f1729', '#1a1f35']}
+          colors={['#000000', '#050505', '#0a0a0a']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -110,7 +110,7 @@ export function ParticleFieldBackground() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#060913', '#0a0e1a', '#0f1729', '#1a1f35']}
+        colors={['#000000', '#030303', '#060606', '#0a0a0a']}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -172,7 +172,7 @@ function WaveLayer({ phase }: { phase: Animated.SharedValue<number> }) {
     <>
       <Animated.View style={[styles.wave, wave1Style]}>
         <LinearGradient
-          colors={['transparent', 'rgba(59, 130, 246, 0.15)', 'transparent']}
+          colors={['transparent', 'rgba(255, 255, 255, 0.05)', 'transparent']}
           style={styles.waveGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -181,7 +181,7 @@ function WaveLayer({ phase }: { phase: Animated.SharedValue<number> }) {
 
       <Animated.View style={[styles.wave, { top: '60%' }, wave2Style]}>
         <LinearGradient
-          colors={['transparent', 'rgba(139, 92, 246, 0.12)', 'transparent']}
+          colors={['transparent', 'rgba(240, 240, 240, 0.04)', 'transparent']}
           style={styles.waveGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -194,7 +194,7 @@ function WaveLayer({ phase }: { phase: Animated.SharedValue<number> }) {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#060913',
+    backgroundColor: '#000000',
     overflow: 'hidden',
   },
   particleContainer: {

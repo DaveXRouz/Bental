@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DataStreamBackground } from '@/components/backgrounds';
 import {
   TrendingUp,
   TrendingDown,
@@ -187,31 +188,7 @@ export default function MarketsScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['rgba(59,130,246,0.12)', 'rgba(16,185,129,0.12)', 'transparent']}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        pointerEvents="none"
-      />
-
-      <Animated.View style={[styles.floatingOrb1, animatedStyle1]} pointerEvents="none">
-        <LinearGradient
-          colors={['rgba(59,130,246,0.35)', 'rgba(16,185,129,0.35)']}
-          style={styles.orb}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-      </Animated.View>
-
-      <Animated.View style={[styles.floatingOrb2, animatedStyle2]} pointerEvents="none">
-        <LinearGradient
-          colors={['rgba(16,185,129,0.3)', 'rgba(59,130,246,0.3)']}
-          style={styles.orb}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-      </Animated.View>
+      <DataStreamBackground />
 
       <View style={styles.header} accessible={true} accessibilityLabel="Markets page header">
         <View>

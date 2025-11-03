@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,20 +10,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Canvas, Path, Skia, BlurMask, Group } from '@shopify/react-native-skia';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
-  color: string;
-}
 
 export function QuantumFieldBackground() {
   const prefersReducedMotion = useReducedMotion();
@@ -97,7 +84,7 @@ export function QuantumFieldBackground() {
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={['#0a0e1a', '#0f1729', '#1a1f35']}
+          colors={['#000000', '#0a0a0a', '#121212']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -109,7 +96,7 @@ export function QuantumFieldBackground() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#0a0e1a', '#0f1729', '#1a1f35', '#0f1729']}
+        colors={['#000000', '#0a0a0a', '#121212', '#0a0a0a']}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -117,7 +104,7 @@ export function QuantumFieldBackground() {
 
       <Animated.View style={[styles.orb, styles.orb1, orb1Style]}>
         <LinearGradient
-          colors={['rgba(59, 130, 246, 0.3)', 'rgba(147, 51, 234, 0.2)', 'transparent']}
+          colors={['rgba(255, 255, 255, 0.08)', 'rgba(200, 200, 200, 0.05)', 'transparent']}
           style={styles.orbGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -126,7 +113,7 @@ export function QuantumFieldBackground() {
 
       <Animated.View style={[styles.orb, styles.orb2, orb2Style]}>
         <LinearGradient
-          colors={['rgba(16, 185, 129, 0.25)', 'rgba(6, 182, 212, 0.2)', 'transparent']}
+          colors={['rgba(255, 255, 255, 0.06)', 'rgba(180, 180, 180, 0.04)', 'transparent']}
           style={styles.orbGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -135,7 +122,7 @@ export function QuantumFieldBackground() {
 
       <Animated.View style={[styles.orb, styles.orb3, orb3Style]}>
         <LinearGradient
-          colors={['rgba(139, 92, 246, 0.3)', 'rgba(59, 130, 246, 0.15)', 'transparent']}
+          colors={['rgba(255, 255, 255, 0.07)', 'rgba(190, 190, 190, 0.04)', 'transparent']}
           style={styles.orbGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -167,7 +154,7 @@ function GridPattern() {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0a0e1a',
+    backgroundColor: '#000000',
     overflow: 'hidden',
   },
   orb: {
