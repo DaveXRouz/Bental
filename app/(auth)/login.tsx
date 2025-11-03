@@ -194,10 +194,6 @@ export default function Login() {
         style={styles.keyboardView}
       >
         <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.brandName}>X</Text>
-          </View>
-
           <View style={styles.formContainer}>
             <BlurView intensity={QuantumGlass.blur.card} tint="dark" style={styles.formBlur}>
               <LinearGradient
