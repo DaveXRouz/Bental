@@ -8,7 +8,6 @@ import Animated, {
   Easing,
   interpolate,
   useFrameCallback,
-  useDerivedValue,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -20,8 +19,8 @@ const CONNECTION_DISTANCE = 120;
 
 interface Particle {
   id: number;
-  x: Animated.SharedValue<number>;
-  y: Animated.SharedValue<number>;
+  x: ReturnType<typeof useSharedValue<number>>;
+  y: ReturnType<typeof useSharedValue<number>>;
   vx: number;
   vy: number;
   size: number;

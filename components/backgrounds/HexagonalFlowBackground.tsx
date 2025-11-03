@@ -15,70 +15,22 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
-
 interface HexProps {
   x: number;
   y: number;
   size: number;
-  delay: number;
 }
 
-function AnimatedHex({ x, y, size, delay }: HexProps) {
-  const opacity = useSharedValue(0.1);
-  const scale = useSharedValue(1);
-  const prefersReducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.1, { duration: 0 }),
-        withTiming(0.4, {
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(0.1, {
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-        })
-      ),
-      -1,
-      false
-    );
-
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 0 }),
-        withTiming(1.05, {
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(1, {
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-        })
-      ),
-      -1,
-      false
-    );
-  }, [prefersReducedMotion]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
-
+function StaticHex({ x, y, size }: HexProps) {
   const points = getHexagonPoints(x, y, size);
 
   return (
-    <AnimatedPolygon
+    <Polygon
       points={points}
       fill="none"
       stroke="rgba(255, 255, 255, 0.15)"
       strokeWidth="1"
-      style={animatedStyle}
+      opacity={0.15}
     />
   );
 }
@@ -159,8 +111,7 @@ export function HexagonalFlowBackground() {
     for (let col = 0; col < cols; col++) {
       const x = col * hexSpacingX + (row % 2) * (hexSpacingX / 2);
       const y = row * hexSpacingY;
-      const delay = (row + col) * 100;
-      hexagons.push({ x, y, size: hexSize, delay });
+      hexagons.push({ x, y, size: hexSize });
     }
   }
 
@@ -214,7 +165,7 @@ export function HexagonalFlowBackground() {
           </Defs>
           <G>
             {hexagons.map((hex, i) => (
-              <AnimatedHex key={i} {...hex} />
+              <StaticHex key={i} {...hex} />
             ))}
           </G>
         </Svg>
