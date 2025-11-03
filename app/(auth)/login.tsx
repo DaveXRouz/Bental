@@ -20,7 +20,6 @@ import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { Silk3DBackground } from '@/components/quantum/Silk3DBackground';
-import { XLogo } from '@/components/branding/XLogo';
 import { QuantumInput } from '@/components/quantum/QuantumInput';
 import { EnhancedButton } from '@/components/ui/EnhancedButton';
 import {
@@ -196,7 +195,6 @@ export default function Login() {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <XLogo size={110} reduceMotion={reduceMotion} />
             <Text style={styles.brandName}>X</Text>
             <Text style={styles.subtitle}>Enter your realm</Text>
           </View>
