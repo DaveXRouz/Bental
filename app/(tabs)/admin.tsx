@@ -7,11 +7,14 @@ import {
   Dimensions,
   TouchableOpacity,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BarChart3, Users, DollarSign, Activity, Database, TrendingUp, AlertCircle } from 'lucide-react-native';
+import { BarChart3, Users, DollarSign, Activity, Database, TrendingUp, AlertCircle, Shield } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { GlassCard } from '@/components/glass';
+import AdminPasswordResetModal from '@/components/modals/AdminPasswordResetModal';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
@@ -40,6 +43,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [passwordResetModalVisible, setPasswordResetModalVisible] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -104,6 +108,17 @@ export default function AdminDashboard() {
     fetchRecentActivity();
   };
 
+  const handleOpenPasswordReset = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    setPasswordResetModalVisible(true);
+  };
+
+  const handleClosePasswordReset = () => {
+    setPasswordResetModalVisible(false);
+  };
+
   const StatCard = ({
     title,
     value,
@@ -150,6 +165,33 @@ export default function AdminDashboard() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
         }
       >
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Admin Tools</Text>
+          <TouchableOpacity
+            style={styles.adminToolButton}
+            onPress={handleOpenPasswordReset}
+            activeOpacity={0.8}
+          >
+            <GlassCard style={styles.adminToolCard}>
+              <View style={styles.adminToolIcon}>
+                <LinearGradient
+                  colors={['#ef444440', '#ef444410']}
+                  style={styles.iconGradient}
+                >
+                  <Shield size={24} color="#ef4444" />
+                </LinearGradient>
+              </View>
+              <View style={styles.adminToolContent}>
+                <Text style={styles.adminToolTitle}>Reset User Password</Text>
+                <Text style={styles.adminToolDescription}>
+                  Search for a user and reset their password
+                </Text>
+              </View>
+              <Text style={styles.adminToolArrow}>→</Text>
+            </GlassCard>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>System Statistics</Text>
           <View style={styles.statsGrid}>
@@ -265,6 +307,15 @@ export default function AdminDashboard() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      <AdminPasswordResetModal
+        visible={passwordResetModalVisible}
+        onClose={handleClosePasswordReset}
+        onSuccess={() => {
+          fetchStats();
+          fetchRecentActivity();
+        }}
+      />
     </LinearGradient>
   );
 }
@@ -409,5 +460,34 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     lineHeight: 24,
     marginBottom: 12,
+  },
+  adminToolButton: {
+    marginBottom: 12,
+  },
+  adminToolCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  adminToolIcon: {
+    marginRight: 16,
+  },
+  adminToolContent: {
+    flex: 1,
+  },
+  adminToolTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  adminToolDescription: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  adminToolArrow: {
+    fontSize: 24,
+    color: 'rgba(255,255,255,0.4)',
+    fontWeight: '600',
   },
 });
