@@ -86,19 +86,19 @@ export function UnifiedButton({
 
   const getFontSize = () => {
     switch (size) {
-      case 'sm': return typography.fontSize.sm;
-      case 'md': return typography.fontSize.base;
-      case 'lg': return typography.fontSize.md;
-      default: return typography.fontSize.base;
+      case 'sm': return typography.size.sm;
+      case 'md': return typography.size.md;
+      case 'lg': return typography.size.lg;
+      default: return typography.size.md;
     }
   };
 
   const getPadding = () => {
     switch (size) {
-      case 'sm': return spacing[3];
-      case 'md': return spacing[4];
-      case 'lg': return spacing[6];
-      default: return spacing[4];
+      case 'sm': return spacing.md;
+      case 'md': return spacing.lg;
+      case 'lg': return spacing.xl;
+      default: return spacing.lg;
     }
   };
 
@@ -129,17 +129,17 @@ export function UnifiedButton({
       >
         <LinearGradient
           colors={[
-            colors.brand.primary,
-            colors.brand.tertiary,
-            colors.brand.secondary,
+            colors.accent,
+            '#2563EB',
+            colors.accentDark,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.gradient, { borderRadius: colors.borderRadius.lg }]}
+          style={[styles.gradient, { borderRadius: radius.lg }]}
         >
           <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
             {loading ? (
-              <ActivityIndicator color={colors.text.inverse} size="small" />
+              <ActivityIndicator color={colors.textInverse} size="small" />
             ) : (
               <>
                 {icon && iconPosition === 'left' && (
@@ -149,9 +149,9 @@ export function UnifiedButton({
                   style={[
                     styles.text,
                     {
-                      color: colors.text.inverse,
+                      color: colors.textInverse,
                       fontSize: getFontSize(),
-                      fontFamily: typography.fontFamily.semibold,
+                      fontFamily: typography.family.semibold,
                     },
                     textStyle,
                   ]}
@@ -199,7 +199,7 @@ export function UnifiedButton({
           style={[
             styles.secondaryButton,
             {
-              borderRadius: colors.borderRadius.lg,
+              borderRadius: radius.lg,
               height: getHeight(),
             },
           ]}
@@ -208,11 +208,11 @@ export function UnifiedButton({
             colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={[styles.gradient, { borderRadius: colors.borderRadius.lg }]}
+            style={[styles.gradient, { borderRadius: radius.lg }]}
           >
             <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
               {loading ? (
-                <ActivityIndicator color={colors.text.primary} size="small" />
+                <ActivityIndicator color={colors.text} size="small" />
               ) : (
                 <>
                   {icon && iconPosition === 'left' && (
@@ -222,9 +222,9 @@ export function UnifiedButton({
                     style={[
                       styles.text,
                       {
-                        color: colors.text.primary,
+                        color: colors.text,
                         fontSize: getFontSize(),
-                        fontFamily: typography.fontFamily.semibold,
+                        fontFamily: typography.family.semibold,
                       },
                       textStyle,
                     ]}
@@ -259,7 +259,7 @@ export function UnifiedButton({
             width: fullWidth ? '100%' : undefined,
             backgroundColor: colors.danger,
             opacity: isDisabled ? 0.5 : 1,
-            borderRadius: colors.borderRadius.lg,
+            borderRadius: radius.lg,
           },
           style,
         ]}
@@ -272,7 +272,7 @@ export function UnifiedButton({
       >
         <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
           {loading ? (
-            <ActivityIndicator color={colors.text.primary} size="small" />
+            <ActivityIndicator color={colors.text} size="small" />
           ) : (
             <>
               {icon && iconPosition === 'left' && (
@@ -282,9 +282,9 @@ export function UnifiedButton({
                 style={[
                   styles.text,
                   {
-                    color: colors.text.primary,
+                    color: colors.text,
                     fontSize: getFontSize(),
-                    fontFamily: typography.fontFamily.semibold,
+                    fontFamily: typography.family.semibold,
                   },
                   textStyle,
                 ]}
@@ -314,7 +314,7 @@ export function UnifiedButton({
         {
           height: getHeight(),
           width: fullWidth ? '100%' : undefined,
-          borderRadius: colors.borderRadius.lg,
+          borderRadius: radius.lg,
           opacity: isDisabled ? 0.5 : 1,
         },
         style,
@@ -328,7 +328,7 @@ export function UnifiedButton({
     >
       <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
         {loading ? (
-          <ActivityIndicator color={colors.text.secondary} size="small" />
+          <ActivityIndicator color={colors.textSecondary} size="small" />
         ) : (
           <>
             {icon && iconPosition === 'left' && (
@@ -338,9 +338,9 @@ export function UnifiedButton({
               style={[
                 styles.text,
                 {
-                  color: colors.text.secondary,
+                  color: colors.textSecondary,
                   fontSize: getFontSize(),
-                  fontFamily: typography.fontFamily.medium,
+                  fontFamily: typography.family.medium,
                 },
                 textStyle,
               ]}
@@ -360,7 +360,6 @@ export function UnifiedButton({
 const styles = StyleSheet.create({
   button: {
     overflow: 'hidden',
-    ...colors.shadows.lg,
   },
   gradient: {
     flex: 1,
@@ -371,26 +370,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing[2],
+    gap: spacing.sm,
   },
   text: {
     textAlign: 'center',
-    letterSpacing: typography.letterSpacing.wide,
+    letterSpacing: 0.5,
   },
   secondaryButton: {
     overflow: 'hidden',
     borderWidth: 1.5,
     borderColor: colors.border,
-    ...colors.shadows.sm,
   },
   ghostButton: {
     borderWidth: 1,
-    borderColor: colors.border.subtle,
+    borderColor: colors.glassBorder,
   },
   iconLeft: {
-    marginRight: spacing[1],
+    marginRight: spacing.xs,
   },
   iconRight: {
-    marginLeft: spacing[1],
+    marginLeft: spacing.xs,
   },
 });

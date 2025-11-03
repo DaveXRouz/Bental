@@ -7,7 +7,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { colors, spacing, typography, radius } from '@/constants/theme';
+import { colors, spacing, typography, radius, shadows } from '@/constants/theme';
 
 interface UnifiedCardProps {
   children: React.ReactNode;
@@ -132,33 +132,33 @@ export function UnifiedCard({
 
 const styles = StyleSheet.create({
   defaultCard: {
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
     backgroundColor: colors.surface.card,
-    ...colors.shadows.sm,
+    ...shadows.sm,
   },
   elevatedCard: {
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border,
     overflow: 'hidden',
     backgroundColor: colors.surface.cardElevated,
-    ...colors.shadows.md,
+    ...shadows.md,
   },
   outlinedCard: {
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border,
     backgroundColor: 'transparent',
   },
   filledCard: {
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     backgroundColor: colors.surface.cardElevated,
-    ...colors.shadows.sm,
+    ...shadows.sm,
   },
   gradient: {
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
   },
 });
