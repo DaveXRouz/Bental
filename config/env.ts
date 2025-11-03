@@ -14,9 +14,12 @@ export const ENV = {
   env: (process.env.APP_ENV || 'local') as 'local' | 'dev' | 'prod',
   localeDefault: (process.env.EXPO_PUBLIC_LOCALE_DEFAULT || 'en') as 'en' | 'fr',
 
+  // SECURITY: In production apps, load these from environment variables
+  // These are hardcoded for demo purposes only
+  // Use process.env.EXPO_PUBLIC_SUPABASE_URL and process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
   supabase: {
-    url: 'https://tnjgqdpxvkciiqdrdkyz.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMTY1NzIsImV4cCI6MjA3NzY5MjU3Mn0.fzuasx1yM-PkjO-d4OowSPNfMMeLmtAeci2skmCZS5k',
+    url: process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://tnjgqdpxvkciiqdrdkyz.supabase.co',
+    anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMTY1NzIsImV4cCI6MjA3NzY5MjU3Mn0.fzuasx1yM-PkjO-d4OowSPNfMMeLmtAeci2skmCZS5k',
   },
 
   market: {
