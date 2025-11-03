@@ -276,6 +276,10 @@ export default function HomeScreen() {
     [performanceData]
   );
 
+  const shapeSize1 = useMemo(() => Math.min(280, width * 0.7), [width]);
+  const shapeSize2 = useMemo(() => Math.min(220, width * 0.55), [width]);
+  const shapeSize3 = useMemo(() => Math.min(200, width * 0.5), [width]);
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -291,10 +295,6 @@ export default function HomeScreen() {
       </View>
     );
   }
-
-  const shapeSize1 = useMemo(() => Math.min(280, width * 0.7), [width]);
-  const shapeSize2 = useMemo(() => Math.min(220, width * 0.55), [width]);
-  const shapeSize3 = useMemo(() => Math.min(200, width * 0.5), [width]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
