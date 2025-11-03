@@ -13,6 +13,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>;
   signInWithApple: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -130,6 +131,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSentryUser();
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      if (!user?.email) {
+        return { success: false, error: 'No authenticated user found' };
+      }
+
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+
+      if (verifyError) {
+        return { success: false, error: 'Current password is incorrect' };
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        return { success: false, error: updateError.message };
+      }
+
+      await supabase
+        .from('profiles')
+        .update({ password_changed_at: new Date().toISOString() })
+        .eq('id', user.id);
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Failed to change password' };
+    }
+  };
+
   const value = {
     session,
     user,
@@ -139,6 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signInWithApple,
     signOut,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

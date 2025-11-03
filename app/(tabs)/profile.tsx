@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform, 
 const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
 import { useRouter } from 'expo-router';
-import { LogOut, User as UserIcon, Phone, Mail, Calendar, Shield, Edit2 } from 'lucide-react-native';
+import { LogOut, User as UserIcon, Phone, Mail, Calendar, Shield, Edit2, Lock } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeStore } from '@/stores/useThemeStore';
@@ -13,6 +13,7 @@ import { GlassCard, GlassHeader, GlassHero } from '@/components/glass';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfileEditModal from '@/components/modals/ProfileEditModal';
+import PasswordChangeModal from '@/components/modals/PasswordChangeModal';
 import * as Haptics from 'expo-haptics';
 
 interface ClientData {
@@ -28,6 +29,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [clientData, setClientData] = useState<ClientData | null>(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchProfile = async () => {
@@ -62,6 +64,17 @@ export default function ProfileScreen() {
   const handleCloseEdit = async () => {
     setEditModalVisible(false);
     await fetchProfile();
+  };
+
+  const handleChangePassword = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    setPasswordModalVisible(true);
+  };
+
+  const handleClosePasswordModal = () => {
+    setPasswordModalVisible(false);
   };
 
   const handleSignOut = async () => {
@@ -197,6 +210,45 @@ export default function ProfileScreen() {
           </View>
         </GlassCard>
 
+        <GlassCard style={styles.section} variant="elevated">
+          <View style={styles.sectionHeader}>
+            <Lock size={20} color={colors.text} style={styles.sectionIcon} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Security Settings
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.securityButton}
+            onPress={handleChangePassword}
+            activeOpacity={0.7}
+            accessible={true}
+            accessibilityLabel="Change password"
+            accessibilityRole="button"
+          >
+            <View style={styles.securityButtonContent}>
+              <View style={styles.securityButtonLeft}>
+                <View style={styles.securityIconContainer}>
+                  <Lock size={20} color={colors.primary} />
+                </View>
+                <View>
+                  <Text style={[styles.securityButtonTitle, { color: colors.text }]}>
+                    Change Password
+                  </Text>
+                  <Text style={[styles.securityButtonSubtitle, { color: colors.textSecondary }]}>
+                    Update your account password
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.securityArrow}>
+                <Text style={[styles.securityArrowText, { color: colors.textSecondary }]}>
+                  →
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </GlassCard>
+
         <TouchableOpacity
           style={styles.signOutButton}
           onPress={handleSignOut}
@@ -238,6 +290,11 @@ export default function ProfileScreen() {
           }}
         />
       )}
+
+      <PasswordChangeModal
+        visible={passwordModalVisible}
+        onClose={handleClosePasswordModal}
+      />
     </View>
   );
 }
@@ -381,5 +438,46 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontFamily: Typography.family.regular,
     textAlign: 'center',
+  },
+  securityButton: {
+    paddingVertical: Spacing.md,
+  },
+  securityButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  securityButtonLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  securityIconContainer: {
+    width: isTablet ? 48 : 42,
+    height: isTablet ? 48 : 42,
+    borderRadius: isTablet ? 24 : 21,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  securityButtonTitle: {
+    fontSize: isTablet ? Typography.size.md : 15,
+    fontWeight: '600',
+    marginBottom: 4,
+    fontFamily: Typography.family.semibold,
+  },
+  securityButtonSubtitle: {
+    fontSize: isTablet ? Typography.size.sm : 12,
+    fontFamily: Typography.family.regular,
+  },
+  securityArrow: {
+    padding: 8,
+  },
+  securityArrowText: {
+    fontSize: 20,
+    fontWeight: '600',
   },
 });
