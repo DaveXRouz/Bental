@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Lock, CheckCircle } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { QuantumFieldBackground } from '@/components/backgrounds';
@@ -28,6 +28,17 @@ export default function ResetPasswordScreen() {
   const [touched, setTouched] = useState({ password: false, confirm: false });
 
   const passwordStrength = validatePasswordStrength(password);
+
+  useFocusEffect(
+    useCallback(() => {
+      setPassword('');
+      setConfirmPassword('');
+      setLoading(false);
+      setError('');
+      setSuccess(false);
+      setTouched({ password: false, confirm: false });
+    }, [])
+  );
 
   const handleBlur = (field: 'password' | 'confirm') => {
     setTouched({ ...touched, [field]: true });

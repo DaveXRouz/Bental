@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -43,6 +43,18 @@ export default function SignUp() {
   const clearError = () => {
     setError('');
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setFullName('');
+      setEmail('');
+      setPhone('');
+      setPassword('');
+      setConfirmPassword('');
+      setError('');
+      setLoading(false);
+    }, [])
+  );
 
   const handleFullNameChange = (text: string) => {
     setFullName(text);

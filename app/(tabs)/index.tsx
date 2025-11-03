@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, useWindowDimensions, SafeAreaView, Platform } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { TickerRibbon } from '@/components/ticker/TickerRibbon';
@@ -49,6 +50,15 @@ export default function HomeScreen() {
 
   const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
   const { unreadCount: notificationCount } = useNotifications(user?.id);
+
+  useFocusEffect(
+    useCallback(() => {
+      setTransferModalVisible(false);
+      setDepositModalVisible(false);
+      setWithdrawModalVisible(false);
+      setNotificationModalVisible(false);
+    }, [])
+  );
 
 
   const fetchDashboardData = useCallback(async () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Mail, Lock, CreditCard } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,6 +51,19 @@ export default function LoginScreen() {
     };
     loadRememberMe();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setEmail('');
+      setTradingPassport('');
+      setPassword('');
+      setEmailError('');
+      setPassportError('');
+      setPasswordError('');
+      setTouched({ email: false, passport: false, password: false });
+      setLoading(false);
+    }, [])
+  );
 
   const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

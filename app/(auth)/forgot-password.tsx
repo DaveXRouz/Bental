@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { QuantumFieldBackground } from '@/components/backgrounds';
@@ -24,6 +24,16 @@ export default function ForgotPasswordScreen() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setEmail('');
+      setLoading(false);
+      setError('');
+      setSuccess(false);
+      setTouched(false);
+    }, [])
+  );
 
   const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
