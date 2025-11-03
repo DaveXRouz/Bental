@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, useWindowDimensions, ViewStyle } from 'react-native';
-import { breakpoints } from '@/constants/theme';
+import { breakpoints, layout, spacing } from '@/constants/theme';
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
-  maxWidth?: keyof typeof colors.layout.breakpoints | 'full';
-  padding?: keyof typeof colors.spacing;
+  maxWidth?: keyof typeof breakpoints | 'full';
+  padding?: keyof typeof spacing;
   style?: ViewStyle;
 }
 
@@ -19,11 +19,11 @@ export function ResponsiveLayout({
 
   const getMaxWidth = () => {
     if (maxWidth === 'full') return '100%';
-    return colors.layout.breakpoints[maxWidth];
+    return breakpoints[maxWidth];
   };
 
   const getPadding = () => {
-    return colors.spacing[padding];
+    return spacing[padding];
   };
 
   return (
@@ -51,7 +51,7 @@ interface ResponsiveGridProps {
     lg?: number;
     xl?: number;
   };
-  gap?: keyof typeof colors.spacing;
+  gap?: keyof typeof spacing;
   style?: ViewStyle;
 }
 
@@ -64,15 +64,15 @@ export function ResponsiveGrid({
   const { width } = useWindowDimensions();
 
   const getColumns = () => {
-    if (width >= colors.layout.breakpoints.xl) return columns.xl || 4;
-    if (width >= colors.layout.breakpoints.lg) return columns.lg || 3;
-    if (width >= colors.layout.breakpoints.md) return columns.md || 2;
-    if (width >= colors.layout.breakpoints.sm) return columns.sm || 1;
+    if (width >= breakpoints.desktop) return columns.xl || 4;
+    if (width >= breakpoints.tablet) return columns.lg || 3;
+    if (width >= breakpoints.tablet) return columns.md || 2;
+    if (width >= breakpoints.mobile) return columns.sm || 1;
     return columns.xs || 1;
   };
 
   const columnCount = getColumns();
-  const gapSize = colors.spacing[gap];
+  const gapSize = spacing[gap];
 
   return (
     <View
@@ -104,7 +104,7 @@ export function ResponsiveGrid({
 interface ResponsiveStackProps {
   children: React.ReactNode;
   direction?: 'horizontal' | 'vertical';
-  gap?: keyof typeof colors.spacing;
+  gap?: keyof typeof spacing;
   align?: 'start' | 'center' | 'end' | 'stretch';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   wrap?: boolean;
@@ -147,7 +147,7 @@ export function ResponsiveStack({
         styles.stack,
         {
           flexDirection: direction === 'horizontal' ? 'row' : 'column',
-          gap: colors.spacing[gap],
+          gap: spacing[gap],
           alignItems: getAlignItems(),
           justifyContent: getJustifyContent(),
           flexWrap: wrap ? 'wrap' : 'nowrap',

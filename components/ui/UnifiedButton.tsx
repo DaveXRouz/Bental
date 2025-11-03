@@ -86,19 +86,19 @@ export function UnifiedButton({
 
   const getFontSize = () => {
     switch (size) {
-      case 'sm': return colors.typography.fontSize.sm;
-      case 'md': return colors.typography.fontSize.base;
-      case 'lg': return colors.typography.fontSize.md;
-      default: return colors.typography.fontSize.base;
+      case 'sm': return typography.fontSize.sm;
+      case 'md': return typography.fontSize.base;
+      case 'lg': return typography.fontSize.md;
+      default: return typography.fontSize.base;
     }
   };
 
   const getPadding = () => {
     switch (size) {
-      case 'sm': return colors.spacing[3];
-      case 'md': return colors.spacing[4];
-      case 'lg': return colors.spacing[6];
-      default: return colors.spacing[4];
+      case 'sm': return spacing[3];
+      case 'md': return spacing[4];
+      case 'lg': return spacing[6];
+      default: return spacing[4];
     }
   };
 
@@ -129,9 +129,9 @@ export function UnifiedButton({
       >
         <LinearGradient
           colors={[
-            colors.colors.brand.primary,
-            colors.colors.brand.tertiary,
-            colors.colors.brand.secondary,
+            colors.brand.primary,
+            colors.brand.tertiary,
+            colors.brand.secondary,
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -139,7 +139,7 @@ export function UnifiedButton({
         >
           <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
             {loading ? (
-              <ActivityIndicator color={colors.colors.text.inverse} size="small" />
+              <ActivityIndicator color={colors.text.inverse} size="small" />
             ) : (
               <>
                 {icon && iconPosition === 'left' && (
@@ -149,9 +149,9 @@ export function UnifiedButton({
                   style={[
                     styles.text,
                     {
-                      color: colors.colors.text.inverse,
+                      color: colors.text.inverse,
                       fontSize: getFontSize(),
-                      fontFamily: colors.typography.fontFamily.semibold,
+                      fontFamily: typography.fontFamily.semibold,
                     },
                     textStyle,
                   ]}
@@ -212,7 +212,7 @@ export function UnifiedButton({
           >
             <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
               {loading ? (
-                <ActivityIndicator color={colors.colors.text.primary} size="small" />
+                <ActivityIndicator color={colors.text.primary} size="small" />
               ) : (
                 <>
                   {icon && iconPosition === 'left' && (
@@ -222,9 +222,9 @@ export function UnifiedButton({
                     style={[
                       styles.text,
                       {
-                        color: colors.colors.text.primary,
+                        color: colors.text.primary,
                         fontSize: getFontSize(),
-                        fontFamily: colors.typography.fontFamily.semibold,
+                        fontFamily: typography.fontFamily.semibold,
                       },
                       textStyle,
                     ]}
@@ -257,7 +257,7 @@ export function UnifiedButton({
           {
             height: getHeight(),
             width: fullWidth ? '100%' : undefined,
-            backgroundColor: colors.colors.semantic.error,
+            backgroundColor: colors.danger,
             opacity: isDisabled ? 0.5 : 1,
             borderRadius: colors.borderRadius.lg,
           },
@@ -272,7 +272,7 @@ export function UnifiedButton({
       >
         <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
           {loading ? (
-            <ActivityIndicator color={colors.colors.text.primary} size="small" />
+            <ActivityIndicator color={colors.text.primary} size="small" />
           ) : (
             <>
               {icon && iconPosition === 'left' && (
@@ -282,9 +282,9 @@ export function UnifiedButton({
                 style={[
                   styles.text,
                   {
-                    color: colors.colors.text.primary,
+                    color: colors.text.primary,
                     fontSize: getFontSize(),
-                    fontFamily: colors.typography.fontFamily.semibold,
+                    fontFamily: typography.fontFamily.semibold,
                   },
                   textStyle,
                 ]}
@@ -328,7 +328,7 @@ export function UnifiedButton({
     >
       <View style={[styles.content, { paddingHorizontal: getPadding() }]}>
         {loading ? (
-          <ActivityIndicator color={colors.colors.text.secondary} size="small" />
+          <ActivityIndicator color={colors.text.secondary} size="small" />
         ) : (
           <>
             {icon && iconPosition === 'left' && (
@@ -338,9 +338,9 @@ export function UnifiedButton({
               style={[
                 styles.text,
                 {
-                  color: colors.colors.text.secondary,
+                  color: colors.text.secondary,
                   fontSize: getFontSize(),
-                  fontFamily: colors.typography.fontFamily.medium,
+                  fontFamily: typography.fontFamily.medium,
                 },
                 textStyle,
               ]}
@@ -371,26 +371,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: colors.spacing[2],
+    gap: spacing[2],
   },
   text: {
     textAlign: 'center',
-    letterSpacing: colors.typography.letterSpacing.wide,
+    letterSpacing: typography.letterSpacing.wide,
   },
   secondaryButton: {
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: colors.colors.border.default,
+    borderColor: colors.border,
     ...colors.shadows.sm,
   },
   ghostButton: {
     borderWidth: 1,
-    borderColor: colors.colors.border.subtle,
+    borderColor: colors.border.subtle,
   },
   iconLeft: {
-    marginRight: colors.spacing[1],
+    marginRight: spacing[1],
   },
   iconRight: {
-    marginLeft: colors.spacing[1],
+    marginLeft: spacing[1],
   },
 });

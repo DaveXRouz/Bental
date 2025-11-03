@@ -126,7 +126,7 @@ export function UnifiedInput({
               <TextInput
                 {...textInputProps}
                 style={[styles.input, textInputProps.style]}
-                placeholderTextColor={colors.colors.text.tertiary}
+                placeholderTextColor={colors.textMuted}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
               />
@@ -150,7 +150,7 @@ export function UnifiedInput({
             colors={
               error
                 ? [colors.danger, 'rgba(255, 77, 77, 0.2)']
-                : [colors.colors.brand.primary, colors.colors.brand.secondary]
+                : [colors.accent, colors.accentDark]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -170,16 +170,16 @@ export function UnifiedInput({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: colors.spacing[4],
+    marginBottom: spacing.lg,
   },
   labelContainer: {
-    marginBottom: colors.spacing[2],
+    marginBottom: spacing.sm,
   },
   label: {
-    fontSize: colors.typography.fontSize.sm,
-    fontFamily: colors.typography.fontFamily.medium,
-    color: colors.colors.text.secondary,
-    letterSpacing: colors.typography.letterSpacing.normal,
+    fontSize: typography.size.sm,
+    fontFamily: typography.family.medium,
+    color: colors.textSecondary,
+    letterSpacing: 0.5,
   },
   required: {
     color: colors.danger,
@@ -190,26 +190,26 @@ const styles = StyleSheet.create({
   },
   blurContainer: {
     flex: 1,
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 1.5,
-    ...colors.shadows.sm,
+    ...shadows.sm,
   },
   gradient: {
     flex: 1,
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   content: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: colors.spacing[4],
-    paddingVertical: colors.spacing[1],
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     zIndex: 1,
   },
   iconContainer: {
-    marginRight: colors.spacing[3],
+    marginRight: spacing.md,
     opacity: 0.65,
     zIndex: 2,
     width: 20,
@@ -219,18 +219,18 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: colors.typography.fontSize.base,
-    color: colors.colors.text.inverse,
-    fontFamily: colors.typography.fontFamily.medium,
+    fontSize: typography.size.base,
+    color: colors.textInverse,
+    fontFamily: typography.family.medium,
     fontWeight: '500',
     zIndex: 2,
     height: 48,
     paddingVertical: 0,
-    letterSpacing: colors.typography.letterSpacing.normal,
+    letterSpacing: 0.5,
   },
   rightIconContainer: {
-    padding: colors.spacing[2],
-    marginLeft: colors.spacing[1],
+    padding: spacing.sm,
+    marginLeft: spacing.md,
     width: 36,
     height: 36,
     justifyContent: 'center',
@@ -238,21 +238,21 @@ const styles = StyleSheet.create({
   },
   focusRing: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    ...colors.shadows.glow,
+    ...shadows.glow,
   },
   focusGradient: {
     flex: 1,
-    borderRadius: colors.borderRadius.lg,
+    borderRadius: radius.lg,
   },
   helperText: {
-    color: colors.colors.text.tertiary,
-    fontSize: colors.typography.fontSize.xs,
-    fontFamily: colors.typography.fontFamily.medium,
-    marginTop: colors.spacing[2],
-    marginLeft: colors.spacing[1],
-    letterSpacing: colors.typography.letterSpacing.normal,
+    color: colors.textMuted,
+    fontSize: typography.size.xs,
+    fontFamily: typography.family.medium,
+    marginTop: spacing.sm,
+    marginLeft: spacing.md,
+    letterSpacing: 0.5,
   },
   errorText: {
     color: colors.danger,

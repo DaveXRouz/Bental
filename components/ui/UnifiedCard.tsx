@@ -12,7 +12,7 @@ import { colors, spacing, typography, radius } from '@/constants/theme';
 interface UnifiedCardProps {
   children: React.ReactNode;
   variant?: 'default' | 'elevated' | 'outlined' | 'filled';
-  padding?: keyof typeof colors.spacing;
+  padding?: keyof typeof spacing;
   onPress?: () => void;
   style?: ViewStyle;
 }
@@ -44,7 +44,7 @@ export function UnifiedCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const paddingValue = colors.spacing[padding];
+  const paddingValue = spacing[padding];
 
   if (variant === 'elevated') {
     const CardContent = onPress ? AnimatedPressable : View;
@@ -134,28 +134,28 @@ const styles = StyleSheet.create({
   defaultCard: {
     borderRadius: colors.borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.colors.border.default,
+    borderColor: colors.border,
     overflow: 'hidden',
-    backgroundColor: colors.colors.surface.card,
+    backgroundColor: colors.surface.card,
     ...colors.shadows.sm,
   },
   elevatedCard: {
     borderRadius: colors.borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: colors.colors.border.default,
+    borderColor: colors.border,
     overflow: 'hidden',
-    backgroundColor: colors.colors.surface.cardElevated,
+    backgroundColor: colors.surface.cardElevated,
     ...colors.shadows.md,
   },
   outlinedCard: {
     borderRadius: colors.borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: colors.colors.border.default,
+    borderColor: colors.border,
     backgroundColor: 'transparent',
   },
   filledCard: {
     borderRadius: colors.borderRadius.lg,
-    backgroundColor: colors.colors.surface.cardElevated,
+    backgroundColor: colors.surface.cardElevated,
     ...colors.shadows.sm,
   },
   gradient: {
