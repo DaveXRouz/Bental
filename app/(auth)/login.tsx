@@ -174,6 +174,7 @@ export default function LoginScreen() {
   const handleBiometricSignIn = async () => {
     if (!biometric.capabilities.isAvailable) return;
 
+    console.clear();
     setLoading(true);
     setLoadingMessage('Authenticating...');
 
@@ -196,7 +197,8 @@ export default function LoginScreen() {
   };
 
   const handleSignIn = async () => {
-    // Clear all previous errors
+    // Clear console and previous errors for fresh state
+    console.clear();
     setEmailError('');
     setPassportError('');
     setPasswordError('');
@@ -482,17 +484,26 @@ export default function LoginScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.helpBannerText}>Having trouble signing in?</Text>
                   <View style={styles.helpLinks}>
-                    <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
+                    <TouchableOpacity onPress={() => {
+                      console.clear();
+                      router.push('/(auth)/forgot-password');
+                    }}>
                       <Text style={styles.helpLink}>Reset Password</Text>
                     </TouchableOpacity>
                     <Text style={styles.helpSeparator}>•</Text>
-                    <TouchableOpacity onPress={() => setPasswordError('Support: demo@example.com')}>
+                    <TouchableOpacity onPress={() => {
+                      console.clear();
+                      setPasswordError('Support: demo@example.com');
+                    }}>
                       <Text style={styles.helpLink}>Contact Support</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
                 <TouchableOpacity
-                  onPress={() => setShowHelpBanner(false)}
+                  onPress={() => {
+                    console.clear();
+                    setShowHelpBanner(false);
+                  }}
                   style={styles.helpClose}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
@@ -522,6 +533,7 @@ export default function LoginScreen() {
                   options={['Email', 'Trading Passport']}
                   selected={loginMode === 'email' ? 0 : 1}
                   onSelect={(index) => {
+                    console.clear();
                     const newMode = index === 0 ? 'email' : 'passport';
                     setLoginMode(newMode);
                     // Clear only the identifier field, keep password
@@ -548,6 +560,9 @@ export default function LoginScreen() {
                     label="Email"
                     value={email}
                     onChangeText={(text) => {
+                      if (text.length === 1 && email.length === 0) {
+                        console.clear();
+                      }
                       setEmail(text);
                       // Clear email error immediately as user types
                       setEmailError('');
@@ -571,6 +586,9 @@ export default function LoginScreen() {
                         label="Trading Passport"
                         value={tradingPassport}
                         onChangeText={(text) => {
+                          if (text.length === 1 && tradingPassport.length === 0) {
+                            console.clear();
+                          }
                           setTradingPassport(text);
                           // Clear passport error immediately as user types
                           setPassportError('');
@@ -654,7 +672,10 @@ export default function LoginScreen() {
                   <Text style={styles.rememberText}>Remember me</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => router.push('/(auth)/forgot-password')}
+                  onPress={() => {
+                    console.clear();
+                    router.push('/(auth)/forgot-password');
+                  }}
                   accessibilityLabel="Forgot password"
                   accessibilityRole="button"
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -703,13 +724,19 @@ export default function LoginScreen() {
 
               <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>Don't have an account?</Text>
-                <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+                <TouchableOpacity onPress={() => {
+                  console.clear();
+                  router.push('/(auth)/signup');
+                }}>
                   <Text style={styles.signupLink}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity
-                onPress={() => setShowMagicLinkModal(true)}
+                onPress={() => {
+                  console.clear();
+                  setShowMagicLinkModal(true);
+                }}
                 style={styles.magicLinkButton}
               >
                 <Text style={styles.magicLinkText}>Or sign in with magic link</Text>
@@ -726,6 +753,7 @@ export default function LoginScreen() {
               <View style={styles.oauthContainer}>
                 <GlassOAuthButton
                   onPress={() => {
+                    console.clear();
                     setPasswordError('OAuth sign-in coming soon');
                   }}
                   icon={<GoogleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
@@ -733,6 +761,7 @@ export default function LoginScreen() {
                 />
                 <GlassOAuthButton
                   onPress={() => {
+                    console.clear();
                     setPasswordError('OAuth sign-in coming soon');
                   }}
                   icon={<AppleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
@@ -749,21 +778,30 @@ export default function LoginScreen() {
               <View style={styles.footerLinks}>
                 <TouchableOpacity
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => setPasswordError('Privacy policy coming soon')}
+                  onPress={() => {
+                    console.clear();
+                    setPasswordError('Privacy policy coming soon');
+                  }}
                 >
                   <Text style={styles.footerLink}>Privacy</Text>
                 </TouchableOpacity>
                 <Text style={styles.footerSeparator}>•</Text>
                 <TouchableOpacity
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => setPasswordError('Terms coming soon')}
+                  onPress={() => {
+                    console.clear();
+                    setPasswordError('Terms coming soon');
+                  }}
                 >
                   <Text style={styles.footerLink}>Terms</Text>
                 </TouchableOpacity>
                 <Text style={styles.footerSeparator}>•</Text>
                 <TouchableOpacity
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => setPasswordError('Contact: demo@example.com')}
+                  onPress={() => {
+                    console.clear();
+                    setPasswordError('Contact: demo@example.com');
+                  }}
                 >
                   <Text style={styles.footerLink}>Contact</Text>
                 </TouchableOpacity>
