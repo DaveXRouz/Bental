@@ -16,6 +16,7 @@ import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
 import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
 import NotificationCenterModal from '@/components/modals/NotificationCenterModal';
 import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
+import { usePortfolioMetrics } from '@/hooks/usePortfolioMetrics';
 import { useNotifications } from '@/hooks/useNotifications';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
 import { DataStreamBackground } from '@/components/backgrounds';
@@ -49,6 +50,7 @@ export default function HomeScreen() {
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
 
   const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
+  const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
   const { unreadCount: notificationCount } = useNotifications(user?.id);
 
   useFocusEffect(
@@ -69,28 +71,20 @@ export default function HomeScreen() {
     }
 
     try {
+      setNetWorth(portfolioMetrics.totalValue);
+      setCashBalance(portfolioMetrics.cashBalance);
+      setInvestmentBalance(portfolioMetrics.investmentBalance);
+      setTodayChange(portfolioMetrics.todayChange);
+      setTodayChangePercent(portfolioMetrics.todayChangePercent);
+      setPortfolioReturn(portfolioMetrics.totalReturnPercent);
+
       const { data: accounts } = await supabase
         .from('accounts')
         .select('*')
         .eq('user_id', user.id);
 
       if (accounts && accounts.length > 0) {
-        const total = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
-        setNetWorth(total);
         setTotalAccounts(accounts.length);
-
-        const cash = accounts
-          .filter(a => a.account_type.includes('cash'))
-          .reduce((sum, acc) => sum + Number(acc.balance), 0);
-        const investments = accounts
-          .filter(a => !a.account_type.includes('cash'))
-          .reduce((sum, acc) => sum + Number(acc.balance), 0);
-
-        setCashBalance(cash);
-        setInvestmentBalance(investments);
-
-        await createSnapshot(total, cash, investments);
-
         const accountIds = accounts.map(a => a.id);
 
         const { data: holdings } = await supabase
@@ -112,37 +106,17 @@ export default function HomeScreen() {
           }).sort((a, b) => Number(b.market_value) - Number(a.market_value));
 
           setHoldings(holdingsWithChange.slice(0, 5));
-
-          const totalCost = holdings.reduce((sum, h) =>
-            sum + (Number(h.quantity) * Number(h.average_cost)), 0
-          );
-          const totalValue = holdings.reduce((sum, h) =>
-            sum + Number(h.market_value), 0
-          );
-
-          if (totalCost > 0) {
-            const returnPct = ((totalValue - totalCost) / totalCost) * 100;
-            setPortfolioReturn(returnPct);
-
-            const todayValue = holdings.reduce((sum, h) => {
-              const dayChange = Number(h.day_change || 0);
-              return sum + dayChange;
-            }, 0);
-            setTodayChange(todayValue);
-
-            if (totalValue > 0) {
-              setTodayChangePercent((todayValue / totalValue) * 100);
-            }
-          }
         }
       }
+
+      refetchMetrics();
     } catch (error) {
       console.error('[Dashboard] Error:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id, createSnapshot]);
+  }, [user?.id, portfolioMetrics, refetchMetrics]);
 
   useEffect(() => {
     fetchDashboardData();
