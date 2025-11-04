@@ -415,7 +415,9 @@ export default function LoginScreen() {
                 exiting={FadeOut.duration(200)}
                 style={styles.offlineBanner}
               >
-                <WifiOff size={16} color="#FFF" />
+                <View style={{ marginRight: spacing.sm }}>
+                  <WifiOff size={16} color="#FFF" />
+                </View>
                 <Text style={styles.offlineBannerText}>No internet connection</Text>
               </Animated.View>
             )}
@@ -426,7 +428,9 @@ export default function LoginScreen() {
                 entering={FadeInDown.duration(300)}
                 style={styles.helpBanner}
               >
-                <AlertTriangle size={18} color="#F59E0B" />
+                <View style={{ marginRight: spacing.sm }}>
+                  <AlertTriangle size={18} color="#F59E0B" />
+                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.helpBannerText}>Having trouble signing in?</Text>
                   <View style={styles.helpLinks}>
@@ -511,8 +515,8 @@ export default function LoginScreen() {
                     onValidate={validateEmail}
                   />
                 ) : (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flex: 1, marginRight: 8 }}>
                       <GlassInput
                         label="Trading Passport"
                         value={tradingPassport}
@@ -576,7 +580,9 @@ export default function LoginScreen() {
                     accessibilityLabel={`Sign in with ${biometric.capabilities.biometricType}`}
                     accessibilityRole="button"
                   >
-                    <Fingerprint size={20} color="rgba(255, 255, 255, 0.7)" />
+                    <View style={{ marginRight: spacing.sm }}>
+                      <Fingerprint size={20} color="rgba(255, 255, 255, 0.7)" />
+                    </View>
                     <Text style={styles.biometricText}>Use {biometric.capabilities.biometricType}</Text>
                   </TouchableOpacity>
                 </Animated.View>
@@ -618,7 +624,9 @@ export default function LoginScreen() {
                   entering={FadeIn.duration(200)}
                   style={styles.rateLimitBanner}
                 >
-                  <AlertTriangle size={18} color="#F59E0B" />
+                  <View style={{ marginRight: spacing.sm }}>
+                    <AlertTriangle size={18} color="#F59E0B" />
+                  </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.rateLimitText}>
                       Too many failed attempts
@@ -777,9 +785,9 @@ const createResponsiveStyles = (
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
   },
   checkbox: {
+    marginRight: spacing.sm,
     width: 16,
     height: 16,
     borderRadius: 4,
@@ -813,13 +821,11 @@ const createResponsiveStyles = (
       width: '100%',
       marginTop: isSmallDevice ? spacing.md : spacing.lg,
       marginBottom: isSmallDevice ? spacing.md : spacing.lg,
-      gap: isSmallDevice ? spacing.sm : spacing.md,
     },
     signupContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: spacing.xs + 2,
     },
     signupText: {
       fontSize: isSmallDevice ? 13 : 14,
@@ -856,18 +862,16 @@ const createResponsiveStyles = (
     },
     oauthContainer: {
       flexDirection: 'row',
-      gap: spacing.md,
+      justifyContent: 'space-between',
     },
     footer: {
       alignItems: 'center',
-      gap: spacing.sm,
       marginTop: isSmallDevice ? spacing.sm : spacing.md,
       paddingTop: isSmallDevice ? spacing.sm : spacing.md,
     },
   securityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
     marginBottom: spacing.xs,
   },
     securityText: {
@@ -902,7 +906,6 @@ const createResponsiveStyles = (
     offlineBanner: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
       backgroundColor: 'rgba(239, 68, 68, 0.9)',
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
@@ -918,7 +921,6 @@ const createResponsiveStyles = (
     helpBanner: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: spacing.sm,
       backgroundColor: 'rgba(245, 158, 11, 0.15)',
       borderWidth: 1,
       borderColor: 'rgba(245, 158, 11, 0.3)',
@@ -962,7 +964,6 @@ const createResponsiveStyles = (
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: spacing.sm,
       paddingVertical: spacing.sm + 2,
       paddingHorizontal: spacing.md,
       backgroundColor: 'rgba(200, 200, 200, 0.1)',
@@ -978,7 +979,6 @@ const createResponsiveStyles = (
     rateLimitBanner: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: spacing.sm,
       backgroundColor: 'rgba(245, 158, 11, 0.15)',
       borderWidth: 1,
       borderColor: 'rgba(245, 158, 11, 0.3)',
