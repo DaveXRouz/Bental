@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,12 +7,16 @@ import { colors, radius, spacing, shadows } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { showToast } from '@/components/ui/ToastManager';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAccounts } from '@/hooks/useAccounts';
+import { supabase } from '@/lib/supabase';
 
 const { height } = Dimensions.get('window');
 
 interface UnifiedWithdrawModalProps {
   visible: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 type WithdrawMethod = 'bank' | 'card' | 'crypto';
@@ -49,11 +53,20 @@ const WITHDRAW_METHODS: WithdrawMethodOption[] = [
   },
 ];
 
-export default function UnifiedWithdrawModal({ visible, onClose }: UnifiedWithdrawModalProps) {
+export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: UnifiedWithdrawModalProps) {
+  const { user } = useAuth();
+  const { accounts, refetch: refetchAccounts } = useAccounts();
   const [activeMethod, setActiveMethod] = useState<WithdrawMethod>('bank');
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const availableBalance = 12547.89;
+  const [primaryAccount, setPrimaryAccount] = useState<any>(null);
+  const availableBalance = primaryAccount ? Number(primaryAccount.balance) : 0;
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      setPrimaryAccount(accounts[0]);
+    }
+  }, [accounts]);
 
   const handleWithdraw = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -66,14 +79,52 @@ export default function UnifiedWithdrawModal({ visible, onClose }: UnifiedWithdr
       return;
     }
 
+    if (!user?.id || !primaryAccount) {
+      showToast('Account information not available', 'error');
+      return;
+    }
+
+    const withdrawAmount = parseFloat(amount);
+
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      showToast(`Withdrawal of $${amount} initiated successfully`, 'success');
+      const { data: withdrawal, error: withdrawalError } = await supabase
+        .from('withdrawals')
+        .insert({
+          user_id: user.id,
+          account_id: primaryAccount.id,
+          amount: withdrawAmount,
+          currency: 'USD',
+          destination: activeMethod,
+          status: 'pending',
+          notes: `Withdrawal via ${activeMethod}`,
+        })
+        .select()
+        .single();
+
+      if (withdrawalError) throw withdrawalError;
+
+      const newBalance = Number(primaryAccount.balance) - withdrawAmount;
+      const { error: updateError } = await supabase
+        .from('accounts')
+        .update({ balance: newBalance })
+        .eq('id', primaryAccount.id);
+
+      if (updateError) throw updateError;
+
+      await refetchAccounts();
+
+      if (onSuccess) onSuccess();
+
+      showToast(
+        `Withdrawal of $${withdrawAmount.toFixed(2)} initiated successfully`,
+        'success'
+      );
       setAmount('');
       onClose();
-    } catch (error) {
-      showToast('Failed to process withdrawal. Please try again.', 'error');
+    } catch (error: any) {
+      console.error('Withdrawal error:', error);
+      showToast(error.message || 'Failed to process withdrawal. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

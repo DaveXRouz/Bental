@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,12 +10,16 @@ import { depositSchema } from '@/utils/validation-schemas';
 import { FieldError } from '@/components/ui/ErrorState';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
 import { showToast } from '@/components/ui/ToastManager';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAccounts } from '@/hooks/useAccounts';
+import { supabase } from '@/lib/supabase';
 
 const { height } = Dimensions.get('window');
 
 interface UnifiedDepositModalProps {
   visible: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 type DepositMethod = 'bank' | 'card' | 'crypto' | 'cash-courier';
@@ -59,10 +63,19 @@ const DEPOSIT_METHODS: DepositMethodOption[] = [
   },
 ];
 
-export default function UnifiedDepositModal({ visible, onClose }: UnifiedDepositModalProps) {
+export default function UnifiedDepositModal({ visible, onClose, onSuccess }: UnifiedDepositModalProps) {
+  const { user } = useAuth();
+  const { accounts, refetch: refetchAccounts } = useAccounts();
   const [activeMethod, setActiveMethod] = useState<DepositMethod>('bank');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useValidatedForm(depositSchema);
+  const [primaryAccount, setPrimaryAccount] = useState<any>(null);
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      setPrimaryAccount(accounts[0]);
+    }
+  }, [accounts]);
 
   const handleDeposit = async () => {
     if (!form.validate()) {
@@ -70,14 +83,60 @@ export default function UnifiedDepositModal({ visible, onClose }: UnifiedDeposit
       return;
     }
 
+    if (!user?.id || !primaryAccount) {
+      showToast('Account information not available', 'error');
+      return;
+    }
+
+    const depositAmount = parseFloat(form.values.amount || '0');
+    if (depositAmount <= 0) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      showToast(`Deposit of $${form.values.amount} initiated successfully`, 'success');
+      const { data: deposit, error: depositError } = await supabase
+        .from('deposits')
+        .insert({
+          user_id: user.id,
+          account_id: primaryAccount.id,
+          amount: depositAmount,
+          currency: 'USD',
+          payment_method: activeMethod,
+          status: activeMethod === 'bank' ? 'pending' : 'completed',
+          notes: `Deposit via ${activeMethod}`,
+        })
+        .select()
+        .single();
+
+      if (depositError) throw depositError;
+
+      if (activeMethod !== 'bank') {
+        const newBalance = Number(primaryAccount.balance) + depositAmount;
+        const { error: updateError } = await supabase
+          .from('accounts')
+          .update({ balance: newBalance })
+          .eq('id', primaryAccount.id);
+
+        if (updateError) throw updateError;
+      }
+
+      await refetchAccounts();
+
+      if (onSuccess) onSuccess();
+
+      showToast(
+        activeMethod === 'bank'
+          ? `Deposit of $${depositAmount.toFixed(2)} initiated. Funds will be available in 2-3 business days.`
+          : `Deposit of $${depositAmount.toFixed(2)} completed successfully`,
+        'success'
+      );
       form.reset();
       onClose();
-    } catch (error) {
-      showToast('Failed to process deposit. Please try again.', 'error');
+    } catch (error: any) {
+      console.error('Deposit error:', error);
+      showToast(error.message || 'Failed to process deposit. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

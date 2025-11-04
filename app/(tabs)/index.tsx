@@ -198,8 +198,22 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TransferModal visible={transferModalVisible} onClose={() => setTransferModalVisible(false)} />
-      <UnifiedDepositModal visible={depositModalVisible} onClose={() => setDepositModalVisible(false)} />
-      <UnifiedWithdrawModal visible={withdrawModalVisible} onClose={() => setWithdrawModalVisible(false)} />
+      <UnifiedDepositModal
+        visible={depositModalVisible}
+        onClose={() => setDepositModalVisible(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          refetchMetrics();
+        }}
+      />
+      <UnifiedWithdrawModal
+        visible={withdrawModalVisible}
+        onClose={() => setWithdrawModalVisible(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          refetchMetrics();
+        }}
+      />
       <NotificationCenterModal visible={notificationModalVisible} onClose={() => setNotificationModalVisible(false)} />
       <View style={styles.container}>
         <DataStreamBackground />
