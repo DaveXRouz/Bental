@@ -17,14 +17,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, spacing, typography, radius } from '@/constants/theme';
-import { GlassCard } from '@/components/login/GlassCard';
-import { Segmented } from '@/components/login/Segmented';
-import { TextField } from '@/components/login/TextField';
-import { PasswordField } from '@/components/login/PasswordField';
-import { ThreeDButton } from '@/components/login/ThreeDButton';
-import { OAuthButton } from '@/components/login/OAuthButton';
-import { Chrome as GoogleIcon, Apple as AppleIcon, Twitter, Linkedin, Github } from 'lucide-react-native';
-import { ParallaxBackground } from '@/components/backgrounds/ParallaxBackground';
+import { Futuristic3DBackground } from '@/components/backgrounds/Futuristic3DBackground';
+import { Enhanced3DXLogo } from '@/components/branding/Enhanced3DXLogo';
+import { GlassmorphicCard } from '@/components/login/GlassmorphicCard';
+import { GlassToggleButtons } from '@/components/login/GlassToggleButtons';
+import { GlassInput } from '@/components/login/GlassInput';
+import { Glass3DButton } from '@/components/login/Glass3DButton';
+import { GlassOAuthButton } from '@/components/login/GlassOAuthButton';
+import { GlassFooter } from '@/components/login/GlassFooter';
+import { Chrome as GoogleIcon, Apple as AppleIcon } from 'lucide-react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -214,7 +216,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <ParallaxBackground />
+        <Futuristic3DBackground />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -222,11 +224,23 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <GlassCard>
-              <Text style={styles.title}>Step Into the Future</Text>
+            <Animated.View
+              entering={FadeIn.duration(800).delay(300)}
+              style={styles.logoContainer}
+            >
+              <Enhanced3DXLogo size={80} />
+            </Animated.View>
 
-              <View style={styles.segmentedContainer}>
-                <Segmented
+            <Animated.Text
+              entering={FadeIn.duration(600).delay(500)}
+              style={styles.title}
+            >
+              Step Into the Future
+            </Animated.Text>
+
+            <GlassmorphicCard>
+              <View style={styles.toggleContainer}>
+                <GlassToggleButtons
                   options={['Email', 'Trading Passport']}
                   selected={loginMode === 'email' ? 0 : 1}
                   onSelect={(index) => {
@@ -238,7 +252,7 @@ export default function LoginScreen() {
               </View>
 
               {loginMode === 'email' ? (
-                <TextField
+                <GlassInput
                   label="Email"
                   value={email}
                   onChangeText={(text) => {
@@ -253,10 +267,10 @@ export default function LoginScreen() {
                   textContentType="username"
                   error={emailError}
                   onBlur={() => handleBlur('email')}
-                  icon={<Mail size={18} color="#909090" />}
+                  icon={<Mail size={18} color="rgba(255, 255, 255, 0.5)" />}
                 />
               ) : (
-                <TextField
+                <GlassInput
                   label="Trading Passport"
                   value={tradingPassport}
                   onChangeText={(text) => {
@@ -269,11 +283,11 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   error={passportError}
                   onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={18} color="#909090" />}
+                  icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
                 />
               )}
 
-              <PasswordField
+              <GlassInput
                 label="Password"
                 value={password}
                 onChangeText={(text) => {
@@ -288,7 +302,8 @@ export default function LoginScreen() {
                 placeholder="Enter your password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
-                icon={<Lock size={18} color="#909090" />}
+                icon={<Lock size={18} color="rgba(255, 255, 255, 0.5)" />}
+                isPassword
               />
 
               <View style={styles.rememberRow}>
@@ -313,7 +328,7 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.buttonContainer}>
-                <ThreeDButton
+                <Glass3DButton
                   title="Sign In"
                   onPress={handleSignIn}
                   disabled={!isFormValid || loading}
@@ -328,49 +343,20 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.oauthContainer}>
-                <View style={styles.oauthButton}>
-                  <OAuthButton
-                    onPress={() => {}}
-                    icon={<GoogleIcon size={18} color="#b0b0b0" />}
-                    label="Google"
-                  />
-                </View>
-                <View style={styles.oauthButton}>
-                  <OAuthButton
-                    onPress={() => {}}
-                    icon={<AppleIcon size={18} color="#b0b0b0" />}
-                    label="Apple"
-                  />
-                </View>
+                <GlassOAuthButton
+                  onPress={() => {}}
+                  icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                  label="Google"
+                />
+                <GlassOAuthButton
+                  onPress={() => {}}
+                  icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                  label="Apple"
+                />
               </View>
 
-              <View style={styles.footer}>
-                <View style={styles.socialIcons}>
-                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
-                    <Twitter size={16} color="#707070" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
-                    <Linkedin size={16} color="#707070" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
-                    <Github size={16} color="#707070" />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.footerLinks}>
-                  <TouchableOpacity accessibilityLabel="Privacy">
-                    <Text style={styles.footerLink}>Privacy</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.footerDot}>·</Text>
-                  <TouchableOpacity accessibilityLabel="Terms">
-                    <Text style={styles.footerLink}>Terms</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.footerDot}>·</Text>
-                  <TouchableOpacity accessibilityLabel="Contact">
-                    <Text style={styles.footerLink}>Contact</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </GlassCard>
+              <GlassFooter />
+            </GlassmorphicCard>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -381,70 +367,48 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#000000',
   },
   container: {
     flex: 1,
   },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.background,
-  },
-  orb: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    opacity: 0.25,
-  },
-  orb1: {
-    backgroundColor: colors.accent,
-    top: -100,
-    left: -100,
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 100,
-  },
-  orb2: {
-    backgroundColor: colors.accentDark,
-    bottom: -100,
-    right: -100,
-    shadowColor: colors.accentDark,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 100,
-  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.md * 2,
-    paddingVertical: spacing.md * 4,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xxxl * 2,
+    minHeight: '100%',
   },
   content: {
     width: '100%',
-    maxWidth: 380,
+    maxWidth: 440,
     alignSelf: 'center',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    marginBottom: spacing.lg + 4,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#e0e0e0',
-    marginBottom: spacing.lg + 4,
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginBottom: spacing.xl + 4,
     textAlign: 'center',
-    letterSpacing: 1,
-    textShadowColor: 'rgba(0, 0, 0, 0.6)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    letterSpacing: 1.5,
+    textShadowColor: 'rgba(96, 255, 218, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
   },
-  segmentedContainer: {
-    marginBottom: spacing.lg,
+  toggleContainer: {
+    marginBottom: spacing.lg + 4,
   },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.lg + 4,
+    marginTop: -spacing.xs,
   },
   rememberContainer: {
     flexDirection: 'row',
@@ -453,69 +417,36 @@ const styles = StyleSheet.create({
   },
   rememberText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
-    color: '#b0b0b0',
+    fontWeight: typography.weight.semibold,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   forgotText: {
     fontSize: typography.size.sm,
-    fontWeight: typography.weight.medium,
-    color: '#909090',
+    fontWeight: typography.weight.semibold,
+    color: 'rgba(96, 255, 218, 0.8)',
   },
   buttonContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.lg + 4,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.lg,
+    marginVertical: spacing.lg + 4,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(128, 128, 128, 0.25)',
   },
   dividerText: {
     fontSize: typography.size.xs,
-    fontWeight: typography.weight.regular,
-    color: '#808080',
-    marginHorizontal: spacing.md,
+    fontWeight: typography.weight.semibold,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: spacing.md + 2,
+    letterSpacing: 0.5,
   },
   oauthContainer: {
-    flexDirection: width >= 400 ? 'row' : 'column',
+    flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  oauthButton: {
-    flex: width >= 400 ? 1 : undefined,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: spacing.md,
-  },
-  socialIcons: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  socialIcon: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerLinks: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm + 2,
-  },
-  footerLink: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.regular,
-    color: '#707070',
-  },
-  footerDot: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.regular,
-    color: '#707070',
+    marginBottom: spacing.lg + 4,
   },
 });
