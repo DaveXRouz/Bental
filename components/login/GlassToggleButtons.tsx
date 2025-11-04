@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,15 +16,21 @@ interface GlassToggleButtonsProps {
 }
 
 export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleButtonsProps) {
+  const translateX = useSharedValue(0);
+
+  useEffect(() => {
+    translateX.value = withSpring(selected, {
+      damping: 20,
+      stiffness: 150,
+      mass: 0.8,
+    });
+  }, [selected]);
+
   const indicatorStyle = useAnimatedStyle(() => {
-    const translateValue = selected * (100 / options.length);
     return {
       transform: [
         {
-          translateX: withSpring(`${translateValue}%`, {
-            damping: 18,
-            stiffness: 180,
-          }),
+          translateX: translateX.value * (100 / options.length) + '%',
         },
       ],
     };
@@ -40,25 +47,33 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
         />
       </Animated.View>
 
-      {options.map((option, index) => (
-        <TouchableOpacity
-          key={option}
-          onPress={() => {
-            if (Platform.OS !== 'web') {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
-            onSelect(index);
-          }}
-          style={styles.option}
-          accessibilityLabel={option}
-          accessibilityRole="button"
-          accessibilityState={{ selected: selected === index }}
-        >
-          <Text style={[styles.optionText, selected === index && styles.optionTextSelected]}>
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      {options.map((option, index) => {
+        const isSelected = selected === index;
+        return (
+          <TouchableOpacity
+            key={option}
+            onPress={() => {
+              if (Platform.OS !== 'web') {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              onSelect(index);
+            }}
+            style={styles.option}
+            accessibilityLabel={option}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isSelected }}
+          >
+            <Animated.Text
+              style={[
+                styles.optionText,
+                isSelected && styles.optionTextSelected
+              ]}
+            >
+              {option}
+            </Animated.Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
