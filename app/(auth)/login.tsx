@@ -655,7 +655,7 @@ export default function LoginScreen() {
             <View style={styles.oauthSection}>
               <View style={styles.dividerContainer}>
                 <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+                <Text style={styles.dividerText}>OR SIGN IN WITH</Text>
                 <View style={styles.dividerLine} />
               </View>
 
@@ -663,12 +663,12 @@ export default function LoginScreen() {
                 <GlassOAuthButton
                   onPress={() => {}}
                   icon={<GoogleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
-                  label="Continue with Google"
+                  label="Google"
                 />
                 <GlassOAuthButton
                   onPress={() => {}}
                   icon={<AppleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
-                  label="Continue with Apple"
+                  label="Apple"
                 />
               </View>
             </View>
