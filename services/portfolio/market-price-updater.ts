@@ -191,7 +191,7 @@ class MarketPriceUpdater {
     try {
       // Call the database function to batch update
       const { data, error } = await supabase.rpc('batch_update_market_quotes', {
-        quotes: JSON.stringify(quotes),
+        quotes: quotes,
       });
 
       if (error) {

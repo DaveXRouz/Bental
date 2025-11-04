@@ -77,10 +77,9 @@ export class PortfolioCalculator {
         user_id: userId,
         snapshot_date: new Date().toISOString().split('T')[0],
         total_value: metrics.totalValue,
-        cash_balance: metrics.cashBalance,
-        investment_balance: metrics.investmentBalance,
-        day_change: metrics.todayChange,
-        day_change_percent: metrics.todayChangePercent,
+        cash_value: metrics.cashBalance,
+        investment_value: metrics.investmentBalance,
+        daily_change: metrics.todayChange,
       }, {
         onConflict: 'user_id,snapshot_date'
       });
