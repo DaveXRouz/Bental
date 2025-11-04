@@ -225,15 +225,9 @@ export default function LoginScreen() {
           <View style={styles.content}>
             <Animated.View
               entering={FadeIn.duration(800).delay(300)}
-              style={styles.headerContainer}
+              style={styles.logoContainer}
             >
-              <View style={styles.logoContainer}>
-                <MinimalLogo size={48} />
-              </View>
-              <View style={styles.securityBadge}>
-                <Shield size={14} color="rgba(255, 255, 255, 0.4)" strokeWidth={2} />
-                <Text style={styles.securityText}>256-bit SSL</Text>
-              </View>
+              <MinimalLogo size={72} />
             </Animated.View>
 
             <Animated.Text
@@ -372,6 +366,10 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.footer}>
+                <View style={styles.securityBadge}>
+                  <Shield size={12} color="rgba(255, 255, 255, 0.3)" strokeWidth={2} />
+                  <Text style={styles.securityText}>256-bit SSL Encrypted</Text>
+                </View>
                 <View style={styles.footerLinks}>
                   <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                     <Text style={styles.footerLink}>Privacy</Text>
@@ -411,44 +409,21 @@ const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 440,
     alignSelf: 'center',
     alignItems: 'center',
   },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
   logoContainer: {
+    marginBottom: spacing.lg,
     alignItems: 'center',
-  },
-  securityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: spacing.xs + 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  securityText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: 0.3,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.98)',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
     textAlign: 'center',
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   toggleContainer: {
     marginBottom: spacing.md + 4,
@@ -523,8 +498,23 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
+    gap: spacing.sm + 2,
     marginTop: spacing.md,
-    paddingTop: spacing.md,
+    paddingTop: spacing.md + 4,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  securityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: spacing.xs,
+  },
+  securityText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.3)',
+    letterSpacing: 0.2,
   },
   footerLinks: {
     flexDirection: 'row',
