@@ -1,1 +1,564 @@
-Always clear the previous output before rendering new changes.
+# Trading Platform - Project Knowledge & Design System
+
+## Core Design Philosophy
+
+This is a **premium, futuristic trading platform** with a sophisticated dark theme and glassmorphism aesthetic. Every screen must feel polished, intentional, and premium-quality.
+
+---
+
+## Design System Reference (Login Page Standard)
+
+The login page (`app/(auth)/login.tsx`) is the **gold standard** for all design patterns in this project. Reference it religiously for:
+- Animation patterns
+- Component structure
+- User feedback mechanisms
+- Error handling UI
+- Loading states
+- Responsive behavior
+
+---
+
+## Visual Design Language
+
+### Color Palette
+**Primary Theme**: Pure black (`#000000`) with white/gray accents
+- Background: `#000000` (pure black)
+- Glass surfaces: `rgba(20-26, 20-28, 0.6-0.9)` with gradients
+- Borders: `rgba(255, 255, 255, 0.08-0.2)`
+- Text Primary: `rgba(255, 255, 255, 0.95-0.98)`
+- Text Secondary: `rgba(255, 255, 255, 0.5-0.7)`
+- Text Disabled: `rgba(255, 255, 255, 0.4)`
+
+**Accent Colors**:
+- Success: `#10B981` (green)
+- Error/Danger: `#EF4444` (red)
+- Warning: `#F59E0B` (amber)
+- Info: `#3B82F6` (blue)
+
+**NEVER use purple, indigo, or violet hues** unless explicitly requested by user.
+
+### Glassmorphism Standards
+
+**Glass Card** (see `GlassmorphicCard.tsx`):
+```typescript
+- Background: rgba(20-26, 20-28, 0.85-0.92) with vertical gradient
+- Border: 1px solid rgba(255, 255, 255, 0.12)
+- Border radius: 16px
+- BlurView intensity: 50, tint: 'dark'
+- Shadow: rgba(0, 0, 0, 0.5-0.6) with offset (0, 12), radius 24
+- Padding: spacing.lg + 4 (20px)
+```
+
+**Glass Input** (see `GlassInput.tsx`):
+```typescript
+- Background: rgba(26, 26, 28, 0.6) default
+- Background focused: rgba(26, 26, 28, 0.7) with glow
+- Border: 1px solid rgba(255, 255, 255, 0.08)
+- Border focused: rgba(200, 200, 200, 0.4) with shadow glow
+- Border error: rgba(239, 68, 68, 0.5)
+- Border radius: 10px
+- Min height: 52px
+- Padding: horizontal 14px, vertical 10px
+- Focus glow: rgba(200, 200, 200, 0.4) shadow with radius 12
+```
+
+**Glass Button** (see `Glass3DButton.tsx`):
+```typescript
+- Background gradient: ['rgba(200, 200, 200, 0.15)', 'rgba(180, 180, 180, 0.12)', 'rgba(160, 160, 160, 0.1)']
+- Border: 1.5px solid rgba(255, 255, 255, 0.2)
+- Border radius: height / 4 (rounded pill shape)
+- Height: 44-48px (responsive)
+- Shadow: rgba(0, 0, 0, 0.3) offset (0, 4) radius 8
+- Disabled gradient: ['rgba(120, 120, 120, 0.3)', 'rgba(100, 100, 100, 0.3)']
+```
+
+**Glass Toggle** (see `GlassToggleButtons.tsx`):
+```typescript
+- Container background: rgba(20, 20, 22, 0.6)
+- Container border: 1px rgba(255, 255, 255, 0.08)
+- Indicator gradient: ['rgba(200, 200, 200, 0.2)', 'rgba(180, 180, 180, 0.15)']
+- Indicator border: 1px rgba(255, 255, 255, 0.15)
+- Spring animation: damping 20, stiffness 150, mass 0.8
+- Slide animation: withSpring(selected * 100%)
+```
+
+---
+
+## Animation Patterns
+
+### Background Animations
+**Futuristic3DBackground** is the standard for auth screens:
+- 4-6 floating geometric shapes (X, cube, sphere, pyramid)
+- Each shape: size 60-120px, opacity 0.2-0.6
+- Movement: Float Y ±35-50px, duration 8-12 seconds
+- Rotation: 360° over 18-50 seconds
+- Scale pulse: 0.85-1.25 with spring physics
+- Ambient glows: 3 radial gradients, 600px diameter, opacity 0.02-0.09
+- Respects `prefers-reduced-motion`
+- Reduced quality on web/low-end devices
+
+### Component Animations
+
+**Fade In** (standard entry):
+```typescript
+entering={FadeIn.duration(600).delay(400)}
+```
+
+**Fade In Down** (alerts, banners):
+```typescript
+entering={FadeInDown.duration(300)}
+exiting={FadeOut.duration(200)}
+```
+
+**Spring Animation** (interactive elements):
+```typescript
+withSpring(value, {
+  damping: 20,
+  stiffness: 150,
+  mass: 0.8
+})
+```
+
+### Loading States
+- Show `ActivityIndicator` size "small" color "rgba(255, 255, 255, 0.9)"
+- Display loading message below button: "Verifying credentials...", "Loading profile...", "Redirecting..."
+- Disable all interactive elements during loading
+
+---
+
+## Typography
+
+**Font Family**:
+- Primary: Inter (Regular, Medium, SemiBold, Bold)
+- Display: Playfair Display (for logos/headers)
+
+**Font Sizes** (responsive):
+```typescript
+xs: 11px
+sm: 13px
+md: 15px
+lg: 17px
+xl: 20px
+xxl: 24px
+xxxl: 32px
+```
+
+**Font Weights**:
+```typescript
+regular: '400'
+medium: '500'
+semibold: '600'
+bold: '700'
+```
+
+**Letter Spacing**:
+- Buttons: 0.4px
+- Labels: 0.3px
+- Headings: -0.5px
+
+---
+
+## Spacing System
+
+**8px Grid System**:
+```typescript
+xxs: 2px
+xs: 4px
+sm: 8px
+md: 12px
+lg: 16px
+xl: 20px
+xxl: 24px
+xxxl: 32px
+xxxxl: 40px
+```
+
+---
+
+## Component Patterns
+
+### Input Fields
+**ALWAYS include**:
+- Icon on the left (Mail, Lock, CreditCard, etc. from lucide-react-native)
+- Floating label that moves up when focused or has value
+- Success checkmark when valid (CheckCircle2 in green)
+- Error message below input in red
+- Focus state with glowing border
+- Password visibility toggle for password fields
+- Real-time validation on blur
+
+### Buttons
+**ALWAYS include**:
+- Loading state with spinner
+- Disabled state with reduced opacity
+- Active opacity: 0.8
+- Haptic feedback on native (Platform.OS !== 'web')
+- Clear label with appropriate font weight
+
+### Toggle Switches
+**ALWAYS include**:
+- Smooth sliding indicator animation
+- Haptic feedback on selection
+- Accessibility labels
+- Visual feedback for selected state
+
+### Banners & Alerts
+**ALWAYS include**:
+- Icon on left (WifiOff, AlertTriangle, etc.)
+- Clear message text
+- Fade in/out animations
+- Dismiss button if interactive
+- Appropriate color coding (red for errors, amber for warnings)
+
+---
+
+## User Feedback Mechanisms
+
+### Haptic Feedback (Native Only)
+```typescript
+// Success
+Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+
+// Error
+Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+
+// Light tap
+Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+```
+
+### Console Management
+```typescript
+// Clear console before any form submission or navigation
+console.clear()
+```
+
+### Error Handling
+- Display errors inline below related field
+- Use `Animated.View` with FadeIn/FadeOut
+- Accessible with `accessibilityLiveRegion="polite"` and `accessibilityRole="alert"`
+- Clear previous errors before showing new ones
+- Show single, clear error message (not multiple stacked errors)
+
+### Loading Messages
+- "Verifying credentials..."
+- "Loading profile..."
+- "Authenticating..."
+- "Redirecting..."
+- "Processing..."
+
+---
+
+## Validation Patterns
+
+### Email Validation
+```typescript
+const validateEmail = (email: string): boolean => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+```
+
+### Password Validation
+```typescript
+const validatePassword = (password: string): boolean => {
+  return password.length >= 6;
+};
+```
+
+### Real-time Validation
+- Validate on blur (when field loses focus)
+- Show success indicator when valid
+- Show error message when invalid
+- Track touched state to avoid premature validation
+
+---
+
+## Responsive Design
+
+### Device Detection
+```typescript
+const { width, isMobile } = useResponsive();
+const isSmallDevice = width < 375;
+```
+
+### Responsive Values
+```typescript
+// Small devices (width < 375)
+fontSize: isSmallDevice ? 13 : 14
+buttonHeight: isSmallDevice ? 44 : 48
+padding: isSmallDevice ? spacing.sm : spacing.md
+
+// Tablet/Desktop
+maxWidth: isMobile ? width - spacing.xxxxl : 440
+```
+
+---
+
+## Accessibility Requirements
+
+**ALWAYS include**:
+```typescript
+accessibilityLabel="Descriptive label"
+accessibilityRole="button" | "checkbox" | "alert" | etc.
+accessibilityState={{ selected: true, checked: true }}
+accessibilityLiveRegion="polite"
+accessibilityHint="Additional context"
+```
+
+**Touch Targets**:
+```typescript
+hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+```
+
+---
+
+## Network Status Handling
+
+**Always check online status**:
+```typescript
+import NetInfo from '@react-native-community/netinfo';
+
+const [isOnline, setIsOnline] = useState(true);
+
+useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    setIsOnline(state.isConnected ?? true);
+  });
+  return () => unsubscribe();
+}, []);
+```
+
+**Show offline banner** when not connected.
+
+---
+
+## State Management Patterns
+
+### Form State
+```typescript
+const [value, setValue] = useState('');
+const [error, setError] = useState('');
+const [touched, setTouched] = useState(false);
+const [loading, setLoading] = useState(false);
+```
+
+### Async Operations
+```typescript
+const handleAction = async () => {
+  console.clear();
+  setError('');
+  setLoading(true);
+
+  try {
+    // Operation
+    setLoading(false);
+  } catch (err: any) {
+    setError(err.message);
+    setLoading(false);
+  }
+};
+```
+
+---
+
+## Icons
+
+**ALWAYS use** lucide-react-native:
+```typescript
+import { Mail, Lock, Eye, EyeOff, CheckCircle2, AlertTriangle } from 'lucide-react-native';
+
+// Standard sizes
+size={18} // inputs
+size={20} // buttons
+size={16} // badges
+```
+
+---
+
+## Navigation Patterns
+
+### Clear State on Navigation
+```typescript
+useFocusEffect(
+  useCallback(() => {
+    // Clear sensitive data
+    setPassword('');
+    setError('');
+    setLoading(false);
+  }, [])
+);
+```
+
+### Navigation with Cleanup
+```typescript
+console.clear();
+router.push('/path');
+```
+
+---
+
+## Security Best Practices
+
+1. **Never log sensitive data** (passwords, tokens)
+2. **Clear console** before showing sensitive forms
+3. **Rate limit** login attempts
+4. **Implement** proper session management
+5. **Validate** all inputs on client and server
+6. **Use HTTPS** for all API calls
+7. **Store credentials** securely (use biometric encryption)
+
+---
+
+## Performance Optimization
+
+1. **Memoize styles**: Use `React.useMemo()` for responsive styles
+2. **Cache data**: 30-60 second TTL for API responses
+3. **Lazy load**: Heavy components and animations
+4. **Reduce motion**: Respect `prefers-reduced-motion`
+5. **Optimize images**: Use appropriate sizes and formats
+6. **Debounce searches**: 300ms delay on input
+
+---
+
+## Code Quality Standards
+
+### Component Structure
+```typescript
+// 1. Imports (organized by category)
+import React, { useState, useEffect } from 'react';
+import { View, Text } from 'react-native';
+import { icons } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { Component } from '@/components/Component';
+
+// 2. Types
+interface Props {
+  value: string;
+}
+
+// 3. Component
+export default function Screen({ value }: Props) {
+  // Hooks
+  const auth = useAuth();
+
+  // State
+  const [loading, setLoading] = useState(false);
+
+  // Effects
+  useEffect(() => {
+    // ...
+  }, []);
+
+  // Handlers
+  const handleAction = () => {
+    // ...
+  };
+
+  // Styles (memoized)
+  const styles = useMemo(() => createStyles(), []);
+
+  // Render
+  return <View />;
+}
+
+// 4. Styles
+const createStyles = () => StyleSheet.create({
+  // ...
+});
+```
+
+### Error Messages
+- User-friendly language
+- Actionable guidance
+- No technical jargon
+- Clear next steps
+
+---
+
+## Testing Standards
+
+1. **Test all user flows** end-to-end
+2. **Verify error states** display correctly
+3. **Check loading states** work properly
+4. **Validate accessibility** with screen readers
+5. **Test responsive** behavior on all screen sizes
+6. **Confirm haptics** work on native platforms
+
+---
+
+## Documentation Requirements
+
+**ALWAYS document**:
+- Complex business logic
+- API integrations
+- Database schema changes
+- Breaking changes
+- Security considerations
+
+---
+
+## Quick Reference Checklist
+
+When creating a new screen, ensure:
+- [ ] Futuristic background or appropriate backdrop
+- [ ] Glassmorphic cards with proper styling
+- [ ] Smooth animations (fade in, spring, etc.)
+- [ ] Loading states with clear messages
+- [ ] Error handling with inline messages
+- [ ] Haptic feedback on native
+- [ ] Accessibility labels and roles
+- [ ] Responsive design (mobile-first)
+- [ ] Proper spacing using 8px grid
+- [ ] Icon usage from lucide-react-native
+- [ ] Console clearing on navigation
+- [ ] Network status checking
+- [ ] Reduced motion support
+
+---
+
+## Critical "Never Do" Rules
+
+1. ❌ **NEVER use purple/indigo colors** (unless requested)
+2. ❌ **NEVER skip loading states**
+3. ❌ **NEVER show raw error messages** to users
+4. ❌ **NEVER forget haptic feedback** on interactive elements
+5. ❌ **NEVER ignore accessibility** requirements
+6. ❌ **NEVER use inline styles** (always StyleSheet.create)
+7. ❌ **NEVER log sensitive data**
+8. ❌ **NEVER use bare specifiers** in imports
+9. ❌ **NEVER create forms without validation**
+10. ❌ **NEVER forget to clear console** on form submit
+
+---
+
+## Example Implementation Pattern
+
+When building any new screen/feature:
+
+1. **Study the login page** (`app/(auth)/login.tsx`)
+2. **Copy the animation patterns** (background, fade-ins)
+3. **Use the glass components** (GlassmorphicCard, GlassInput, Glass3DButton)
+4. **Implement proper validation** with touched states
+5. **Add loading states** with clear messages
+6. **Include error handling** with inline display
+7. **Add haptic feedback** for interactions
+8. **Ensure accessibility** with proper labels
+9. **Test responsiveness** on various screen sizes
+10. **Verify animations** respect reduced motion
+
+---
+
+## Summary
+
+This project is about creating a **premium, polished experience** with attention to every detail:
+- Sophisticated dark theme with glassmorphism
+- Smooth, physics-based animations
+- Clear user feedback at every step
+- Responsive and accessible design
+- Production-ready code quality
+
+**When in doubt, reference the login page. It's the gold standard.**
+
+---
+
+*Last Updated: January 4, 2025*
