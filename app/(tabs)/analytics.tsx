@@ -10,8 +10,8 @@ import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useToast } from '@/contexts/ToastContext';
 import { usePortfolioAnalytics, useAssetAllocation, usePerformanceChart } from '@/hooks/usePortfolioAnalytics';
-import { PerformanceLineChart } from '@/components/charts/PerformanceLineChart';
-import { AllocationDonutChart } from '@/components/charts/AllocationDonutChart';
+import PerformanceLineChart from '@/components/charts/PerformanceLineChart';
+import AllocationDonutChart from '@/components/charts/AllocationDonutChart';
 
 const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -210,7 +210,7 @@ function PerformanceChart({ data, period }: { data: any[]; period: TimePeriod })
 
   return (
     <BlurView intensity={40} tint="dark" style={styles.chartCard}>
-      <PerformanceLineChart data={data} height={300} />
+      <PerformanceLineChart data={data} />
     </BlurView>
   );
 }
@@ -226,16 +226,20 @@ function AllocationChart({ allocations }: { allocations: any[] }) {
     );
   }
 
-  const chartData = allocations.map(a => ({
-    label: a.category,
-    value: a.value,
-    percentage: a.percentage,
-  }));
+  const totalValue = allocations.reduce((sum, a) => sum + a.value, 0);
+  const chartData = allocations.map((a, index) => {
+    const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+    return {
+      label: a.category,
+      value: a.value,
+      color: colors[index % colors.length],
+    };
+  });
 
   return (
     <View style={styles.allocationContainer}>
       <BlurView intensity={40} tint="dark" style={styles.chartCard}>
-        <AllocationDonutChart data={chartData} size={200} />
+        <AllocationDonutChart data={chartData} totalValue={totalValue} size={200} />
       </BlurView>
 
       <View style={styles.allocationList}>
