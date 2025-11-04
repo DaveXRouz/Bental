@@ -555,9 +555,6 @@ export default function LoginScreen() {
                     label="Email"
                     value={email}
                     onChangeText={(text) => {
-                      if (text.length === 1 && email.length === 0) {
-                        console.clear();
-                      }
                       setEmail(text);
                       setEmailError('');
                     }}
@@ -580,9 +577,6 @@ export default function LoginScreen() {
                         label="Trading Passport"
                         value={tradingPassport}
                         onChangeText={(text) => {
-                          if (text.length === 1 && tradingPassport.length === 0) {
-                            console.clear();
-                          }
                           setTradingPassport(text);
                           setPassportError('');
                         }}
