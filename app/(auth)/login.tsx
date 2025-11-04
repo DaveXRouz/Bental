@@ -184,10 +184,16 @@ export default function LoginScreen() {
   };
 
   const handleSignIn = async () => {
+    // Clear all previous errors
+    setEmailError('');
+    setPassportError('');
+    setPasswordError('');
+
     setTouched({ email: true, passport: true, password: true });
 
     let hasErrors = false;
 
+    // Validate login identifier (email or passport)
     if (loginMode === 'email') {
       if (!email) {
         setEmailError('Email is required');
@@ -206,6 +212,7 @@ export default function LoginScreen() {
       }
     }
 
+    // Validate password
     if (!password) {
       setPasswordError('Password is required');
       hasErrors = true;
@@ -214,7 +221,14 @@ export default function LoginScreen() {
       hasErrors = true;
     }
 
-    if (hasErrors) return;
+    // Stop if validation failed
+    if (hasErrors) {
+      // Haptic feedback for validation error
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+      return;
+    }
 
     // Check online status
     if (!isOnline) {
@@ -276,17 +290,18 @@ export default function LoginScreen() {
         }
 
         if (error.message.includes('Invalid login credentials')) {
-          if (loginMode === 'email') {
-            setEmailError('Email not found or incorrect password');
-            setPasswordError('Please check your credentials');
-          } else {
-            setPassportError('Invalid Trading Passport or password');
-            setPasswordError('Please check your credentials');
-          }
+          // Show single, clear error message
+          setPasswordError('Incorrect password. Please try again.');
         } else if (error.message.includes('Email not confirmed')) {
-          setEmailError('Please verify your email address');
+          setEmailError('Please verify your email address first');
+        } else if (error.message.includes('User not found')) {
+          if (loginMode === 'email') {
+            setEmailError('No account found with this email');
+          } else {
+            setPassportError('Invalid Trading Passport');
+          }
         } else {
-          setPasswordError('An error occurred. Please try again.');
+          setPasswordError('Login failed. Please try again.');
         }
         setLoading(false);
         setLoadingMessage('');
@@ -503,10 +518,8 @@ export default function LoginScreen() {
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
-                      if (touched.email) {
-                        setEmailError('');
-                      }
-                      setPasswordError('');
+                      // Clear email error immediately as user types
+                      setEmailError('');
                     }}
                     placeholder="your@email.com"
                     keyboardType="email-address"
@@ -517,7 +530,7 @@ export default function LoginScreen() {
                     error={emailError}
                     onBlur={() => handleBlur('email')}
                     icon={<Mail size={18} color="rgba(255, 255, 255, 0.5)" />}
-                    showSuccess={touched.email}
+                    showSuccess={touched.email && !emailError && email.length > 0}
                     onValidate={validateEmail}
                   />
                 ) : (
@@ -528,10 +541,8 @@ export default function LoginScreen() {
                         value={tradingPassport}
                         onChangeText={(text) => {
                           setTradingPassport(text);
-                          if (touched.passport) {
-                            setPassportError('');
-                          }
-                          setPasswordError('');
+                          // Clear passport error immediately as user types
+                          setPassportError('');
                         }}
                         placeholder="Enter your Trading Passport"
                         autoCapitalize="none"
@@ -539,7 +550,7 @@ export default function LoginScreen() {
                         error={passportError}
                         onBlur={() => handleBlur('passport')}
                         icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
-                        showSuccess={touched.passport}
+                        showSuccess={touched.passport && !passportError && tradingPassport.length > 0}
                         onValidate={validatePassport}
                       />
                     </View>
@@ -555,13 +566,11 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  if (touched.password) {
-                    setPasswordError('');
-                  }
-                  if (loginMode === 'email') {
-                    setEmailError('');
-                  } else {
-                    setPassportError('');
+                  // Clear password error immediately as user types
+                  setPasswordError('');
+                  // Real-time validation for better UX
+                  if (text.length > 0 && text.length < 6) {
+                    setPasswordError('Password must be at least 6 characters');
                   }
                 }}
                 placeholder="Enter your password"
@@ -570,7 +579,7 @@ export default function LoginScreen() {
                 onBlur={() => handleBlur('password')}
                 icon={<Lock size={18} color="rgba(255, 255, 255, 0.5)" />}
                 isPassword
-                showSuccess={touched.password}
+                showSuccess={touched.password && !passwordError && password.length >= 6}
                 onValidate={validatePassword}
               />
 
