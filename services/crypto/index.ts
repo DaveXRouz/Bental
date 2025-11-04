@@ -1,9 +1,14 @@
+import cryptoService from './crypto-service';
+
+export { default as cryptoService } from './crypto-service';
+export type { CryptoQuote, CryptoCandle } from './crypto-service';
+
 import { ENV, isDemoMode } from '@/config/env';
 import { Quote } from '../marketData/types';
 
 class CryptoService {
   private cache: Map<string, { data: any; expires: number }> = new Map();
-  private cacheTTL = 30000; // 30 seconds for crypto (more volatile)
+  private cacheTTL = 30000;
 
   private getCacheKey(symbol: string): string {
     return `crypto:${symbol}`;
@@ -35,32 +40,17 @@ class CryptoService {
     if (cached) return cached;
 
     try {
-      const coinId = this.symbolToCoinGeckoId(symbol);
-      const response = await fetch(
-        `${ENV.crypto.coinGeckoBase}/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`
-      );
+      const quote = await cryptoService.getQuote(symbol);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch crypto quote for ${symbol}`);
-      }
-
-      const data = await response.json();
-      const coinData = data[coinId];
-
-      if (!coinData) {
-        throw new Error(`No data found for ${symbol}`);
-      }
-
-      const quote: Quote = {
-        price: coinData.usd || 0,
-        change: 0,
-        changePct: coinData.usd_24h_change || 0,
+      const result: Quote = {
+        price: quote.price,
+        change: quote.change24h,
+        changePct: quote.changePercent24h,
       };
 
-      this.setCache(cacheKey, quote);
-      return quote;
+      this.setCache(cacheKey, result);
+      return result;
     } catch (error) {
-      console.error(`[Crypto] Error fetching quote for ${symbol}:`, error);
       return this.getDemoQuote(symbol);
     }
   }
