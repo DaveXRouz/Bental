@@ -34,6 +34,9 @@ import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { MFAVerificationModal } from '@/components/auth/MFAVerificationModal';
 import { useMFA } from '@/hooks/useMFA';
 import { useRateLimit } from '@/hooks/useRateLimit';
+import { useLoginHistory } from '@/hooks/useLoginHistory';
+import { useSessionManagement } from '@/hooks/useSessionManagement';
+import { MagicLinkModal } from '@/components/auth/MagicLinkModal';
 
 type LoginMode = 'email' | 'passport';
 
@@ -57,10 +60,13 @@ export default function LoginScreen() {
   const [showHelpBanner, setShowHelpBanner] = useState(false);
   const [showMFAModal, setShowMFAModal] = useState(false);
   const [pendingMFAEmail, setPendingMFAEmail] = useState('');
+  const [showMagicLinkModal, setShowMagicLinkModal] = useState(false);
 
   const biometric = useBiometricAuth();
   const mfa = useMFA();
   const rateLimit = useRateLimit(loginMode === 'email' ? email : null);
+  const loginHistory = useLoginHistory();
+  const sessionManagement = useSessionManagement();
 
   useEffect(() => {
     const loadRememberMe = async () => {
@@ -286,6 +292,12 @@ export default function LoginScreen() {
 
       if (data?.user) {
         setLoadingMessage('Loading profile...');
+
+        // Record successful login
+        await loginHistory.recordLogin(true);
+
+        // Create/update session
+        await sessionManagement.createSession(rememberMe);
 
         // Check if MFA is enabled for this user
         const { data: mfaData } = await supabase
@@ -631,6 +643,13 @@ export default function LoginScreen() {
                   <Text style={styles.signupLink}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
+
+              <TouchableOpacity
+                onPress={() => setShowMagicLinkModal(true)}
+                style={styles.magicLinkButton}
+              >
+                <Text style={styles.magicLinkText}>Or sign in with magic link</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.oauthSection}>
@@ -689,6 +708,15 @@ export default function LoginScreen() {
         }}
         onVerify={handleMFAVerify}
         method="totp"
+      />
+
+      {/* Magic Link Modal */}
+      <MagicLinkModal
+        visible={showMagicLinkModal}
+        onClose={() => setShowMagicLinkModal(false)}
+        onSuccess={() => {
+          // Modal will stay open to show success message
+        }}
       />
     </SafeAreaView>
   );
@@ -969,6 +997,16 @@ const createResponsiveStyles = (
       fontSize: typography.size.xs,
       fontWeight: typography.weight.medium,
       color: '#F59E0B',
+    },
+    magicLinkButton: {
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    magicLinkText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.semibold,
+      color: 'rgba(200, 200, 200, 0.9)',
+      textDecorationLine: 'underline',
     },
   });
 };
