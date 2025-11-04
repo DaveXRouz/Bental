@@ -443,16 +443,11 @@ export default function LoginScreen() {
       >
         <Futuristic3DBackground />
 
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => Keyboard.dismiss()}
-          style={{ flex: 1 }}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
             {/* Offline Banner */}
             {!isOnline && (
               <Animated.View
@@ -792,7 +787,6 @@ export default function LoginScreen() {
             </View>
             </View>
           </ScrollView>
-        </TouchableOpacity>
       </KeyboardAvoidingView>
 
       {/* MFA Verification Modal */}
