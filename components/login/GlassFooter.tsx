@@ -15,8 +15,12 @@ export function GlassFooter() {
       style={styles.container}
     >
       <View style={styles.socialIconsContainer}>
-        <SocialIcon icon={<Twitter size={18} color="rgba(255, 255, 255, 0.7)" />} label="Twitter" />
-        <SocialIcon icon={<Linkedin size={18} color="rgba(255, 255, 255, 0.7)" />} label="LinkedIn" />
+        <View style={{ marginRight: spacing.md }}>
+          <SocialIcon icon={<Twitter size={18} color="rgba(255, 255, 255, 0.7)" />} label="Twitter" />
+        </View>
+        <View style={{ marginRight: spacing.md }}>
+          <SocialIcon icon={<Linkedin size={18} color="rgba(255, 255, 255, 0.7)" />} label="LinkedIn" />
+        </View>
         <SocialIcon icon={<Github size={18} color="rgba(255, 255, 255, 0.7)" />} label="GitHub" />
       </View>
 
@@ -143,7 +147,6 @@ const styles = StyleSheet.create({
   },
   socialIconsContainer: {
     flexDirection: 'row',
-    gap: spacing.md,
     marginBottom: spacing.md + 2,
   },
   socialIconButton: {
@@ -202,7 +205,6 @@ const styles = StyleSheet.create({
   linksContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm + 2,
     marginBottom: spacing.sm + 2,
   },
   linkText: {
@@ -223,6 +225,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: 'rgba(255, 255, 255, 0.35)',
     fontWeight: '400',
+    marginHorizontal: spacing.sm + 2,
   },
   copyrightContainer: {
     paddingHorizontal: spacing.md,

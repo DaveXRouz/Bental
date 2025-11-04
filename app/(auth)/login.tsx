@@ -433,7 +433,7 @@ export default function LoginScreen() {
                     <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
                       <Text style={styles.helpLink}>Reset Password</Text>
                     </TouchableOpacity>
-                    <Text style={styles.helpSeparator}> · </Text>
+                    <Text style={styles.helpSeparator}>•</Text>
                     <TouchableOpacity>
                       <Text style={styles.helpLink}>Contact Support</Text>
                     </TouchableOpacity>
@@ -682,11 +682,11 @@ export default function LoginScreen() {
                 <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                   <Text style={styles.footerLink}>Privacy</Text>
                 </TouchableOpacity>
-                <Text style={styles.footerSeparator}> · </Text>
+                <Text style={styles.footerSeparator}>•</Text>
                 <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                   <Text style={styles.footerLink}>Terms</Text>
                 </TouchableOpacity>
-                <Text style={styles.footerSeparator}> · </Text>
+                <Text style={styles.footerSeparator}>•</Text>
                 <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                   <Text style={styles.footerLink}>Contact</Text>
                 </TouchableOpacity>

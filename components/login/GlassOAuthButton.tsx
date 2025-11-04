@@ -78,13 +78,13 @@ const createStyles = (height: number, fontSize: number, iconSize: number) => Sty
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
   },
   iconContainer: {
     width: iconSize,
     height: iconSize,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: spacing.sm,
   },
   label: {
     fontSize: fontSize,
