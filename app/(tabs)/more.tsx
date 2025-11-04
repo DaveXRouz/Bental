@@ -28,6 +28,7 @@ import {
   Trophy,
   Search,
   Receipt,
+  BarChart3,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { colors, Spacing, Typography } from '@/constants/theme';
@@ -153,6 +154,15 @@ export default function MoreScreen() {
           iconColor: '#3B82F6',
           iconBg: 'rgba(59, 130, 246, 0.15)',
           onPress: () => router.push('/(tabs)/screener'),
+        },
+        {
+          id: 'analytics',
+          title: 'Analytics',
+          subtitle: 'Portfolio performance & insights',
+          icon: BarChart3,
+          iconColor: '#06B6D4',
+          iconBg: 'rgba(6, 182, 212, 0.15)',
+          onPress: () => router.push('/(tabs)/analytics'),
         },
         {
           id: 'activity',

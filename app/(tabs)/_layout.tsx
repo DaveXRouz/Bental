@@ -110,6 +110,62 @@ export default function TabLayout() {
             title: 'Support',
           }}
         />
+        <Tabs.Screen
+          name="analytics"
+          options={{
+            href: null,
+            title: 'Analytics',
+          }}
+        />
+        <Tabs.Screen
+          name="news"
+          options={{
+            href: null,
+            title: 'News',
+          }}
+        />
+        <Tabs.Screen
+          name="alerts"
+          options={{
+            href: null,
+            title: 'Alerts',
+          }}
+        />
+        <Tabs.Screen
+          name="leaderboard"
+          options={{
+            href: null,
+            title: 'Leaderboard',
+          }}
+        />
+        <Tabs.Screen
+          name="bot-marketplace"
+          options={{
+            href: null,
+            title: 'Bot Marketplace',
+          }}
+        />
+        <Tabs.Screen
+          name="screener"
+          options={{
+            href: null,
+            title: 'Screener',
+          }}
+        />
+        <Tabs.Screen
+          name="security"
+          options={{
+            href: null,
+            title: 'Security',
+          }}
+        />
+        <Tabs.Screen
+          name="tax-reports"
+          options={{
+            href: null,
+            title: 'Tax Reports',
+          }}
+        />
       </Tabs>
     </View>
   );

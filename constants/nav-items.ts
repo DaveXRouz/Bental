@@ -17,6 +17,7 @@ import {
   Trophy,
   Search,
   Receipt,
+  BarChart3,
 } from 'lucide-react-native';
 
 export type DockItemId =
@@ -39,7 +40,8 @@ export type DockItemId =
   | 'leaderboard'
   | 'bots'
   | 'screener'
-  | 'tax';
+  | 'tax'
+  | 'analytics';
 
 export type NavItemCapability = 'linkedBank' | 'kycDone' | 'aiEnabled';
 
@@ -217,6 +219,14 @@ export const NAV_ITEMS: Record<DockItemId, NavItem> = {
     icon: Receipt,
     iconColor: '#10B981',
     description: 'Tax documents',
+  },
+  analytics: {
+    id: 'analytics',
+    label: 'Analytics',
+    route: '/(tabs)/analytics',
+    icon: BarChart3,
+    iconColor: '#06B6D4',
+    description: 'Portfolio analytics',
   },
 };
 
