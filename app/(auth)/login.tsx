@@ -241,6 +241,10 @@ export default function LoginScreen() {
               Welcome back
             </Animated.Text>
 
+            <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>
+              v2.0 - Enhanced
+            </Text>
+
             <GlassmorphicCard>
               <View style={styles.toggleContainer}>
                 <GlassToggleButtons
