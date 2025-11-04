@@ -337,55 +337,63 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.buttonContainer}>
-                <Glass3DButton
-                  title="Sign In"
-                  onPress={handleSignIn}
-                  disabled={!isFormValid || loading}
-                  loading={loading}
-                />
-              </View>
-
-              <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              <View style={styles.oauthContainer}>
-                <GlassOAuthButton
-                  onPress={() => {}}
-                  icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
-                  label="Google"
-                />
-                <GlassOAuthButton
-                  onPress={() => {}}
-                  icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
-                  label="Apple"
-                />
-              </View>
-
-              <View style={styles.footer}>
-                <View style={styles.securityBadge}>
-                  <Shield size={12} color="rgba(255, 255, 255, 0.3)" strokeWidth={2} />
-                  <Text style={styles.securityText}>256-bit SSL Encrypted</Text>
-                </View>
-                <View style={styles.footerLinks}>
-                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.footerLink}>Privacy</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.footerSeparator}> · </Text>
-                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.footerLink}>Terms</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.footerSeparator}> · </Text>
-                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.footerLink}>Contact</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.copyright}>© 2025 Trading Platform. All rights reserved.</Text>
-              </View>
             </GlassmorphicCard>
+
+            <View style={styles.actionSection}>
+              <Glass3DButton
+                title="Sign In"
+                onPress={handleSignIn}
+                disabled={!isFormValid || loading}
+                loading={loading}
+              />
+
+              <View style={styles.signupContainer}>
+                <Text style={styles.signupText}>Don't have an account?</Text>
+                <TouchableOpacity onPress={() => router.push('/signup')}>
+                  <Text style={styles.signupLink}>Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.oauthContainer}>
+              <GlassOAuthButton
+                onPress={() => {}}
+                icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                label="Google"
+              />
+              <GlassOAuthButton
+                onPress={() => {}}
+                icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                label="Apple"
+              />
+            </View>
+
+            <View style={styles.footer}>
+              <View style={styles.securityBadge}>
+                <Shield size={12} color="rgba(255, 255, 255, 0.25)" strokeWidth={2} />
+                <Text style={styles.securityText}>256-bit SSL Encrypted</Text>
+              </View>
+              <View style={styles.footerLinks}>
+                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Text style={styles.footerLink}>Privacy</Text>
+                </TouchableOpacity>
+                <Text style={styles.footerSeparator}> · </Text>
+                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Text style={styles.footerLink}>Terms</Text>
+                </TouchableOpacity>
+                <Text style={styles.footerSeparator}> · </Text>
+                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <Text style={styles.footerLink}>Contact</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.copyright}>© 2025 Trading Platform. All rights reserved.</Text>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -470,14 +478,33 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
     color: 'rgba(200, 200, 200, 0.9)',
   },
-  buttonContainer: {
-    marginBottom: spacing.md + 4,
+  actionSection: {
+    width: '100%',
+    marginTop: spacing.xl,
+    marginBottom: spacing.xl,
+    gap: spacing.md + 4,
+  },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+  },
+  signupText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  signupLink: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.9)',
+    textDecorationLine: 'underline',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
   },
   dividerLine: {
     flex: 1,
@@ -494,15 +521,13 @@ const styles = StyleSheet.create({
   oauthContainer: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.xl,
   },
   footer: {
     alignItems: 'center',
     gap: spacing.sm + 2,
-    marginTop: spacing.md,
-    paddingTop: spacing.md + 4,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    marginTop: spacing.lg,
+    paddingTop: spacing.lg,
   },
   securityBadge: {
     flexDirection: 'row',
@@ -513,7 +538,7 @@ const styles = StyleSheet.create({
   securityText: {
     fontSize: 10,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.3)',
+    color: 'rgba(255, 255, 255, 0.25)',
     letterSpacing: 0.2,
   },
   footerLinks: {
@@ -522,8 +547,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   footerLink: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '500',
     color: 'rgba(255, 255, 255, 0.5)',
     letterSpacing: 0.3,
   },
