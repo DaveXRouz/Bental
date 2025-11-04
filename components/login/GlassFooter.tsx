@@ -138,13 +138,13 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: 0,
   },
   socialIconsContainer: {
     flexDirection: 'row',
-    gap: spacing.md + 2,
-    marginBottom: spacing.lg,
+    gap: spacing.md,
+    marginBottom: spacing.md + 2,
   },
   socialIconButton: {
     width: 44,
@@ -191,9 +191,9 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   divider: {
-    width: '60%',
+    width: '50%',
     height: 1,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm + 2,
     overflow: 'hidden',
   },
   dividerGradient: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm + 2,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm + 2,
   },
   linkText: {
     fontSize: typography.size.sm,
@@ -225,9 +225,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   copyrightContainer: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     overflow: 'hidden',
   },
   copyrightGradient: {

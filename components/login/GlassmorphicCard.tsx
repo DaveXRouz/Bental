@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: spacing.md * 2.5,
-    paddingTop: spacing.lg * 2,
-    paddingBottom: spacing.lg * 2,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl + 4,
+    paddingBottom: spacing.xl,
   },
 });

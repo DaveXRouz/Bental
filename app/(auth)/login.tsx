@@ -380,40 +380,39 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xxxl * 2,
-    minHeight: '100%',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xl * 2,
   },
   content: {
     width: '100%',
-    maxWidth: 440,
+    maxWidth: 420,
     alignSelf: 'center',
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: spacing.lg + 4,
+    marginBottom: spacing.lg,
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.95)',
-    marginBottom: spacing.xl + 4,
+    marginBottom: spacing.xl,
     textAlign: 'center',
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     textShadowColor: 'rgba(96, 255, 218, 0.3)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 16,
   },
   toggleContainer: {
-    marginBottom: spacing.lg + 4,
+    marginBottom: spacing.lg,
   },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg + 4,
-    marginTop: -spacing.xs,
+    marginBottom: spacing.lg,
+    marginTop: spacing.sm,
   },
   rememberContainer: {
     flexDirection: 'row',
@@ -431,16 +430,18 @@ const styles = StyleSheet.create({
     color: 'rgba(96, 255, 218, 0.8)',
   },
   buttonContainer: {
-    marginBottom: spacing.lg + 4,
+    marginBottom: spacing.lg,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.lg + 4,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
+    backgroundColor: 'rgba(96, 255, 218, 0.15)',
   },
   dividerText: {
     fontSize: typography.size.xs,
@@ -452,6 +453,6 @@ const styles = StyleSheet.create({
   oauthContainer: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.lg + 4,
+    marginBottom: spacing.lg,
   },
 });

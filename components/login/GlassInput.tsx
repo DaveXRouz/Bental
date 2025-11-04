@@ -222,7 +222,7 @@ export function GlassInput({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   container: {
     width: '100%',
@@ -254,9 +254,9 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    minHeight: 56,
+    paddingHorizontal: spacing.md + 2,
+    paddingVertical: spacing.md,
+    minHeight: 60,
   },
   iconContainer: {
     marginRight: spacing.sm,
@@ -266,11 +266,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     position: 'relative',
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
   },
   label: {
     position: 'absolute',
     left: 0,
+    top: spacing.md + 4,
     fontSize: typography.size.sm,
     fontWeight: '600',
     letterSpacing: 0.3,
@@ -280,9 +281,10 @@ const styles = StyleSheet.create({
     fontSize: typography.size.md,
     fontWeight: '500',
     color: 'rgba(255, 255, 255, 0.9)',
-    paddingVertical: Platform.OS === 'ios' ? spacing.xs : spacing.xxs,
+    paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.xs,
     paddingHorizontal: 0,
     letterSpacing: 0.3,
+    marginTop: spacing.xs,
   },
   eyeIcon: {
     marginLeft: spacing.sm,
@@ -297,9 +299,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorContainer: {
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: radius.sm,
     overflow: 'hidden',
   },
