@@ -72,6 +72,18 @@ export default function LoginScreen() {
     const loadRememberMe = async () => {
       const value = await AsyncStorage.getItem('rememberMe');
       setRememberMe(value === 'true');
+
+      // Load saved login mode and credentials
+      const savedMode = await AsyncStorage.getItem('loginMode');
+      const savedEmail = await AsyncStorage.getItem('savedEmail');
+      const savedPassport = await AsyncStorage.getItem('savedPassport');
+
+      if (savedMode === 'passport' && savedPassport) {
+        setLoginMode('passport');
+        setTradingPassport(savedPassport);
+      } else if (savedEmail) {
+        setEmail(savedEmail);
+      }
     };
     loadRememberMe();
 
@@ -98,11 +110,11 @@ export default function LoginScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Only clear email if Remember Me is off
+      // Clear sensitive data but preserve Remember Me preferences
       if (!rememberMe) {
         setEmail('');
+        setTradingPassport('');
       }
-      setTradingPassport('');
       setPassword('');
       setEmailError('');
       setPassportError('');
@@ -246,7 +258,22 @@ export default function LoginScreen() {
     setLoadingMessage('Verifying credentials...');
 
     try {
+      // Save Remember Me preferences
       await AsyncStorage.setItem('rememberMe', rememberMe.toString());
+      await AsyncStorage.setItem('loginMode', loginMode);
+
+      if (rememberMe) {
+        if (loginMode === 'email') {
+          await AsyncStorage.setItem('savedEmail', email);
+          await AsyncStorage.removeItem('savedPassport');
+        } else {
+          await AsyncStorage.setItem('savedPassport', tradingPassport);
+          await AsyncStorage.removeItem('savedEmail');
+        }
+      } else {
+        await AsyncStorage.removeItem('savedEmail');
+        await AsyncStorage.removeItem('savedPassport');
+      }
 
       let loginEmail = email;
 
@@ -459,7 +486,7 @@ export default function LoginScreen() {
                       <Text style={styles.helpLink}>Reset Password</Text>
                     </TouchableOpacity>
                     <Text style={styles.helpSeparator}>•</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => setPasswordError('Support: demo@example.com')}>
                       <Text style={styles.helpLink}>Contact Support</Text>
                     </TouchableOpacity>
                   </View>
@@ -495,14 +522,18 @@ export default function LoginScreen() {
                   options={['Email', 'Trading Passport']}
                   selected={loginMode === 'email' ? 0 : 1}
                   onSelect={(index) => {
-                    setLoginMode(index === 0 ? 'email' : 'passport');
-                    setEmail('');
-                    setTradingPassport('');
-                    setPassword('');
-                    setEmailError('');
-                    setPassportError('');
-                    setPasswordError('');
-                    setTouched({ email: false, passport: false, password: false });
+                    const newMode = index === 0 ? 'email' : 'passport';
+                    setLoginMode(newMode);
+                    // Clear only the identifier field, keep password
+                    if (newMode === 'email') {
+                      setTradingPassport('');
+                      setPassportError('');
+                    } else {
+                      setEmail('');
+                      setEmailError('');
+                    }
+                    // Clear touched state for identifier fields only
+                    setTouched(prev => ({ ...prev, email: false, passport: false }));
                   }}
                 />
               </View>
@@ -554,7 +585,7 @@ export default function LoginScreen() {
                         onValidate={validatePassport}
                       />
                     </View>
-                    <View style={{ marginBottom: passportError ? 34 : 12 }}>
+                    <View style={{ marginBottom: 12 }}>
                       <Tooltip content="Your Trading Passport is a unique 6+ character identifier that you can use instead of your email address to sign in. It's displayed in your profile settings." />
                     </View>
                   </View>
@@ -577,6 +608,8 @@ export default function LoginScreen() {
                 autoComplete="password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
+                returnKeyType="go"
+                onSubmitEditing={handleSignIn}
                 icon={<Lock size={18} color="rgba(255, 255, 255, 0.5)" />}
                 isPassword
                 showSuccess={touched.password && !passwordError && password.length >= 6}
@@ -584,7 +617,7 @@ export default function LoginScreen() {
               />
 
               {/* Biometric Auth Button */}
-              {biometric.capabilities.isAvailable && email && (
+              {biometric.capabilities.isAvailable && (loginMode === 'email' ? email : true) && (
                 <Animated.View
                   entering={FadeIn.duration(300)}
                   style={styles.biometricButton}
@@ -654,7 +687,15 @@ export default function LoginScreen() {
               )}
 
               <Glass3DButton
-                title={loading && loadingMessage ? loadingMessage : 'Sign In'}
+                title={
+                  loading && loadingMessage
+                    ? loadingMessage
+                    : rateLimit.isLocked
+                    ? `Locked - Wait ${rateLimit.formatCountdown()}`
+                    : !isOnline
+                    ? 'No Internet Connection'
+                    : 'Sign In'
+                }
                 onPress={handleSignIn}
                 disabled={!isFormValid || loading || !isOnline}
                 loading={loading}
@@ -662,7 +703,7 @@ export default function LoginScreen() {
 
               <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>Don't have an account?</Text>
-                <TouchableOpacity onPress={() => router.push('/signup')}>
+                <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
                   <Text style={styles.signupLink}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
@@ -684,12 +725,16 @@ export default function LoginScreen() {
 
               <View style={styles.oauthContainer}>
                 <GlassOAuthButton
-                  onPress={() => {}}
+                  onPress={() => {
+                    setPasswordError('OAuth sign-in coming soon');
+                  }}
                   icon={<GoogleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
                   label="Google"
                 />
                 <GlassOAuthButton
-                  onPress={() => {}}
+                  onPress={() => {
+                    setPasswordError('OAuth sign-in coming soon');
+                  }}
                   icon={<AppleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
                   label="Apple"
                 />
@@ -702,15 +747,24 @@ export default function LoginScreen() {
                 <Text style={styles.securityText}>256-bit SSL Encrypted</Text>
               </View>
               <View style={styles.footerLinks}>
-                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  onPress={() => setPasswordError('Privacy policy coming soon')}
+                >
                   <Text style={styles.footerLink}>Privacy</Text>
                 </TouchableOpacity>
                 <Text style={styles.footerSeparator}>•</Text>
-                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  onPress={() => setPasswordError('Terms coming soon')}
+                >
                   <Text style={styles.footerLink}>Terms</Text>
                 </TouchableOpacity>
                 <Text style={styles.footerSeparator}>•</Text>
-                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  onPress={() => setPasswordError('Contact: demo@example.com')}
+                >
                   <Text style={styles.footerLink}>Contact</Text>
                 </TouchableOpacity>
               </View>
@@ -728,6 +782,9 @@ export default function LoginScreen() {
           setShowMFAModal(false);
           setLoading(false);
           setLoadingMessage('');
+          // Sign out the partially authenticated user
+          supabase.auth.signOut();
+          setPasswordError('MFA verification cancelled');
         }}
         onVerify={handleMFAVerify}
         method="totp"
@@ -738,7 +795,11 @@ export default function LoginScreen() {
         visible={showMagicLinkModal}
         onClose={() => setShowMagicLinkModal(false)}
         onSuccess={() => {
-          // Modal will stay open to show success message
+          setShowMagicLinkModal(false);
+          if (Platform.OS !== 'web') {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
+          setPasswordError('Magic link sent! Check your email.');
         }}
       />
     </SafeAreaView>
@@ -961,6 +1022,7 @@ const createResponsiveStyles = (
     helpSeparator: {
       fontSize: typography.size.xs,
       color: 'rgba(255, 255, 255, 0.4)',
+      marginHorizontal: spacing.xs,
     },
     helpClose: {
       padding: 4,
