@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { User, Mail, Phone, Lock, Chrome, Apple as AppleIcon, Shield } from 'lucide-react-native';
@@ -27,15 +28,11 @@ export default function SignUp() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp, signInWithGoogle, signInWithApple } = useAuth();
   const router = useRouter();
   const { images } = useBrandImages();
-
-  const clearError = () => {
-    setError('');
-  };
+  const toast = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -44,51 +41,43 @@ export default function SignUp() {
       setPhone('');
       setPassword('');
       setConfirmPassword('');
-      setError('');
       setLoading(false);
     }, [])
   );
 
   const handleFullNameChange = (text: string) => {
     setFullName(text);
-    clearError();
   };
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
-    clearError();
   };
 
   const handlePhoneChange = (text: string) => {
     setPhone(text);
-    clearError();
   };
 
   const handlePasswordChange = (text: string) => {
     setPassword(text);
-    clearError();
   };
 
   const handleConfirmPasswordChange = (text: string) => {
     setConfirmPassword(text);
-    clearError();
   };
 
   const handleSignUp = async () => {
-    clearError();
-
     if (!fullName || !email || !password || !confirmPassword) {
-      setError('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      toast.error('Password must be at least 6 characters');
       return;
     }
 
@@ -97,23 +86,25 @@ export default function SignUp() {
     const { error } = await signUp(email, password, fullName, phone);
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setLoading(false);
     } else {
+      toast.success('Account created successfully!');
       router.replace('/(tabs)');
     }
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    clearError();
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
+      } else {
+        toast.success('Signed in with Google');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -121,14 +112,15 @@ export default function SignUp() {
 
   const handleAppleSignIn = async () => {
     setLoading(true);
-    clearError();
     try {
       const { error } = await signInWithApple();
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
+      } else {
+        toast.success('Signed in with Apple');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -207,12 +199,6 @@ export default function SignUp() {
                   secureTextEntry
                   editable={!loading}
                 />
-
-                {error ? (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{error}</Text>
-                  </View>
-                ) : null}
 
                 <UnifiedButton
                   title="Create Account"

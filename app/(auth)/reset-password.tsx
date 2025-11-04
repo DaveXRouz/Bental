@@ -11,6 +11,7 @@ import {
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Lock, CheckCircle } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { QuantumFieldBackground } from '@/components/backgrounds';
 import { GlassCard } from '@/components/login/GlassCard';
 import { PasswordField } from '@/components/login/PasswordField';
@@ -20,10 +21,10 @@ import { calculatePasswordStrength } from '@/utils/password-strength';
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { updatePassword } = useAuth();
+  const toast = useToast();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState({ password: false, confirm: false });
 
@@ -34,7 +35,6 @@ export default function ResetPasswordScreen() {
       setPassword('');
       setConfirmPassword('');
       setLoading(false);
-      setError('');
       setSuccess(false);
       setTouched({ password: false, confirm: false });
     }, [])
@@ -45,52 +45,48 @@ export default function ResetPasswordScreen() {
 
     if (field === 'password') {
       if (!password) {
-        setError('Password is required');
+        toast.error('Password is required');
       } else if (password.length < 8) {
-        setError('Password must be at least 8 characters');
+        toast.error('Password must be at least 8 characters');
       } else if (passwordStrength.score < 2) {
-        setError('Password is too weak');
-      } else {
-        setError('');
+        toast.warning('Password is too weak');
       }
     }
 
     if (field === 'confirm') {
       if (!confirmPassword) {
-        setError('Please confirm your password');
+        toast.error('Please confirm your password');
       } else if (confirmPassword !== password) {
-        setError('Passwords do not match');
-      } else {
-        setError('');
+        toast.error('Passwords do not match');
       }
     }
   };
 
   const handleSubmit = async () => {
     if (!password || password.length < 8) {
-      setError('Password must be at least 8 characters');
+      toast.error('Password must be at least 8 characters');
       return;
     }
 
     if (passwordStrength.score < 2) {
-      setError('Password is too weak');
+      toast.error('Password is too weak');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
     setLoading(true);
-    setError('');
 
     const result = await updatePassword(password);
 
     if (result.error) {
-      setError(result.error);
+      toast.error(result.error);
       setLoading(false);
     } else {
+      toast.success('Password reset successfully!');
       setSuccess(true);
       setLoading(false);
     }
