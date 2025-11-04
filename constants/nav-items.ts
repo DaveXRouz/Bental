@@ -13,6 +13,10 @@ import {
   User,
   Settings,
   MoreHorizontal,
+  Newspaper,
+  Trophy,
+  Search,
+  Receipt,
 } from 'lucide-react-native';
 
 export type DockItemId =
@@ -29,7 +33,13 @@ export type DockItemId =
   | 'connect_bank'
   | 'notifications'
   | 'profile'
-  | 'settings';
+  | 'settings'
+  | 'alerts'
+  | 'news'
+  | 'leaderboard'
+  | 'bots'
+  | 'screener'
+  | 'tax';
 
 export type NavItemCapability = 'linkedBank' | 'kycDone' | 'aiEnabled';
 
@@ -159,6 +169,54 @@ export const NAV_ITEMS: Record<DockItemId, NavItem> = {
     icon: MoreHorizontal,
     iconColor: '#64748B',
     description: 'Additional options',
+  },
+  alerts: {
+    id: 'alerts',
+    label: 'Alerts',
+    route: '/(tabs)/alerts',
+    icon: Bell,
+    iconColor: '#F59E0B',
+    description: 'Price alerts',
+  },
+  news: {
+    id: 'news',
+    label: 'News',
+    route: '/(tabs)/news',
+    icon: Newspaper,
+    iconColor: '#3B82F6',
+    description: 'Market news',
+  },
+  leaderboard: {
+    id: 'leaderboard',
+    label: 'Leaderboard',
+    route: '/(tabs)/leaderboard',
+    icon: Trophy,
+    iconColor: '#F59E0B',
+    description: 'Top traders',
+  },
+  bots: {
+    id: 'bots',
+    label: 'Bot Store',
+    route: '/(tabs)/bot-marketplace',
+    icon: Bot,
+    iconColor: '#8B5CF6',
+    description: 'Trading bots',
+  },
+  screener: {
+    id: 'screener',
+    label: 'Screener',
+    route: '/(tabs)/screener',
+    icon: Search,
+    iconColor: '#3B82F6',
+    description: 'Stock screener',
+  },
+  tax: {
+    id: 'tax',
+    label: 'Tax Reports',
+    route: '/(tabs)/tax-reports',
+    icon: Receipt,
+    iconColor: '#10B981',
+    description: 'Tax documents',
   },
 };
 
