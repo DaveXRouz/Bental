@@ -31,12 +31,14 @@ import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
 import { colors, Spacing, Typography } from '@/constants/theme';
 import { formatCurrency } from '@/utils/formatting';
+import { useAppConfig } from '@/hooks/useAppConfig';
 
 type OrderType = 'market' | 'limit' | 'stop';
 type OrderSide = 'buy' | 'sell';
 
 export default function TradeScreen() {
   const { user } = useAuth();
+  const { trading_enabled } = useAppConfig();
   const [symbol, setSymbol] = useState('');
   const [orderSide, setOrderSide] = useState<OrderSide>('buy');
   const [orderType, setOrderType] = useState<OrderType>('market');
@@ -47,6 +49,14 @@ export default function TradeScreen() {
   const [extendedHours, setExtendedHours] = useState(false);
 
   const handleSubmitOrder = () => {
+    if (!trading_enabled) {
+      Alert.alert(
+        'Trading Disabled',
+        'Trading is temporarily disabled. Please try again later.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     if (Platform.OS !== 'web') {
       try {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -81,6 +91,15 @@ export default function TradeScreen() {
         <Text style={styles.headerTitle}>Quick Trade</Text>
         <Text style={styles.headerSubtitle}>Place orders instantly</Text>
       </View>
+
+      {!trading_enabled && (
+        <View style={styles.disabledBanner}>
+          <AlertCircle size={18} color="#ef4444" />
+          <Text style={styles.disabledText}>
+            Trading is temporarily disabled by admin
+          </Text>
+        </View>
+      )}
 
       <ScrollView
         style={styles.scrollView}
@@ -539,5 +558,23 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.md,
     fontWeight: Typography.weight.bold,
     color: '#FFFFFF',
+  },
+  disabledBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    marginHorizontal: isTablet ? Spacing.xl : Spacing.lg,
+    marginBottom: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: 8,
+    gap: Spacing.sm,
+  },
+  disabledText: {
+    flex: 1,
+    fontSize: Typography.size.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: Typography.weight.medium,
   },
 });
