@@ -8,7 +8,7 @@ import { colors, Spacing, Typography, zIndex } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
 import HoldingsView from '@/components/portfolio/HoldingsView';
-import WatchlistView from '@/components/portfolio/WatchlistView';
+import EnhancedWatchlistView from '@/components/portfolio/EnhancedWatchlistView';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -63,7 +63,7 @@ export default function PortfolioScreen() {
       </View>
 
       <View style={styles.content} accessible={true} accessibilityLabel="Portfolio main content">
-        {activeSegment === 'holdings' ? <HoldingsView /> : <WatchlistView />}
+        {activeSegment === 'holdings' ? <HoldingsView /> : <EnhancedWatchlistView />}
       </View>
     </View>
   );
