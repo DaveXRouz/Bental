@@ -398,7 +398,7 @@ export function ResponsiveAnimatedBackground() {
   }));
 
   return (
-    <View style={styles.container} pointerEvents="none">
+    <View style={[styles.container, { pointerEvents: 'none' }]}>
       {/* Base gradient */}
       <LinearGradient
         colors={['#000000', '#0A0A0B', '#050505', '#000000']}
@@ -456,6 +456,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#000000',
     overflow: 'hidden',
+    pointerEvents: 'none',
   },
   baseGradient: {
     ...StyleSheet.absoluteFillObject,

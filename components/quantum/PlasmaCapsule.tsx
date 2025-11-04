@@ -125,7 +125,7 @@ export function PlasmaCapsule({ title, onPress, disabled = false, loading = fals
       </LinearGradient>
 
       {!disabled && !loading && (
-        <Animated.View style={styles.outerGlow} pointerEvents="none">
+        <Animated.View style={[styles.outerGlow, { pointerEvents: 'none' }]}>
           <LinearGradient
             colors={[
               'rgba(0,210,255,0.3)',

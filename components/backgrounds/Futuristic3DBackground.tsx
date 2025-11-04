@@ -468,7 +468,7 @@ export function Futuristic3DBackground() {
   }));
 
   return (
-    <View style={styles.container} pointerEvents="none">
+    <View style={[styles.container, { pointerEvents: 'none' }]}>
       <LinearGradient
         colors={['#000000', '#000000', '#000000', '#000000']}
         style={{ ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' }}
@@ -537,6 +537,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#000000',
     overflow: 'hidden',
+    pointerEvents: 'none',
   },
   ambientGlow: {
     position: 'absolute',

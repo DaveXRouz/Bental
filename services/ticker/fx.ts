@@ -59,7 +59,7 @@ export class FXTickerService {
       this.lastFetch = now;
       return tickers;
     } catch (error) {
-      console.log('[FX] Fetch error (expected, API may be unavailable):', error instanceof Error ? error.message : 'Network error');
+      // Silently return cached data - FX API may be rate-limited or unavailable
       return this.cache;
     } finally {
       this.isFetching = false;

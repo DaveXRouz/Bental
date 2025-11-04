@@ -145,7 +145,7 @@ export function UnifiedInput({
           </LinearGradient>
         </BlurView>
 
-        <Animated.View style={[styles.focusRing, focusRingStyle]} pointerEvents="none">
+        <Animated.View style={[styles.focusRing, focusRingStyle, { pointerEvents: 'none' }]}>
           <LinearGradient
             colors={
               error

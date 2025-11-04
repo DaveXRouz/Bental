@@ -57,7 +57,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
-      <View style={styles.toastContainer} pointerEvents="box-none">
+      <View style={[styles.toastContainer, { pointerEvents: 'box-none' }]}>
         {toasts.map((toast, index) => (
           <View key={toast.id} style={[styles.toastWrapper, { top: 60 + index * 80 }]}>
             <Toast
