@@ -70,6 +70,7 @@ export function GlassInput({
             )}
 
             <TextInput
+              {...props}
               value={value}
               onChangeText={handleChange}
               onFocus={handleFocus}
@@ -79,7 +80,7 @@ export function GlassInput({
               style={styles.input}
               placeholderTextColor="rgba(255, 255, 255, 0.3)"
               selectionColor="rgba(200, 200, 200, 0.5)"
-              {...props}
+              editable={true}
             />
           </View>
 
