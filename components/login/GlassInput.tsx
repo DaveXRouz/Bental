@@ -102,9 +102,9 @@ export function GlassInput({
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               {showPassword ? (
-                <EyeOff size={19} color="rgba(255, 255, 255, 0.5)" />
+                <EyeOff size={20} color="rgba(255, 255, 255, 0.5)" />
               ) : (
-                <Eye size={19} color="rgba(255, 255, 255, 0.5)" />
+                <Eye size={20} color="rgba(255, 255, 255, 0.5)" />
               )}
             </TouchableOpacity>
           )}
@@ -129,7 +129,7 @@ export function GlassInput({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   container: {
     width: '100%',
@@ -141,13 +141,16 @@ const styles = StyleSheet.create({
     transition: 'all 0.2s ease',
   },
   containerFocused: {
-    borderColor: 'rgba(200, 200, 200, 0.3)',
+    borderColor: 'rgba(200, 200, 200, 0.4)',
     backgroundColor: 'rgba(26, 26, 28, 0.7)',
-    shadowColor: 'rgba(200, 200, 200, 0.3)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowColor: 'rgba(200, 200, 200, 0.4)',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
     elevation: 4,
+    outlineWidth: 2,
+    outlineColor: 'rgba(200, 200, 200, 0.3)',
+    outlineStyle: 'solid',
   },
   containerError: {
     borderColor: 'rgba(239, 68, 68, 0.5)',

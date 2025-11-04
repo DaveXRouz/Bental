@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import NetInfo from '@react-native-community/netinfo';
-import { Mail, Lock, CreditCard, Fingerprint } from 'lucide-react-native';
+import { Mail, Lock, CreditCard, Fingerprint, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,7 +98,10 @@ export default function LoginScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setEmail('');
+      // Only clear email if Remember Me is off
+      if (!rememberMe) {
+        setEmail('');
+      }
       setTradingPassport('');
       setPassword('');
       setEmailError('');
@@ -106,7 +109,7 @@ export default function LoginScreen() {
       setPasswordError('');
       setTouched({ email: false, passport: false, password: false });
       setLoading(false);
-    }, [])
+    }, [rememberMe])
   );
 
   const validateEmail = (email: string): boolean => {
@@ -382,6 +385,9 @@ export default function LoginScreen() {
     (loginMode === 'email' ? email && validateEmail(email) : tradingPassport && validatePassport(tradingPassport)) &&
     password &&
     password.length >= 6 &&
+    !emailError &&
+    !passwordError &&
+    !passportError &&
     !rateLimit.isLocked;
 
   const styles = React.useMemo(() => createResponsiveStyles(width, isMobile, responsiveSpacing, responsiveFontSize), [width, isMobile, responsiveSpacing, responsiveFontSize]);
@@ -600,7 +606,7 @@ export default function LoginScreen() {
                 >
                   <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
                     {rememberMe && (
-                      <View style={styles.checkmark} />
+                      <Check size={12} color="rgba(255, 255, 255, 0.95)" strokeWidth={3} />
                     )}
                   </View>
                   <Text style={styles.rememberText}>Remember me</Text>
@@ -756,7 +762,7 @@ const createResponsiveStyles = (
     },
     content: {
       width: '100%',
-      maxWidth: isMobile ? width - (isSmallDevice ? 32 : 48) : 440,
+      maxWidth: isMobile ? width - (isSmallDevice ? spacing.xxxl : spacing.xxxxl + spacing.sm) : 440,
       alignSelf: 'center',
       alignItems: 'center',
     },
@@ -771,6 +777,7 @@ const createResponsiveStyles = (
       marginBottom: isSmallDevice ? spacing.md : spacing.lg,
       textAlign: 'center',
       letterSpacing: -0.5,
+      lineHeight: isSmallDevice ? 26 : isMobile ? 29 : 34,
     },
     toggleContainer: {
       marginBottom: isSmallDevice ? spacing.sm : spacing.md,
@@ -780,7 +787,7 @@ const createResponsiveStyles = (
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: isSmallDevice ? spacing.sm : spacing.md,
-      marginTop: 2,
+      marginTop: spacing.xxs,
     },
   rememberContainer: {
     flexDirection: 'row',
@@ -788,9 +795,9 @@ const createResponsiveStyles = (
   },
   checkbox: {
     marginRight: spacing.sm,
-    width: 16,
-    height: 16,
-    borderRadius: 4,
+    width: 18,
+    height: 18,
+    borderRadius: 3,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -798,14 +805,8 @@ const createResponsiveStyles = (
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: 'rgba(200, 200, 200, 0.2)',
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-  },
-  checkmark: {
-    width: 8,
-    height: 8,
-    borderRadius: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(200, 200, 200, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.6)',
   },
   rememberText: {
     fontSize: typography.size.sm,
@@ -820,12 +821,12 @@ const createResponsiveStyles = (
     actionSection: {
       width: '100%',
       marginTop: isSmallDevice ? spacing.md : spacing.lg,
-      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
     },
     signupContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
+      marginTop: spacing.md,
     },
     signupText: {
       fontSize: isSmallDevice ? 13 : 14,
@@ -854,10 +855,10 @@ const createResponsiveStyles = (
     backgroundColor: 'rgba(200, 200, 200, 0.12)',
   },
     dividerText: {
-      fontSize: isSmallDevice ? 10 : typography.size.xs,
+      fontSize: isSmallDevice ? 10 : typography.size.sm,
       fontWeight: typography.weight.semibold,
       color: 'rgba(255, 255, 255, 0.5)',
-      marginHorizontal: isSmallDevice ? spacing.sm : spacing.md + 2,
+      marginHorizontal: isSmallDevice ? spacing.sm : spacing.md,
       letterSpacing: 0.5,
     },
     oauthContainer: {
