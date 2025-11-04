@@ -10,7 +10,7 @@ import { GLASS } from '@/constants/glass';
 import { formatDate } from '@/utils/formatting';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useToast } from '@/contexts/ToastContext';
+import { showToast } from '@/components/ui/ToastManager';
 
 const { height } = Dimensions.get('window');
 
@@ -32,7 +32,6 @@ type FilterType = 'all' | 'trades' | 'alerts' | 'account';
 
 export default function NotificationCenterModal({ visible, onClose }: NotificationCenterModalProps) {
   const { user } = useAuth();
-  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
@@ -99,10 +98,10 @@ export default function NotificationCenterModal({ visible, onClose }: Notificati
         .eq('read', false);
 
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      toast.success('All notifications marked as read');
+      showToast('All notifications marked as read', 'success');
     } catch (error) {
       console.error('Error marking all as read:', error);
-      toast.error('Failed to mark notifications as read');
+      showToast('Failed to mark notifications as read', 'error');
     }
   };
 

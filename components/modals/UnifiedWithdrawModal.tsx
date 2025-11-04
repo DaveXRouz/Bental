@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { X, Upload, Building2, CreditCard, Bitcoin, Check, AlertCircle } from 'lucide-react-native';
 import { colors, radius, spacing, shadows } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
-import { useToast } from '@/contexts/ToastContext';
+import { showToast } from '@/components/ui/ToastManager';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
 
 const { height } = Dimensions.get('window');
@@ -53,28 +53,27 @@ export default function UnifiedWithdrawModal({ visible, onClose }: UnifiedWithdr
   const [activeMethod, setActiveMethod] = useState<WithdrawMethod>('bank');
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const toast = useToast();
   const availableBalance = 12547.89;
 
   const handleWithdraw = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error('Please enter a valid amount');
+      showToast('Please enter a valid amount', 'error');
       return;
     }
 
     if (parseFloat(amount) > availableBalance) {
-      toast.error('Insufficient funds');
+      showToast('Insufficient funds', 'error');
       return;
     }
 
     setIsSubmitting(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      toast.success(`Withdrawal of $${amount} initiated successfully`);
+      showToast(`Withdrawal of $${amount} initiated successfully`, 'success');
       setAmount('');
       onClose();
     } catch (error) {
-      toast.error('Failed to process withdrawal. Please try again.');
+      showToast('Failed to process withdrawal. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

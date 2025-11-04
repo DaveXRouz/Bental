@@ -9,7 +9,7 @@ import { useValidatedForm } from '@/hooks/useValidatedForm';
 import { depositSchema } from '@/utils/validation-schemas';
 import { FieldError } from '@/components/ui/ErrorState';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
-import { useToast } from '@/contexts/ToastContext';
+import { showToast } from '@/components/ui/ToastManager';
 
 const { height } = Dimensions.get('window');
 
@@ -62,23 +62,22 @@ const DEPOSIT_METHODS: DepositMethodOption[] = [
 export default function UnifiedDepositModal({ visible, onClose }: UnifiedDepositModalProps) {
   const [activeMethod, setActiveMethod] = useState<DepositMethod>('bank');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const toast = useToast();
   const form = useValidatedForm(depositSchema);
 
   const handleDeposit = async () => {
     if (!form.validate()) {
-      toast.error('Please fix the errors before submitting');
+      showToast('Please fix the errors before submitting', 'error');
       return;
     }
 
     setIsSubmitting(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      toast.success(`Deposit of $${form.values.amount} initiated successfully`);
+      showToast(`Deposit of $${form.values.amount} initiated successfully`, 'success');
       form.reset();
       onClose();
     } catch (error) {
-      toast.error('Failed to process deposit. Please try again.');
+      showToast('Failed to process deposit. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }
