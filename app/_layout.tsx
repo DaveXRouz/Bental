@@ -17,7 +17,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
-import { ToastProvider } from '@/contexts/ToastContext';
+import { ToastProvider as OldToastProvider } from '@/contexts/ToastContext';
+import { ToastProvider } from '@/components/ui/ToastManager';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { useTickerStore } from '@/stores/useTickerStore';
 import { validateEnvironment } from '@/config/env';
 
@@ -88,20 +90,22 @@ export default function RootLayout() {
   }
 
   return (
-    <LoadingProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="admin-panel" />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </AuthProvider>
-      </ToastProvider>
-    </LoadingProvider>
+    <ErrorBoundary>
+      <LoadingProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="admin-panel" />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </AuthProvider>
+        </ToastProvider>
+      </LoadingProvider>
+    </ErrorBoundary>
   );
 }
 
