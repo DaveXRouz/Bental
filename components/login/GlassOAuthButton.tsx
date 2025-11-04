@@ -47,15 +47,15 @@ export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 50,
-    borderRadius: 13,
+    height: 48,
+    borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: 'rgba(0, 0, 0, 0.3)',
+    shadowColor: 'rgba(0, 0, 0, 0.25)',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.35,
-    shadowRadius: 7,
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
     elevation: 3,
   },
   touchable: {
@@ -73,15 +73,15 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   iconContainer: {
-    width: 22,
-    height: 22,
+    width: 20,
+    height: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.88)',
+    color: 'rgba(255, 255, 255, 0.85)',
     letterSpacing: 0.3,
   },
 });

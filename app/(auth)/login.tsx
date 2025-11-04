@@ -355,23 +355,25 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-              <View style={styles.dividerLine} />
-            </View>
+            <View style={styles.oauthSection}>
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+                <View style={styles.dividerLine} />
+              </View>
 
-            <View style={styles.oauthContainer}>
-              <GlassOAuthButton
-                onPress={() => {}}
-                icon={<GoogleIcon size={22} color="rgba(255, 255, 255, 0.75)" />}
-                label="Google"
-              />
-              <GlassOAuthButton
-                onPress={() => {}}
-                icon={<AppleIcon size={22} color="rgba(255, 255, 255, 0.75)" />}
-                label="Apple"
-              />
+              <View style={styles.oauthContainer}>
+                <GlassOAuthButton
+                  onPress={() => {}}
+                  icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.75)" />}
+                  label="Google"
+                />
+                <GlassOAuthButton
+                  onPress={() => {}}
+                  icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.75)" />}
+                  label="Apple"
+                />
+              </View>
             </View>
 
             <View style={styles.footer}>
@@ -501,10 +503,15 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.95)',
     textDecorationLine: 'underline',
   },
+  oauthSection: {
+    width: '100%',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
+  },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md + 2,
   },
   dividerLine: {
     flex: 1,
@@ -521,7 +528,6 @@ const styles = StyleSheet.create({
   oauthContainer: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.xl,
   },
   footer: {
     alignItems: 'center',
