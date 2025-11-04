@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
-export type DepositMethod = 'bank_transfer' | 'wire' | 'check' | 'card';
-export type WithdrawalMethod = 'bank_transfer' | 'wire' | 'check';
+export type DepositMethod = 'bank_transfer' | 'wire' | 'check' | 'card' | 'crypto' | 'cash_courier';
+export type WithdrawalMethod = 'bank_transfer' | 'wire' | 'check' | 'crypto';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
 export interface Deposit {
@@ -85,9 +85,19 @@ class DepositWithdrawalService {
       return { valid: false, error: 'Amount exceeds maximum deposit limit of $1,000,000' };
     }
 
-    const validMethods: DepositMethod[] = ['bank_transfer', 'wire', 'check', 'card'];
+    const validMethods: DepositMethod[] = ['bank_transfer', 'wire', 'check', 'card', 'crypto', 'cash_courier'];
     if (!validMethods.includes(request.method)) {
       return { valid: false, error: 'Invalid deposit method' };
+    }
+
+    // Additional validation for cash courier
+    if (request.method === 'cash_courier') {
+      if (request.amount < 10000) {
+        return { valid: false, error: 'Cash courier requires minimum deposit of $10,000' };
+      }
+      if (request.amount > 500000) {
+        return { valid: false, error: 'Cash courier maximum deposit is $500,000' };
+      }
     }
 
     return { valid: true };

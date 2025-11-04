@@ -18,11 +18,13 @@ import {
   Search,
   Receipt,
   BarChart3,
+  Wallet,
 } from 'lucide-react-native';
 
 export type DockItemId =
   | 'home'
   | 'portfolio'
+  | 'accounts'
   | 'markets'
   | 'more'
   | 'history'
@@ -73,6 +75,14 @@ export const NAV_ITEMS: Record<DockItemId, NavItem> = {
     icon: PieChart,
     iconColor: '#10B981',
     description: 'Your holdings',
+  },
+  accounts: {
+    id: 'accounts',
+    label: 'Accounts',
+    route: '/(tabs)/accounts',
+    icon: Wallet,
+    iconColor: '#3B82F6',
+    description: 'Manage accounts',
   },
   markets: {
     id: 'markets',
