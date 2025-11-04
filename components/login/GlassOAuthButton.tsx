@@ -124,12 +124,12 @@ export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minHeight: 50,
-    borderRadius: radius.md,
+    height: 48,
+    borderRadius: 12,
     shadowColor: 'rgba(255, 255, 255, 0.2)',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   touchable: {
     flex: 1,

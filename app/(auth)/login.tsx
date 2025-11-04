@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  Switch,
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
@@ -18,13 +17,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, spacing, typography, radius } from '@/constants/theme';
 import { Futuristic3DBackground } from '@/components/backgrounds/Futuristic3DBackground';
-import { Enhanced3DXLogo } from '@/components/branding/Enhanced3DXLogo';
+import { MinimalLogo } from '@/components/branding/MinimalLogo';
 import { GlassmorphicCard } from '@/components/login/GlassmorphicCard';
 import { GlassToggleButtons } from '@/components/login/GlassToggleButtons';
 import { GlassInput } from '@/components/login/GlassInput';
 import { Glass3DButton } from '@/components/login/Glass3DButton';
 import { GlassOAuthButton } from '@/components/login/GlassOAuthButton';
-import { GlassFooter } from '@/components/login/GlassFooter';
+import { Shield } from 'lucide-react-native';
 import { Chrome as GoogleIcon, Apple as AppleIcon } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
@@ -228,14 +227,14 @@ export default function LoginScreen() {
               entering={FadeIn.duration(800).delay(300)}
               style={styles.logoContainer}
             >
-              <Enhanced3DXLogo size={80} />
+              <MinimalLogo size={48} />
             </Animated.View>
 
             <Animated.Text
               entering={FadeIn.duration(600).delay(500)}
               style={styles.title}
             >
-              Step Into the Future
+              Welcome back
             </Animated.Text>
 
             <GlassmorphicCard>
@@ -312,16 +311,22 @@ export default function LoginScreen() {
               />
 
               <View style={styles.rememberRow}>
-                <View style={styles.rememberContainer}>
-                  <Switch
-                    value={rememberMe}
-                    onValueChange={setRememberMe}
-                    trackColor={{ false: colors.surface, true: colors.accent }}
-                    thumbColor={colors.white}
-                    accessibilityLabel="Remember me"
-                  />
-                  <Text style={styles.rememberText}>Remember</Text>
-                </View>
+                <TouchableOpacity
+                  onPress={() => setRememberMe(!rememberMe)}
+                  style={styles.rememberContainer}
+                  accessibilityLabel="Remember me"
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: rememberMe }}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                    {rememberMe && (
+                      <View style={styles.checkmark} />
+                    )}
+                  </View>
+                  <Text style={styles.rememberText}>Remember me</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => router.push('/(auth)/forgot-password')}
                   accessibilityLabel="Forgot password"
@@ -360,7 +365,22 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <GlassFooter />
+              <View style={styles.footer}>
+                <View style={styles.footerLinks}>
+                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={styles.footerLink}>Privacy</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.footerSeparator}> · </Text>
+                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={styles.footerLink}>Terms</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.footerSeparator}> · </Text>
+                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={styles.footerLink}>Contact</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.copyright}>© 2025 Trading Platform. All rights reserved.</Text>
+              </View>
             </GlassmorphicCard>
           </View>
         </ScrollView>
@@ -385,39 +405,56 @@ const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 400,
     alignSelf: 'center',
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.95)',
-    marginBottom: spacing.xl,
+    fontSize: 32,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.98)',
+    marginBottom: spacing.lg,
     textAlign: 'center',
-    letterSpacing: 1.2,
-    textShadowColor: 'rgba(255, 255, 255, 0.15)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
+    letterSpacing: -0.5,
   },
   toggleContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md + 4,
   },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
-    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    marginTop: 4,
   },
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm + 2,
+    gap: spacing.sm,
+  },
+  checkbox: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: 'rgba(200, 200, 200, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  checkmark: {
+    width: 8,
+    height: 8,
+    borderRadius: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
   rememberText: {
     fontSize: typography.size.sm,
@@ -430,13 +467,13 @@ const styles = StyleSheet.create({
     color: 'rgba(200, 200, 200, 0.9)',
   },
   buttonContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md + 4,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
   },
   dividerLine: {
     flex: 1,
@@ -453,6 +490,34 @@ const styles = StyleSheet.create({
   oauthContainer: {
     flexDirection: 'row',
     gap: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+  },
+  footerLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  footerLink: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+    letterSpacing: 0.3,
+  },
+  footerSeparator: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 2,
+  },
+  copyright: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.4)',
+    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 });

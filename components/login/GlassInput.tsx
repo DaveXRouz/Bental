@@ -222,7 +222,7 @@ export function GlassInput({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    marginBottom: spacing.md,
+    marginBottom: 12,
   },
   container: {
     width: '100%',
@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md + 2,
-    paddingVertical: spacing.md,
-    minHeight: 60,
+    paddingVertical: spacing.sm + 2,
+    minHeight: 52,
   },
   iconContainer: {
     marginRight: spacing.sm,

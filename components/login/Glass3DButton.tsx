@@ -219,14 +219,14 @@ export function Glass3DButton({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 54,
-    borderRadius: radius.lg,
+    height: 48,
+    borderRadius: 12,
     overflow: 'hidden',
     shadowColor: 'rgba(255, 255, 255, 0.25)',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   touchable: {
     flex: 1,
