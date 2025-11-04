@@ -8,7 +8,6 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Mail, Lock, CreditCard } from 'lucide-react-native';
@@ -16,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, spacing, typography, radius } from '@/constants/theme';
+import { useResponsive } from '@/hooks/useResponsive';
 import { Futuristic3DBackground } from '@/components/backgrounds/Futuristic3DBackground';
 import { MinimalLogo } from '@/components/branding/MinimalLogo';
 import { GlassmorphicCard } from '@/components/login/GlassmorphicCard';
@@ -27,13 +27,12 @@ import { Shield } from 'lucide-react-native';
 import { Chrome as GoogleIcon, Apple as AppleIcon } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
-
 type LoginMode = 'email' | 'passport';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
+  const { width, isMobile, spacing: responsiveSpacing, fontSize: responsiveFontSize } = useResponsive();
   const [loginMode, setLoginMode] = useState<LoginMode>('email');
   const [email, setEmail] = useState('');
   const [tradingPassport, setTradingPassport] = useState('');
@@ -208,6 +207,11 @@ export default function LoginScreen() {
     password &&
     password.length >= 6;
 
+  const styles = React.useMemo(() => createResponsiveStyles(width, isMobile, responsiveSpacing, responsiveFontSize), [width, isMobile, responsiveSpacing, responsiveFontSize]);
+
+  const logoSize = width < 375 ? 56 : width < 390 ? 64 : 72;
+  const oauthIconSize = width < 375 ? 18 : 20;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -227,7 +231,7 @@ export default function LoginScreen() {
               entering={FadeIn.duration(800).delay(300)}
               style={styles.logoContainer}
             >
-              <MinimalLogo size={72} />
+              <MinimalLogo size={logoSize} />
             </Animated.View>
 
             <Animated.Text
@@ -365,12 +369,12 @@ export default function LoginScreen() {
               <View style={styles.oauthContainer}>
                 <GlassOAuthButton
                   onPress={() => {}}
-                  icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.75)" />}
+                  icon={<GoogleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
                   label="Google"
                 />
                 <GlassOAuthButton
                   onPress={() => {}}
-                  icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.75)" />}
+                  icon={<AppleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
                   label="Apple"
                 />
               </View>
@@ -403,38 +407,47 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xl * 2,
-  },
-  content: {
-    width: '100%',
-    maxWidth: 440,
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    marginBottom: spacing.lg,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.98)',
-    marginBottom: spacing.xl,
-    textAlign: 'center',
-    letterSpacing: -0.5,
-  },
+const createResponsiveStyles = (
+  width: number,
+  isMobile: boolean,
+  responsiveSpacing: (base: number) => number,
+  responsiveFontSize: (base: number) => number
+) => {
+  const scale = Math.min(width / 390, 1);
+  const isSmallDevice = width < 375;
+
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: '#000000',
+    },
+    container: {
+      flex: 1,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      paddingHorizontal: isSmallDevice ? spacing.sm : spacing.md,
+      paddingVertical: spacing.xl * (isSmallDevice ? 1.5 : 2),
+    },
+    content: {
+      width: '100%',
+      maxWidth: isMobile ? width - (isSmallDevice ? 32 : 48) : 440,
+      alignSelf: 'center',
+      alignItems: 'center',
+    },
+    logoContainer: {
+      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: isSmallDevice ? 24 : isMobile ? 26 : 30,
+      fontWeight: '700',
+      color: 'rgba(255, 255, 255, 0.98)',
+      marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
+      textAlign: 'center',
+      letterSpacing: -0.5,
+    },
   toggleContainer: {
     marginBottom: spacing.md + 4,
   },
@@ -492,17 +505,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs + 2,
   },
-  signupText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.55)',
-  },
-  signupLink: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.95)',
-    textDecorationLine: 'underline',
-  },
+    signupText: {
+      fontSize: isSmallDevice ? 13 : 14,
+      fontWeight: '500',
+      color: 'rgba(255, 255, 255, 0.55)',
+    },
+    signupLink: {
+      fontSize: isSmallDevice ? 13 : 14,
+      fontWeight: '700',
+      color: 'rgba(255, 255, 255, 0.95)',
+      textDecorationLine: 'underline',
+    },
   oauthSection: {
     width: '100%',
     marginTop: spacing.xs,
@@ -518,13 +531,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(200, 200, 200, 0.12)',
   },
-  dividerText: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
-    color: 'rgba(255, 255, 255, 0.5)',
-    marginHorizontal: spacing.md + 2,
-    letterSpacing: 0.5,
-  },
+    dividerText: {
+      fontSize: isSmallDevice ? 10 : typography.size.xs,
+      fontWeight: typography.weight.semibold,
+      color: 'rgba(255, 255, 255, 0.5)',
+      marginHorizontal: isSmallDevice ? spacing.sm : spacing.md + 2,
+      letterSpacing: 0.5,
+    },
   oauthContainer: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -541,33 +554,34 @@ const styles = StyleSheet.create({
     gap: 5,
     marginBottom: spacing.xs,
   },
-  securityText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.25)',
-    letterSpacing: 0.2,
-  },
+    securityText: {
+      fontSize: isSmallDevice ? 9 : 10,
+      fontWeight: '600',
+      color: 'rgba(255, 255, 255, 0.25)',
+      letterSpacing: 0.2,
+    },
   footerLinks: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  footerLink: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.5)',
-    letterSpacing: 0.3,
-  },
+    footerLink: {
+      fontSize: isSmallDevice ? 10 : 11,
+      fontWeight: '500',
+      color: 'rgba(255, 255, 255, 0.5)',
+      letterSpacing: 0.3,
+    },
   footerSeparator: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.3)',
     marginHorizontal: 2,
   },
-  copyright: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.4)',
-    textAlign: 'center',
-    letterSpacing: 0.2,
-  },
-});
+    copyright: {
+      fontSize: isSmallDevice ? 10 : 11,
+      fontWeight: '500',
+      color: 'rgba(255, 255, 255, 0.4)',
+      textAlign: 'center',
+      letterSpacing: 0.2,
+    },
+  });
+};

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, typography } from '@/constants/theme';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface Glass3DButtonProps {
   title: string;
@@ -22,6 +23,12 @@ export function Glass3DButton({
   disabled = false,
   loading = false,
 }: Glass3DButtonProps) {
+  const { width } = useResponsive();
+  const isSmallDevice = width < 375;
+  const buttonHeight = isSmallDevice ? 44 : 48;
+  const fontSize = isSmallDevice ? 14 : 15;
+  const styles = createStyles(buttonHeight, fontSize);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -60,11 +67,11 @@ export function Glass3DButton({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (height: number, fontSize: number) => StyleSheet.create({
   container: {
     width: '100%',
-    height: 48,
-    borderRadius: 12,
+    height: height,
+    borderRadius: height / 4,
     overflow: 'hidden',
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    fontSize: 15,
+    fontSize: fontSize,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.98)',
     letterSpacing: 0.4,

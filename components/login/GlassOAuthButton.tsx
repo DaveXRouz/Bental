@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, typography } from '@/constants/theme';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface GlassOAuthButtonProps {
   onPress: () => void;
@@ -15,6 +16,13 @@ interface GlassOAuthButtonProps {
 }
 
 export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps) {
+  const { width } = useResponsive();
+  const isSmallDevice = width < 375;
+  const buttonHeight = isSmallDevice ? 44 : 48;
+  const fontSize = isSmallDevice ? 13 : 14;
+  const iconSize = isSmallDevice ? 18 : 20;
+  const styles = createStyles(buttonHeight, fontSize, iconSize);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -44,11 +52,11 @@ export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (height: number, fontSize: number, iconSize: number) => StyleSheet.create({
   container: {
     flex: 1,
-    height: 48,
-    borderRadius: 12,
+    height: height,
+    borderRadius: height / 4,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
@@ -73,13 +81,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   iconContainer: {
-    width: 20,
-    height: 20,
+    width: iconSize,
+    height: iconSize,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    fontSize: 14,
+    fontSize: fontSize,
     fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.85)',
     letterSpacing: 0.3,
