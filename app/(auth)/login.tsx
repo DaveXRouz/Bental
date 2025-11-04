@@ -826,12 +826,14 @@ const createResponsiveStyles = (
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: spacing.md,
+      marginTop: isSmallDevice ? spacing.lg : spacing.xl,
+      marginBottom: spacing.xs,
     },
     signupText: {
       fontSize: isSmallDevice ? 13 : 14,
       fontWeight: '500',
       color: 'rgba(255, 255, 255, 0.55)',
+      marginRight: spacing.xs,
     },
     signupLink: {
       fontSize: isSmallDevice ? 13 : 14,
@@ -841,7 +843,7 @@ const createResponsiveStyles = (
     },
     oauthSection: {
       width: '100%',
-      marginTop: spacing.xs,
+      marginTop: isSmallDevice ? spacing.lg : spacing.xl,
       marginBottom: isSmallDevice ? spacing.md : spacing.lg,
     },
     dividerContainer: {
@@ -1000,8 +1002,9 @@ const createResponsiveStyles = (
       color: '#F59E0B',
     },
     magicLinkButton: {
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.md,
       alignItems: 'center',
+      marginBottom: spacing.sm,
     },
     magicLinkText: {
       fontSize: typography.size.sm,
