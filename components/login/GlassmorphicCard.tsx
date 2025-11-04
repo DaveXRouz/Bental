@@ -64,7 +64,7 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
             'rgba(220, 220, 220, 0.06)',
             'rgba(200, 200, 200, 0.05)',
             'rgba(255, 255, 255, 0.08)'
-          ]
+          ]}
           style={styles.glow}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -79,7 +79,7 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
               'rgba(220, 220, 220, 0.3)',
               'rgba(200, 200, 200, 0.35)',
               'rgba(255, 255, 255, 0.4)'
-            ]
+            ]}
             style={styles.borderGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -106,7 +106,7 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
                 'rgba(255, 255, 255, 0.05)',
                 'transparent',
                 'rgba(200, 200, 200, 0.04)'
-              ]
+              ]}
               style={styles.innerGlowGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}

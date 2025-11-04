@@ -74,7 +74,7 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
               'rgba(220, 220, 225, 0.18)',
               'rgba(200, 200, 205, 0.15)',
               'rgba(180, 180, 185, 0.13)'
-            ]
+            ]}
             style={styles.indicatorGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -99,7 +99,7 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
                 'rgba(255, 255, 255, 0.45)',
                 'rgba(220, 220, 220, 0.4)',
                 'rgba(200, 200, 200, 0.35)'
-              ]
+              ]}
               style={styles.borderGradient}
             />
           </View>
