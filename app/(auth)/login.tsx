@@ -245,8 +245,13 @@ export default function LoginScreen() {
                   selected={loginMode === 'email' ? 0 : 1}
                   onSelect={(index) => {
                     setLoginMode(index === 0 ? 'email' : 'passport');
+                    setEmail('');
+                    setTradingPassport('');
+                    setPassword('');
                     setEmailError('');
                     setPassportError('');
+                    setPasswordError('');
+                    setTouched({ email: false, passport: false, password: false });
                   }}
                 />
               </View>
