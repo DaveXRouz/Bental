@@ -400,7 +400,7 @@ export function Futuristic3DBackground() {
   const ambientGlow1 = useSharedValue(0);
   const ambientGlow2 = useSharedValue(0);
   const ambientGlow3 = useSharedValue(0);
-  const fogOpacity = useSharedValue(0.06);
+  const fogOpacity = useSharedValue(0.01);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
@@ -434,8 +434,8 @@ export function Futuristic3DBackground() {
 
     fogOpacity.value = withRepeat(
       withSequence(
-        withTiming(0.1, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(0.06, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) })
+        withTiming(0.02, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+        withTiming(0.01, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) })
       ),
       -1,
       true
@@ -443,23 +443,23 @@ export function Futuristic3DBackground() {
   }, [prefersReducedMotion]);
 
   const glow1Style = useAnimatedStyle(() => ({
-    opacity: interpolate(ambientGlow1.value, [0, 1], [0.18, 0.4]),
+    opacity: interpolate(ambientGlow1.value, [0, 1], [0.03, 0.08]),
     transform: [
-      { scale: interpolate(ambientGlow1.value, [0, 1], [1, 1.4]) },
+      { scale: interpolate(ambientGlow1.value, [0, 1], [1, 1.2]) },
     ],
   }));
 
   const glow2Style = useAnimatedStyle(() => ({
-    opacity: interpolate(ambientGlow2.value, [0, 1], [0.22, 0.45]),
+    opacity: interpolate(ambientGlow2.value, [0, 1], [0.04, 0.09]),
     transform: [
-      { scale: interpolate(ambientGlow2.value, [0, 1], [1, 1.5]) },
+      { scale: interpolate(ambientGlow2.value, [0, 1], [1, 1.25]) },
     ],
   }));
 
   const glow3Style = useAnimatedStyle(() => ({
-    opacity: interpolate(ambientGlow3.value, [0, 1], [0.15, 0.38]),
+    opacity: interpolate(ambientGlow3.value, [0, 1], [0.02, 0.06]),
     transform: [
-      { scale: interpolate(ambientGlow3.value, [0, 1], [1, 1.35]) },
+      { scale: interpolate(ambientGlow3.value, [0, 1], [1, 1.15]) },
     ],
   }));
 
@@ -470,7 +470,7 @@ export function Futuristic3DBackground() {
   return (
     <View style={styles.container} pointerEvents="none">
       <LinearGradient
-        colors={['#000000', '#0A0A0B', '#050505', '#000000']}
+        colors={['#000000', '#000000', '#000000', '#000000']}
         style={{ ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -545,12 +545,12 @@ const styles = StyleSheet.create({
     borderRadius: 300,
   },
   glow1: {
-    top: -100,
-    left: -100,
+    top: -250,
+    left: -250,
   },
   glow2: {
-    bottom: -150,
-    right: -150,
+    bottom: -250,
+    right: -250,
   },
   glow3: {
     top: '50%',
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
   },
   fogOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(200, 200, 200, 0.02)',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
   },
   grainOverlay: {
     ...StyleSheet.absoluteFillObject,
