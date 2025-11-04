@@ -45,15 +45,9 @@ class FinnhubProvider implements MarketDataProvider {
       const data = await this.fetchWithRetry(url);
 
       return {
-        symbol,
         price: data.c || 0,
         change: data.d || 0,
-        changePercent: data.dp || 0,
-        high: data.h || 0,
-        low: data.l || 0,
-        open: data.o || 0,
-        previousClose: data.pc || 0,
-        timestamp: Date.now(),
+        changePct: data.dp || 0,
       };
     } catch (error) {
       throw new Error(`Failed to fetch quote for ${symbol}: ${error}`);

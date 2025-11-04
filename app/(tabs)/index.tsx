@@ -18,6 +18,7 @@ import NotificationCenterModal from '@/components/modals/NotificationCenterModal
 import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
 import { usePortfolioMetrics } from '@/hooks/usePortfolioMetrics';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useMarketPriceUpdater } from '@/hooks/useMarketPriceUpdater';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
 import { DataStreamBackground } from '@/components/backgrounds';
 
@@ -52,6 +53,7 @@ export default function HomeScreen() {
   const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
   const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
   const { unreadCount: notificationCount } = useNotifications(user?.id);
+  const { lastUpdate: priceLastUpdate, isRunning: priceUpdaterRunning } = useMarketPriceUpdater(true, 30000);
 
   useFocusEffect(
     useCallback(() => {
