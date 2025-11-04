@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -42,7 +43,12 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
       {options.map((option, index) => (
         <TouchableOpacity
           key={option}
-          onPress={() => onSelect(index)}
+          onPress={() => {
+            if (Platform.OS !== 'web') {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+            onSelect(index);
+          }}
           style={styles.option}
           accessibilityLabel={option}
           accessibilityRole="button"

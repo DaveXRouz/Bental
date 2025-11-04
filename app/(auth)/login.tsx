@@ -8,9 +8,12 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { Mail, Lock, CreditCard } from 'lucide-react-native';
+import NetInfo from '@react-native-community/netinfo';
+import { Mail, Lock, CreditCard, Fingerprint } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -23,9 +26,11 @@ import { GlassToggleButtons } from '@/components/login/GlassToggleButtons';
 import { GlassInput } from '@/components/login/GlassInput';
 import { Glass3DButton } from '@/components/login/Glass3DButton';
 import { GlassOAuthButton } from '@/components/login/GlassOAuthButton';
-import { Shield } from 'lucide-react-native';
+import { Shield, WifiOff, AlertTriangle } from 'lucide-react-native';
 import { Chrome as GoogleIcon, Apple as AppleIcon } from 'lucide-react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 
 type LoginMode = 'email' | 'passport';
 
@@ -37,12 +42,18 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [tradingPassport, setTradingPassport] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passportError, setPassportError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [touched, setTouched] = useState({ email: false, passport: false, password: false });
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [isOnline, setIsOnline] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [showHelpBanner, setShowHelpBanner] = useState(false);
+
+  const biometric = useBiometricAuth();
 
   useEffect(() => {
     const loadRememberMe = async () => {
@@ -50,7 +61,27 @@ export default function LoginScreen() {
       setRememberMe(value === 'true');
     };
     loadRememberMe();
+
+    // Check network status
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsOnline(state.isConnected ?? true);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  // Load biometric credentials if available
+  useEffect(() => {
+    const loadBiometricCreds = async () => {
+      if (biometric.capabilities.isAvailable) {
+        const creds = await biometric.getStoredCredentials();
+        if (creds?.email) {
+          setEmail(creds.email);
+        }
+      }
+    };
+    loadBiometricCreds();
+  }, [biometric.capabilities.isAvailable]);
 
   useFocusEffect(
     useCallback(() => {
@@ -72,6 +103,10 @@ export default function LoginScreen() {
 
   const validatePassport = (passport: string): boolean => {
     return passport.length >= 6;
+  };
+
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 6;
   };
 
   const handleBlur = (field: 'email' | 'passport' | 'password') => {
@@ -104,6 +139,30 @@ export default function LoginScreen() {
         setPasswordError('Password must be at least 6 characters');
       } else {
         setPasswordError('');
+      }
+    }
+  };
+
+  const handleBiometricSignIn = async () => {
+    if (!biometric.capabilities.isAvailable) return;
+
+    setLoading(true);
+    setLoadingMessage('Authenticating...');
+
+    const result = await biometric.authenticate();
+
+    if (result.success) {
+      const creds = await biometric.getStoredCredentials();
+      if (creds?.email && creds?.encryptedPassword) {
+        setEmail(creds.email);
+        setPassword(creds.encryptedPassword);
+        await handleSignIn();
+      }
+    } else {
+      setLoading(false);
+      setLoadingMessage('');
+      if (result.error !== 'Cancelled by user') {
+        setPasswordError(result.error || 'Biometric authentication failed');
       }
     }
   };
@@ -141,7 +200,14 @@ export default function LoginScreen() {
 
     if (hasErrors) return;
 
+    // Check online status
+    if (!isOnline) {
+      setPasswordError('No internet connection. Please check your network.');
+      return;
+    }
+
     setLoading(true);
+    setLoadingMessage('Verifying credentials...');
 
     try {
       await AsyncStorage.setItem('rememberMe', rememberMe.toString());
@@ -171,23 +237,56 @@ export default function LoginScreen() {
 
       if (error) {
         console.error('Login error:', error);
-        if (loginMode === 'email') {
-          setEmailError('Invalid email or password');
-          setPasswordError('Invalid email or password');
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+
+        // Show help banner after 3 failed attempts
+        if (newAttempts >= 3) {
+          setShowHelpBanner(true);
+        }
+
+        // Haptic feedback on error
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+
+        if (error.message.includes('Invalid login credentials')) {
+          if (loginMode === 'email') {
+            setEmailError('Email not found or incorrect password');
+            setPasswordError('Please check your credentials');
+          } else {
+            setPassportError('Invalid Trading Passport or password');
+            setPasswordError('Please check your credentials');
+          }
+        } else if (error.message.includes('Email not confirmed')) {
+          setEmailError('Please verify your email address');
         } else {
-          setPassportError('Invalid Trading Passport or password');
-          setPasswordError('Invalid Trading Passport or password');
+          setPasswordError('An error occurred. Please try again.');
         }
         setLoading(false);
+        setLoadingMessage('');
         return;
       }
 
       if (data?.user) {
+        setLoadingMessage('Loading profile...');
+
+        // Save biometric credentials if enabled
+        if (biometric.capabilities.isAvailable && rememberMe) {
+          await biometric.saveCredentials(loginEmail, password);
+        }
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
           .maybeSingle();
+
+        setLoadingMessage('Redirecting...');
+
+        // Haptic success feedback
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
 
         if (profile?.role === 'admin') {
           router.replace('/admin-panel');
@@ -197,8 +296,12 @@ export default function LoginScreen() {
       }
     } catch (err) {
       setPasswordError('An error occurred. Please try again.');
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -221,12 +324,58 @@ export default function LoginScreen() {
       >
         <Futuristic3DBackground />
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => Keyboard.dismiss()}
+          style={{ flex: 1 }}
         >
-          <View style={styles.content}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Offline Banner */}
+            {!isOnline && (
+              <Animated.View
+                entering={FadeInDown.duration(300)}
+                exiting={FadeOut.duration(200)}
+                style={styles.offlineBanner}
+              >
+                <WifiOff size={16} color="#FFF" />
+                <Text style={styles.offlineBannerText}>No internet connection</Text>
+              </Animated.View>
+            )}
+
+            {/* Help Banner after 3 failed attempts */}
+            {showHelpBanner && (
+              <Animated.View
+                entering={FadeInDown.duration(300)}
+                style={styles.helpBanner}
+              >
+                <AlertTriangle size={18} color="#F59E0B" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.helpBannerText}>Having trouble signing in?</Text>
+                  <View style={styles.helpLinks}>
+                    <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
+                      <Text style={styles.helpLink}>Reset Password</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.helpSeparator}> · </Text>
+                    <TouchableOpacity>
+                      <Text style={styles.helpLink}>Contact Support</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setShowHelpBanner(false)}
+                  style={styles.helpClose}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={styles.helpCloseText}>✕</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+
+            <View style={styles.content}>
             <Animated.View
               entering={FadeIn.duration(800).delay(300)}
               style={styles.logoContainer}
@@ -240,10 +389,6 @@ export default function LoginScreen() {
             >
               Welcome back
             </Animated.Text>
-
-            <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>
-              v2.0 - Enhanced
-            </Text>
 
             <GlassmorphicCard>
               <View style={styles.toggleContainer}>
@@ -274,7 +419,9 @@ export default function LoginScreen() {
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
-                      setEmailError('');
+                      if (touched.email) {
+                        setEmailError('');
+                      }
                       setPasswordError('');
                     }}
                     placeholder="your@email.com"
@@ -282,26 +429,40 @@ export default function LoginScreen() {
                     autoCapitalize="none"
                     autoCorrect={false}
                     textContentType="username"
+                    autoComplete="email"
                     error={emailError}
                     onBlur={() => handleBlur('email')}
                     icon={<Mail size={18} color="rgba(255, 255, 255, 0.5)" />}
+                    showSuccess={touched.email}
+                    onValidate={validateEmail}
                   />
                 ) : (
-                  <GlassInput
-                    label="Trading Passport"
-                    value={tradingPassport}
-                    onChangeText={(text) => {
-                      setTradingPassport(text);
-                      setPassportError('');
-                      setPasswordError('');
-                    }}
-                    placeholder="Enter your Trading Passport"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    error={passportError}
-                    onBlur={() => handleBlur('passport')}
-                    icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
-                  />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ flex: 1 }}>
+                      <GlassInput
+                        label="Trading Passport"
+                        value={tradingPassport}
+                        onChangeText={(text) => {
+                          setTradingPassport(text);
+                          if (touched.passport) {
+                            setPassportError('');
+                          }
+                          setPasswordError('');
+                        }}
+                        placeholder="Enter your Trading Passport"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        error={passportError}
+                        onBlur={() => handleBlur('passport')}
+                        icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
+                        showSuccess={touched.passport}
+                        onValidate={validatePassport}
+                      />
+                    </View>
+                    <View style={{ marginBottom: passportError ? 34 : 12 }}>
+                      <Tooltip content="Your Trading Passport is a unique 6+ character identifier that you can use instead of your email address to sign in. It's displayed in your profile settings." />
+                    </View>
+                  </View>
                 )}
               </Animated.View>
 
@@ -310,7 +471,9 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  setPasswordError('');
+                  if (touched.password) {
+                    setPasswordError('');
+                  }
                   if (loginMode === 'email') {
                     setEmailError('');
                   } else {
@@ -318,11 +481,32 @@ export default function LoginScreen() {
                   }
                 }}
                 placeholder="Enter your password"
+                autoComplete="password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
                 icon={<Lock size={18} color="rgba(255, 255, 255, 0.5)" />}
                 isPassword
+                showSuccess={touched.password}
+                onValidate={validatePassword}
               />
+
+              {/* Biometric Auth Button */}
+              {biometric.capabilities.isAvailable && email && (
+                <Animated.View
+                  entering={FadeIn.duration(300)}
+                  style={styles.biometricButton}
+                >
+                  <TouchableOpacity
+                    onPress={handleBiometricSignIn}
+                    style={styles.biometricTouchable}
+                    accessibilityLabel={`Sign in with ${biometric.capabilities.biometricType}`}
+                    accessibilityRole="button"
+                  >
+                    <Fingerprint size={20} color="rgba(255, 255, 255, 0.7)" />
+                    <Text style={styles.biometricText}>Use {biometric.capabilities.biometricType}</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
 
               <View style={styles.rememberRow}>
                 <TouchableOpacity
@@ -355,9 +539,9 @@ export default function LoginScreen() {
 
             <View style={styles.actionSection}>
               <Glass3DButton
-                title="Sign In"
+                title={loading && loadingMessage ? loadingMessage : 'Sign In'}
                 onPress={handleSignIn}
-                disabled={!isFormValid || loading}
+                disabled={!isFormValid || loading || !isOnline}
                 loading={loading}
               />
 
@@ -380,12 +564,12 @@ export default function LoginScreen() {
                 <GlassOAuthButton
                   onPress={() => {}}
                   icon={<GoogleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
-                  label="Google"
+                  label="Continue with Google"
                 />
                 <GlassOAuthButton
                   onPress={() => {}}
                   icon={<AppleIcon size={oauthIconSize} color="rgba(255, 255, 255, 0.75)" />}
-                  label="Apple"
+                  label="Continue with Apple"
                 />
               </View>
             </View>
@@ -410,8 +594,9 @@ export default function LoginScreen() {
               </View>
               <Text style={styles.copyright}>© 2025 Trading Platform. All rights reserved.</Text>
             </View>
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -448,7 +633,7 @@ const createResponsiveStyles = (
       alignItems: 'center',
     },
     logoContainer: {
-      marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+      marginBottom: 24,
       alignItems: 'center',
     },
     title: {
@@ -593,6 +778,82 @@ const createResponsiveStyles = (
       color: 'rgba(255, 255, 255, 0.4)',
       textAlign: 'center',
       letterSpacing: 0.2,
+    },
+    offlineBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: 'rgba(239, 68, 68, 0.9)',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+      marginBottom: spacing.md,
+      marginHorizontal: spacing.md,
+    },
+    offlineBannerText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.semibold,
+      color: '#FFF',
+    },
+    helpBanner: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      backgroundColor: 'rgba(245, 158, 11, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(245, 158, 11, 0.3)',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderRadius: 12,
+      marginBottom: spacing.lg,
+      marginHorizontal: spacing.md,
+    },
+    helpBannerText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.semibold,
+      color: 'rgba(255, 255, 255, 0.9)',
+      marginBottom: 4,
+    },
+    helpLinks: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    helpLink: {
+      fontSize: typography.size.xs,
+      fontWeight: typography.weight.semibold,
+      color: '#F59E0B',
+      textDecorationLine: 'underline',
+    },
+    helpSeparator: {
+      fontSize: typography.size.xs,
+      color: 'rgba(255, 255, 255, 0.4)',
+    },
+    helpClose: {
+      padding: 4,
+    },
+    helpCloseText: {
+      fontSize: 16,
+      color: 'rgba(255, 255, 255, 0.6)',
+    },
+    biometricButton: {
+      marginBottom: spacing.md,
+    },
+    biometricTouchable: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm + 2,
+      paddingHorizontal: spacing.md,
+      backgroundColor: 'rgba(200, 200, 200, 0.1)',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    biometricText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.semibold,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
   });
 };

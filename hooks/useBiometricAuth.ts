@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BIOMETRIC_STORAGE_KEY = 'biometric_credentials';
@@ -32,13 +33,29 @@ export function useBiometricAuth() {
     }
 
     try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+
+      let biometricType: 'FaceID' | 'TouchID' | 'Fingerprint' | 'None' = 'None';
+      if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+        biometricType = 'FaceID';
+      } else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+        biometricType = Platform.OS === 'ios' ? 'TouchID' : 'Fingerprint';
+      }
+
       setCapabilities({
-        isAvailable: true,
-        biometricType: Platform.OS === 'ios' ? 'FaceID' : 'Fingerprint',
-        isEnrolled: true,
+        isAvailable: compatible && enrolled,
+        biometricType,
+        isEnrolled: enrolled,
       });
     } catch (error) {
       console.error('Biometric check error:', error);
+      setCapabilities({
+        isAvailable: false,
+        biometricType: 'None',
+        isEnrolled: false,
+      });
     }
   };
 
@@ -51,13 +68,25 @@ export function useBiometricAuth() {
       return { success: false, error: 'Biometric authentication not available' };
     }
 
-    Alert.alert(
-      'Biometric Authentication',
-      'Biometric authentication would be triggered here on a real device.',
-      [{ text: 'OK' }]
-    );
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Authenticate to sign in',
+        cancelLabel: 'Cancel',
+        disableDeviceFallback: false,
+        fallbackLabel: 'Use passcode',
+      });
 
-    return { success: true };
+      if (result.success) {
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: result.error === 'user_cancel' ? 'Cancelled by user' : 'Authentication failed'
+        };
+      }
+    } catch (error) {
+      return { success: false, error: 'Authentication error occurred' };
+    }
   };
 
   const saveCredentials = async (email: string, encryptedPassword: string) => {

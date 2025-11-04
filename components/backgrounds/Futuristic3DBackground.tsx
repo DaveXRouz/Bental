@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -25,15 +25,22 @@ interface FloatingShape {
   delay: number;
 }
 
-const shapes: FloatingShape[] = [
+// Full quality shapes for high-end devices
+const shapesHigh: FloatingShape[] = [
   { id: 1, type: 'x', size: 120, startX: width * 0.1, startY: height * 0.15, duration: 8000, delay: 0 },
   { id: 2, type: 'cube', size: 90, startX: width * 0.8, startY: height * 0.25, duration: 10000, delay: 500 },
   { id: 3, type: 'sphere', size: 100, startX: width * 0.15, startY: height * 0.65, duration: 9000, delay: 1000 },
   { id: 4, type: 'x', size: 80, startX: width * 0.85, startY: height * 0.7, duration: 11000, delay: 1500 },
   { id: 5, type: 'pyramid', size: 70, startX: width * 0.5, startY: height * 0.1, duration: 12000, delay: 2000 },
   { id: 6, type: 'cube', size: 60, startX: width * 0.3, startY: height * 0.85, duration: 9500, delay: 2500 },
-  { id: 7, type: 'x', size: 110, startX: width * 0.9, startY: height * 0.5, duration: 10500, delay: 3000 },
-  { id: 8, type: 'sphere', size: 85, startX: width * 0.05, startY: height * 0.4, duration: 11500, delay: 3500 },
+];
+
+// Reduced shapes for lower-end devices
+const shapesLow: FloatingShape[] = [
+  { id: 1, type: 'x', size: 120, startX: width * 0.1, startY: height * 0.15, duration: 8000, delay: 0 },
+  { id: 2, type: 'cube', size: 90, startX: width * 0.8, startY: height * 0.25, duration: 10000, delay: 500 },
+  { id: 3, type: 'sphere', size: 100, startX: width * 0.15, startY: height * 0.65, duration: 9000, delay: 1000 },
+  { id: 4, type: 'x', size: 80, startX: width * 0.85, startY: height * 0.7, duration: 11000, delay: 1500 },
 ];
 
 function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }: FloatingShape & { reduceMotion: boolean }) {
@@ -381,6 +388,14 @@ function FloatingPyramid({ size, startX, startY, duration, delay, reduceMotion }
 
 export function Futuristic3DBackground() {
   const prefersReducedMotion = useReducedMotion();
+  const [shapes, setShapes] = useState(shapesHigh);
+
+  useEffect(() => {
+    // Use reduced quality on web or if device has performance constraints
+    if (Platform.OS === 'web') {
+      setShapes(shapesLow);
+    }
+  }, []);
 
   const ambientGlow1 = useSharedValue(0);
   const ambientGlow2 = useSharedValue(0);

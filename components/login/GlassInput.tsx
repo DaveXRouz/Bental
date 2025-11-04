@@ -7,7 +7,8 @@ import {
   TextInputProps,
   TouchableOpacity,
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff, CheckCircle2 } from 'lucide-react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { spacing, typography } from '@/constants/theme';
 
 interface GlassInputProps extends TextInputProps {
@@ -17,6 +18,8 @@ interface GlassInputProps extends TextInputProps {
   error?: string;
   icon?: React.ReactNode;
   isPassword?: boolean;
+  showSuccess?: boolean;
+  onValidate?: (value: string) => boolean;
 }
 
 export function GlassInput({
@@ -26,11 +29,21 @@ export function GlassInput({
   error,
   icon,
   isPassword = false,
+  showSuccess = false,
+  onValidate,
   onBlur,
   ...props
 }: GlassInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isValid, setIsValid] = useState(false);
+
+  const handleChange = (text: string) => {
+    onChangeText(text);
+    if (onValidate && showSuccess) {
+      setIsValid(onValidate(text));
+    }
+  };
 
   const handleFocus = () => setIsFocused(true);
 
@@ -58,7 +71,7 @@ export function GlassInput({
 
             <TextInput
               value={value}
-              onChangeText={onChangeText}
+              onChangeText={handleChange}
               onFocus={handleFocus}
               onBlur={handleBlur}
               secureTextEntry={isPassword && !showPassword}
@@ -69,6 +82,16 @@ export function GlassInput({
               {...props}
             />
           </View>
+
+          {showSuccess && isValid && !error && (
+            <Animated.View
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(200)}
+              style={styles.successIcon}
+            >
+              <CheckCircle2 size={18} color="#10B981" strokeWidth={2.5} />
+            </Animated.View>
+          )}
 
           {isPassword && (
             <TouchableOpacity
@@ -89,7 +112,15 @@ export function GlassInput({
       </View>
 
       {error && (
-        <Text style={styles.errorText}>{error}</Text>
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}
+          accessible
+          accessibilityLiveRegion="polite"
+          accessibilityRole="alert"
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </Animated.View>
       )}
     </View>
   );
@@ -112,6 +143,11 @@ const styles = StyleSheet.create({
   containerFocused: {
     borderColor: 'rgba(200, 200, 200, 0.3)',
     backgroundColor: 'rgba(26, 26, 28, 0.7)',
+    shadowColor: 'rgba(200, 200, 200, 0.3)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   containerError: {
     borderColor: 'rgba(239, 68, 68, 0.5)',
@@ -148,6 +184,10 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.95)',
     paddingVertical: 0,
     minHeight: 22,
+  },
+  successIcon: {
+    marginLeft: spacing.xs,
+    justifyContent: 'center',
   },
   eyeIcon: {
     paddingHorizontal: spacing.xs,
