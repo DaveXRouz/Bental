@@ -31,6 +31,9 @@ import { Chrome as GoogleIcon, Apple as AppleIcon } from 'lucide-react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import { MFAVerificationModal } from '@/components/auth/MFAVerificationModal';
+import { useMFA } from '@/hooks/useMFA';
+import { useRateLimit } from '@/hooks/useRateLimit';
 
 type LoginMode = 'email' | 'passport';
 
@@ -52,8 +55,12 @@ export default function LoginScreen() {
   const [isOnline, setIsOnline] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [showHelpBanner, setShowHelpBanner] = useState(false);
+  const [showMFAModal, setShowMFAModal] = useState(false);
+  const [pendingMFAEmail, setPendingMFAEmail] = useState('');
 
   const biometric = useBiometricAuth();
+  const mfa = useMFA();
+  const rateLimit = useRateLimit(loginMode === 'email' ? email : null);
 
   useEffect(() => {
     const loadRememberMe = async () => {
@@ -206,6 +213,12 @@ export default function LoginScreen() {
       return;
     }
 
+    // Check rate limiting
+    if (rateLimit.isLocked) {
+      setPasswordError(`Too many attempts. Try again in ${rateLimit.formatCountdown()}`);
+      return;
+    }
+
     setLoading(true);
     setLoadingMessage('Verifying credentials...');
 
@@ -234,6 +247,9 @@ export default function LoginScreen() {
         email: loginEmail,
         password,
       });
+
+      // Record login attempt
+      await rateLimit.recordAttempt(!error, error?.message);
 
       if (error) {
         console.error('Login error:', error);
@@ -271,6 +287,22 @@ export default function LoginScreen() {
       if (data?.user) {
         setLoadingMessage('Loading profile...');
 
+        // Check if MFA is enabled for this user
+        const { data: mfaData } = await supabase
+          .from('mfa_secrets')
+          .select('enabled, method')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+
+        if (mfaData?.enabled) {
+          // Show MFA verification modal
+          setPendingMFAEmail(loginEmail);
+          setShowMFAModal(true);
+          setLoading(false);
+          setLoadingMessage('');
+          return;
+        }
+
         // Save biometric credentials if enabled
         if (biometric.capabilities.isAvailable && rememberMe) {
           await biometric.saveCredentials(loginEmail, password);
@@ -305,10 +337,40 @@ export default function LoginScreen() {
     }
   };
 
+  const handleMFAVerify = async (code: string) => {
+    const result = await mfa.verifyMFACode(code);
+
+    if (result.success) {
+      // Complete login after successful MFA
+      const { data } = await supabase.auth.getUser();
+
+      if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+
+        if (profile?.role === 'admin') {
+          router.replace('/admin-panel');
+        } else {
+          router.replace('/(tabs)');
+        }
+      }
+    }
+
+    return result;
+  };
+
   const isFormValid =
     (loginMode === 'email' ? email && validateEmail(email) : tradingPassport && validatePassport(tradingPassport)) &&
     password &&
-    password.length >= 6;
+    password.length >= 6 &&
+    !rateLimit.isLocked;
 
   const styles = React.useMemo(() => createResponsiveStyles(width, isMobile, responsiveSpacing, responsiveFontSize), [width, isMobile, responsiveSpacing, responsiveFontSize]);
 
@@ -538,6 +600,24 @@ export default function LoginScreen() {
             </GlassmorphicCard>
 
             <View style={styles.actionSection}>
+              {/* Rate Limit Warning */}
+              {rateLimit.isLocked && (
+                <Animated.View
+                  entering={FadeIn.duration(200)}
+                  style={styles.rateLimitBanner}
+                >
+                  <AlertTriangle size={18} color="#F59E0B" />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.rateLimitText}>
+                      Too many failed attempts
+                    </Text>
+                    <Text style={styles.rateLimitCountdown}>
+                      Try again in {rateLimit.formatCountdown()}
+                    </Text>
+                  </View>
+                </Animated.View>
+              )}
+
               <Glass3DButton
                 title={loading && loadingMessage ? loadingMessage : 'Sign In'}
                 onPress={handleSignIn}
@@ -598,6 +678,18 @@ export default function LoginScreen() {
           </ScrollView>
         </TouchableOpacity>
       </KeyboardAvoidingView>
+
+      {/* MFA Verification Modal */}
+      <MFAVerificationModal
+        visible={showMFAModal}
+        onClose={() => {
+          setShowMFAModal(false);
+          setLoading(false);
+          setLoadingMessage('');
+        }}
+        onVerify={handleMFAVerify}
+        method="totp"
+      />
     </SafeAreaView>
   );
 }
@@ -854,6 +946,29 @@ const createResponsiveStyles = (
       fontSize: typography.size.sm,
       fontWeight: typography.weight.semibold,
       color: 'rgba(255, 255, 255, 0.8)',
+    },
+    rateLimitBanner: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      backgroundColor: 'rgba(245, 158, 11, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(245, 158, 11, 0.3)',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderRadius: 12,
+      marginBottom: spacing.md,
+    },
+    rateLimitText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.semibold,
+      color: 'rgba(255, 255, 255, 0.9)',
+      marginBottom: 2,
+    },
+    rateLimitCountdown: {
+      fontSize: typography.size.xs,
+      fontWeight: typography.weight.medium,
+      color: '#F59E0B',
     },
   });
 };
