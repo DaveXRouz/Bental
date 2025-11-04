@@ -140,30 +140,25 @@ export default function LoginScreen() {
   const handleBlur = (field: 'email' | 'passport' | 'password') => {
     setTouched({ ...touched, [field]: true });
 
-    if (field === 'email' && loginMode === 'email') {
-      if (!email) {
-        setEmailError('Email is required');
-      } else if (!validateEmail(email)) {
+    // Only validate if user has entered something
+    if (field === 'email' && loginMode === 'email' && email.length > 0) {
+      if (!validateEmail(email)) {
         setEmailError('Please enter a valid email');
       } else {
         setEmailError('');
       }
     }
 
-    if (field === 'passport' && loginMode === 'passport') {
-      if (!tradingPassport) {
-        setPassportError('Trading Passport is required');
-      } else if (!validatePassport(tradingPassport)) {
-        setPassportError('Please enter a valid Trading Passport');
+    if (field === 'passport' && loginMode === 'passport' && tradingPassport.length > 0) {
+      if (!validatePassport(tradingPassport)) {
+        setPassportError('Trading Passport must be at least 6 characters');
       } else {
         setPassportError('');
       }
     }
 
-    if (field === 'password') {
-      if (!password) {
-        setPasswordError('Password is required');
-      } else if (password.length < 6) {
+    if (field === 'password' && password.length > 0) {
+      if (password.length < 6) {
         setPasswordError('Password must be at least 6 characters');
       } else {
         setPasswordError('');
@@ -564,7 +559,6 @@ export default function LoginScreen() {
                         console.clear();
                       }
                       setEmail(text);
-                      // Clear email error immediately as user types
                       setEmailError('');
                     }}
                     placeholder="your@email.com"
@@ -590,7 +584,6 @@ export default function LoginScreen() {
                             console.clear();
                           }
                           setTradingPassport(text);
-                          // Clear passport error immediately as user types
                           setPassportError('');
                         }}
                         placeholder="Enter your Trading Passport"
@@ -615,12 +608,7 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  // Clear password error immediately as user types
                   setPasswordError('');
-                  // Real-time validation for better UX
-                  if (text.length > 0 && text.length < 6) {
-                    setPasswordError('Password must be at least 6 characters');
-                  }
                 }}
                 placeholder="Enter your password"
                 autoComplete="password"
