@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -29,9 +29,14 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAccounts } from '@/hooks/useAccounts';
+import { useQuote } from '@/hooks/useQuote';
 import { colors, Spacing, Typography } from '@/constants/theme';
 import { formatCurrency } from '@/utils/formatting';
 import { useAppConfig } from '@/hooks/useAppConfig';
+import { tradeExecutor } from '@/services/trading/trade-executor';
+import TradeConfirmationModal from '@/components/modals/TradeConfirmationModal';
+import { useToast } from '@/components/ui/ToastManager';
 
 type OrderType = 'market' | 'limit' | 'stop';
 type OrderSide = 'buy' | 'sell';
@@ -39,6 +44,8 @@ type OrderSide = 'buy' | 'sell';
 export default function TradeScreen() {
   const { user } = useAuth();
   const { trading_enabled } = useAppConfig();
+  const { accounts } = useAccounts();
+  const { showError, showSuccess } = useToast();
   const [symbol, setSymbol] = useState('');
   const [orderSide, setOrderSide] = useState<OrderSide>('buy');
   const [orderType, setOrderType] = useState<OrderType>('market');
@@ -47,45 +54,125 @@ export default function TradeScreen() {
   const [stopPrice, setStopPrice] = useState('');
   const [timeInForce, setTimeInForce] = useState<'day' | 'gtc'>('day');
   const [extendedHours, setExtendedHours] = useState(false);
+  const [confirmationVisible, setConfirmationVisible] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
-  const handleSubmitOrder = () => {
+  const primaryAccount = accounts.length > 0 ? accounts[0] : null;
+  const { quote, loading: quoteLoading } = useQuote(symbol.trim().toUpperCase(), false);
+  const currentPrice = quote?.price || 0;
+
+  const handleSubmitOrder = async () => {
     if (!trading_enabled) {
-      Alert.alert(
-        'Trading Disabled',
-        'Trading is temporarily disabled. Please try again later.',
-        [{ text: 'OK' }]
-      );
+      showError('Trading is temporarily disabled');
       return;
     }
-    if (Platform.OS !== 'web') {
-      try {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      } catch (e) {}
+
+    if (!primaryAccount) {
+      showError('No active account found');
+      return;
     }
 
-    Alert.alert(
-      'Confirm Order',
-      `${orderSide.toUpperCase()} ${quantity} shares of ${symbol} at ${orderType} price`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm',
-          onPress: () => {
-            Alert.alert('Success', 'Order placed successfully!');
-          },
-        },
-      ]
+    if (!symbol.trim()) {
+      showError('Please enter a valid symbol');
+      return;
+    }
+
+    if (!quantity || parseFloat(quantity) <= 0) {
+      showError('Please enter a valid quantity');
+      return;
+    }
+
+    if (!currentPrice && orderType === 'market') {
+      showError('Unable to fetch current price');
+      return;
+    }
+
+    // Validate trade before showing confirmation
+    setIsValidating(true);
+    const validation = await tradeExecutor.validateTrade(
+      {
+        symbol: symbol.trim().toUpperCase(),
+        side: orderSide,
+        quantity: parseFloat(quantity),
+        orderType: orderType === 'stop' ? 'market' : orderType,
+        limitPrice: limitPrice ? parseFloat(limitPrice) : undefined,
+        accountId: primaryAccount.id,
+      },
+      user!.id
     );
+    setIsValidating(false);
+
+    if (!validation.valid) {
+      showError(validation.error || 'Trade validation failed');
+      return;
+    }
+
+    // Show confirmation modal
+    setConfirmationVisible(true);
   };
 
-  const isFormValid = symbol.length > 0 && parseFloat(quantity) > 0;
+  const handleConfirmTrade = async () => {
+    try {
+      const result = await tradeExecutor.executeTrade(
+        {
+          symbol: symbol.trim().toUpperCase(),
+          side: orderSide,
+          quantity: parseFloat(quantity),
+          orderType: orderType === 'stop' ? 'market' : orderType,
+          limitPrice: limitPrice ? parseFloat(limitPrice) : undefined,
+          accountId: primaryAccount!.id,
+        },
+        user!.id
+      );
 
-  const estimatedCost =
-    parseFloat(quantity) * (parseFloat(limitPrice) || 100);
+      if (result.success) {
+        if (Platform.OS !== 'web') {
+          try {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } catch (e) {}
+        }
+        showSuccess(result.message);
+        // Reset form
+        setSymbol('');
+        setQuantity('');
+        setLimitPrice('');
+        setStopPrice('');
+      } else {
+        showError(result.message);
+      }
+    } catch (error: any) {
+      showError(error.message || 'Trade execution failed');
+    }
+  };
+
+  const isFormValid = symbol.trim().length > 0 && parseFloat(quantity) > 0 && !isValidating;
+
+  const executionPrice = orderType === 'limit' && limitPrice
+    ? parseFloat(limitPrice)
+    : currentPrice;
+
+  const estimatedCost = parseFloat(quantity || '0') * executionPrice;
 
   return (
     <View style={styles.container}>
       <DataStreamBackground />
+
+      <TradeConfirmationModal
+        visible={confirmationVisible}
+        onClose={() => setConfirmationVisible(false)}
+        onConfirm={handleConfirmTrade}
+        trade={{
+          symbol: symbol.trim().toUpperCase(),
+          side: orderSide,
+          quantity: parseFloat(quantity || '0'),
+          orderType: orderType === 'stop' ? 'market' : orderType,
+          limitPrice: limitPrice ? parseFloat(limitPrice) : undefined,
+          estimatedPrice: executionPrice,
+          estimatedTotal: estimatedCost,
+          fees: 0,
+          buyingPower: primaryAccount ? Number(primaryAccount.balance) : 0,
+        }}
+      />
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Quick Trade</Text>
@@ -171,6 +258,15 @@ export default function TradeScreen() {
               autoCorrect={false}
             />
           </View>
+          {symbol.trim() && currentPrice > 0 && (
+            <View style={styles.priceDisplay}>
+              <Text style={styles.priceLabel}>Current Price:</Text>
+              <Text style={styles.priceValue}>{formatCurrency(currentPrice)}</Text>
+            </View>
+          )}
+          {symbol.trim() && quoteLoading && (
+            <Text style={styles.loadingText}>Fetching price...</Text>
+          )}
         </BlurView>
 
         <BlurView intensity={20} tint="dark" style={styles.card}>
@@ -576,5 +672,29 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.sm,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: Typography.weight.medium,
+  },
+  priceDisplay: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+  },
+  priceLabel: {
+    fontSize: Typography.size.sm,
+    color: colors.textMuted,
+  },
+  priceValue: {
+    fontSize: Typography.size.md,
+    fontWeight: Typography.weight.bold,
+    color: '#10B981',
+  },
+  loadingText: {
+    fontSize: Typography.size.sm,
+    color: colors.textMuted,
+    marginTop: Spacing.sm,
+    fontStyle: 'italic',
   },
 });
