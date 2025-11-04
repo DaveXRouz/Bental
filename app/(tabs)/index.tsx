@@ -57,6 +57,7 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      console.clear();
       setTransferModalVisible(false);
       setDepositModalVisible(false);
       setWithdrawModalVisible(false);
@@ -66,6 +67,7 @@ export default function HomeScreen() {
 
 
   const fetchDashboardData = useCallback(async () => {
+    console.clear();
     if (!user?.id) {
       setLoading(false);
       setRefreshing(false);

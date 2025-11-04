@@ -104,8 +104,21 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
   const [pickupTime, setPickupTime] = useState('next_4_hours');
   const [insuranceAmount, setInsuranceAmount] = useState('100000');
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!visible) {
+      console.clear();
+      setAmount('');
+      setError('');
+      setIsSubmitting(false);
+      setActiveMethod('bank_transfer');
+      setPickupAddress('');
+    }
+  }, [visible]);
+
   useEffect(() => {
     if (visible && accounts.length > 0 && !selectedAccountId) {
+      console.clear();
       setSelectedAccountId(accounts[0].id);
     }
   }, [visible, accounts, selectedAccountId]);
@@ -121,6 +134,7 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
   };
 
   const handleDeposit = async () => {
+    console.clear();
     setError('');
 
     // Validation

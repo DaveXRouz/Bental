@@ -53,6 +53,7 @@ export default function AccountsScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      console.clear();
       setTransferModalVisible(false);
       setDepositModalVisible(false);
       setWithdrawModalVisible(false);
@@ -60,6 +61,7 @@ export default function AccountsScreen() {
   );
 
   const onRefresh = useCallback(async () => {
+    console.clear();
     setRefreshing(true);
     await refetch();
     setRefreshing(false);

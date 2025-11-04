@@ -35,9 +35,21 @@ export default function TransferModal({ visible, onClose, onSuccess }: TransferM
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>('');
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!visible) {
+      console.clear();
+      setAmount('');
+      setNotes('');
+      setError('');
+      setIsSubmitting(false);
+    }
+  }, [visible]);
+
   // Set default accounts when modal opens
   useEffect(() => {
     if (visible && accounts.length > 0) {
+      console.clear();
       // Set first account as from
       setFromAccountId(accounts[0].id);
       // Set second account as to (if exists)
@@ -53,6 +65,7 @@ export default function TransferModal({ visible, onClose, onSuccess }: TransferM
   const availableBalance = fromAccount ? Number(fromAccount.balance) : 0;
 
   const handleTransfer = async () => {
+    console.clear();
     setError('');
 
     // Validation

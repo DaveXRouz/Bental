@@ -66,13 +66,28 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
   const [primaryAccount, setPrimaryAccount] = useState<any>(null);
   const availableBalance = primaryAccount ? Number(primaryAccount.balance) : 0;
 
+  // Reset form when modal closes
   useEffect(() => {
-    if (accounts.length > 0) {
+    if (!visible) {
+      console.clear();
+      setAmount('');
+      setBankName('');
+      setAccountLast4('');
+      setRoutingNumber('');
+      setIsSubmitting(false);
+      setActiveMethod('bank_transfer');
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    if (visible && accounts.length > 0) {
+      console.clear();
       setPrimaryAccount(accounts[0]);
     }
-  }, [accounts]);
+  }, [visible, accounts]);
 
   const handleWithdraw = async () => {
+    console.clear();
     if (!amount || parseFloat(amount) <= 0) {
       showError('Please enter a valid amount');
       return;

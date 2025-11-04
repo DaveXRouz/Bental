@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { QuantumFieldBackground } from '@/components/backgrounds';
@@ -18,6 +19,12 @@ type SegmentType = 'holdings' | 'watchlist';
 export default function PortfolioScreen() {
   const { user } = useAuth();
   const [activeSegment, setActiveSegment] = useState<SegmentType>('holdings');
+
+  useFocusEffect(
+    useCallback(() => {
+      console.clear();
+    }, [])
+  );
 
 
   return (
