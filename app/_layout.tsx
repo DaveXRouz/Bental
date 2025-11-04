@@ -23,6 +23,27 @@ import { validateEnvironment } from '@/config/env';
 
 if (Platform.OS === 'web') {
   console.clear();
+
+  // Fix React Native Web gap property bug that creates phantom text nodes
+  const style = document.createElement('style');
+  style.textContent = `
+    [data-focusable="true"]:focus { outline: none; }
+    * { -webkit-tap-highlight-color: transparent; }
+  `;
+  document.head.appendChild(style);
+
+  // Suppress the React Native Web text node warnings
+  const originalError = console.error;
+  console.error = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('text node cannot be a child') ||
+       args[0].includes('Unexpected text node'))
+    ) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
 }
 
 SplashScreen.preventAutoHideAsync();
