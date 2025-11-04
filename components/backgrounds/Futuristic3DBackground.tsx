@@ -48,8 +48,8 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
 
     translateY.value = withRepeat(
       withSequence(
-        withTiming(-30, { duration: duration / 2, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(30, { duration: duration / 2, easing: Easing.bezier(0.4, 0, 0.6, 1) })
+        withTiming(-35, { duration: duration / 2, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(35, { duration: duration / 2, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) })
       ),
       -1,
       false
@@ -57,9 +57,9 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
 
     translateX.value = withRepeat(
       withSequence(
-        withTiming(20, { duration: duration / 3, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(-20, { duration: duration / 3, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(0, { duration: duration / 3, easing: Easing.bezier(0.4, 0, 0.6, 1) })
+        withTiming(25, { duration: duration / 3, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(-25, { duration: duration / 3, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(0, { duration: duration / 3, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) })
       ),
       -1,
       false
@@ -73,9 +73,9 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
 
     scale.value = withRepeat(
       withSequence(
-        withSpring(1.15, { damping: 15, stiffness: 100 }),
-        withSpring(0.95, { damping: 15, stiffness: 100 }),
-        withSpring(1, { damping: 15, stiffness: 100 })
+        withSpring(1.2, { damping: 18, stiffness: 90 }),
+        withSpring(0.9, { damping: 18, stiffness: 90 }),
+        withSpring(1, { damping: 18, stiffness: 90 })
       ),
       -1,
       false
@@ -83,8 +83,8 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
 
     opacity.value = withRepeat(
       withSequence(
-        withTiming(0.5, { duration: duration / 2 }),
-        withTiming(0.2, { duration: duration / 2 })
+        withTiming(0.6, { duration: duration / 2, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+        withTiming(0.25, { duration: duration / 2, easing: Easing.bezier(0.4, 0, 0.6, 1) })
       ),
       -1,
       true
@@ -118,7 +118,7 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
       ]}
     >
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0.15)', 'rgba(200, 200, 200, 0.1)', 'rgba(160, 160, 160, 0.08)']}
+        colors={['rgba(255, 255, 255, 0.2)', 'rgba(220, 220, 220, 0.15)', 'rgba(180, 180, 180, 0.1)']}
         style={[styles.xStroke, {
           width: strokeWidth,
           height: size * 0.8,
@@ -128,7 +128,7 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
         }]}
       />
       <LinearGradient
-        colors={['rgba(200, 200, 200, 0.15)', 'rgba(180, 180, 180, 0.1)', 'rgba(160, 160, 160, 0.08)']}
+        colors={['rgba(220, 220, 220, 0.2)', 'rgba(200, 200, 200, 0.15)', 'rgba(180, 180, 180, 0.1)']}
         style={[styles.xStroke, {
           width: strokeWidth,
           height: size * 0.8,
@@ -384,15 +384,16 @@ export function Futuristic3DBackground() {
 
   const ambientGlow1 = useSharedValue(0);
   const ambientGlow2 = useSharedValue(0);
-  const fogOpacity = useSharedValue(0.05);
+  const ambientGlow3 = useSharedValue(0);
+  const fogOpacity = useSharedValue(0.06);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
 
     ambientGlow1.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 4000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(0, { duration: 4000, easing: Easing.bezier(0.4, 0, 0.6, 1) })
+        withTiming(1, { duration: 5000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(0, { duration: 5000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) })
       ),
       -1,
       false
@@ -400,8 +401,17 @@ export function Futuristic3DBackground() {
 
     ambientGlow2.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 5000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
-        withTiming(0, { duration: 5000, easing: Easing.bezier(0.4, 0, 0.6, 1) })
+        withTiming(1, { duration: 6000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(0, { duration: 6000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) })
+      ),
+      -1,
+      false
+    );
+
+    ambientGlow3.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 7000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) }),
+        withTiming(0, { duration: 7000, easing: Easing.bezier(0.45, 0.05, 0.55, 0.95) })
       ),
       -1,
       false
@@ -409,8 +419,8 @@ export function Futuristic3DBackground() {
 
     fogOpacity.value = withRepeat(
       withSequence(
-        withTiming(0.08, { duration: 6000 }),
-        withTiming(0.05, { duration: 6000 })
+        withTiming(0.1, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) }),
+        withTiming(0.06, { duration: 7000, easing: Easing.bezier(0.4, 0, 0.6, 1) })
       ),
       -1,
       true
@@ -418,16 +428,23 @@ export function Futuristic3DBackground() {
   }, [prefersReducedMotion]);
 
   const glow1Style = useAnimatedStyle(() => ({
-    opacity: interpolate(ambientGlow1.value, [0, 1], [0.15, 0.35]),
+    opacity: interpolate(ambientGlow1.value, [0, 1], [0.18, 0.4]),
     transform: [
-      { scale: interpolate(ambientGlow1.value, [0, 1], [1, 1.3]) },
+      { scale: interpolate(ambientGlow1.value, [0, 1], [1, 1.4]) },
     ],
   }));
 
   const glow2Style = useAnimatedStyle(() => ({
-    opacity: interpolate(ambientGlow2.value, [0, 1], [0.2, 0.4]),
+    opacity: interpolate(ambientGlow2.value, [0, 1], [0.22, 0.45]),
     transform: [
-      { scale: interpolate(ambientGlow2.value, [0, 1], [1, 1.4]) },
+      { scale: interpolate(ambientGlow2.value, [0, 1], [1, 1.5]) },
+    ],
+  }));
+
+  const glow3Style = useAnimatedStyle(() => ({
+    opacity: interpolate(ambientGlow3.value, [0, 1], [0.15, 0.38]),
+    transform: [
+      { scale: interpolate(ambientGlow3.value, [0, 1], [1, 1.35]) },
     ],
   }));
 
@@ -455,10 +472,19 @@ export function Futuristic3DBackground() {
 
       <Animated.View style={[styles.ambientGlow, styles.glow2, glow2Style]}>
         <LinearGradient
-          colors={['rgba(200, 200, 200, 0.08)', 'transparent']}
+          colors={['rgba(200, 200, 200, 0.1)', 'transparent']}
           style={StyleSheet.absoluteFill}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
+        />
+      </Animated.View>
+
+      <Animated.View style={[styles.ambientGlow, styles.glow3, glow3Style]}>
+        <LinearGradient
+          colors={['rgba(220, 220, 220, 0.09)', 'transparent']}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
         />
       </Animated.View>
 
@@ -504,6 +530,12 @@ const styles = StyleSheet.create({
   glow2: {
     bottom: -150,
     right: -150,
+  },
+  glow3: {
+    top: '50%',
+    left: '50%',
+    marginLeft: -300,
+    marginTop: -300,
   },
   floatingShape: {
     position: 'absolute',

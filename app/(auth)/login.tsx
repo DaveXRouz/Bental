@@ -209,7 +209,7 @@ export default function LoginScreen() {
 
   const styles = React.useMemo(() => createResponsiveStyles(width, isMobile, responsiveSpacing, responsiveFontSize), [width, isMobile, responsiveSpacing, responsiveFontSize]);
 
-  const logoSize = width < 375 ? 56 : width < 390 ? 64 : 72;
+  const logoSize = width < 375 ? 48 : width < 390 ? 56 : 64;
   const oauthIconSize = width < 375 ? 18 : 20;
 
   return (
@@ -259,41 +259,47 @@ export default function LoginScreen() {
                 />
               </View>
 
-              {loginMode === 'email' ? (
-                <GlassInput
-                  label="Email"
-                  value={email}
-                  onChangeText={(text) => {
-                    setEmail(text);
-                    setEmailError('');
-                    setPasswordError('');
-                  }}
-                  placeholder="your@email.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="username"
-                  error={emailError}
-                  onBlur={() => handleBlur('email')}
-                  icon={<Mail size={18} color="rgba(255, 255, 255, 0.5)" />}
-                />
-              ) : (
-                <GlassInput
-                  label="Trading Passport"
-                  value={tradingPassport}
-                  onChangeText={(text) => {
-                    setTradingPassport(text);
-                    setPassportError('');
-                    setPasswordError('');
-                  }}
-                  placeholder="Enter your Trading Passport"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  error={passportError}
-                  onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
-                />
-              )}
+              <Animated.View
+                key={loginMode}
+                entering={FadeIn.duration(500)}
+                style={{ width: '100%' }}
+              >
+                {loginMode === 'email' ? (
+                  <GlassInput
+                    label="Email"
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      setEmailError('');
+                      setPasswordError('');
+                    }}
+                    placeholder="your@email.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    textContentType="username"
+                    error={emailError}
+                    onBlur={() => handleBlur('email')}
+                    icon={<Mail size={18} color="rgba(255, 255, 255, 0.5)" />}
+                  />
+                ) : (
+                  <GlassInput
+                    label="Trading Passport"
+                    value={tradingPassport}
+                    onChangeText={(text) => {
+                      setTradingPassport(text);
+                      setPassportError('');
+                      setPasswordError('');
+                    }}
+                    placeholder="Enter your Trading Passport"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    error={passportError}
+                    onBlur={() => handleBlur('passport')}
+                    icon={<CreditCard size={18} color="rgba(255, 255, 255, 0.5)" />}
+                  />
+                )}
+              </Animated.View>
 
               <GlassInput
                 label="Password"
@@ -428,7 +434,8 @@ const createResponsiveStyles = (
       flexGrow: 1,
       justifyContent: 'center',
       paddingHorizontal: isSmallDevice ? spacing.sm : spacing.md,
-      paddingVertical: spacing.xl * (isSmallDevice ? 1.5 : 2),
+      paddingVertical: isSmallDevice ? spacing.md : spacing.lg,
+      minHeight: '100%',
     },
     content: {
       width: '100%',
@@ -437,27 +444,27 @@ const createResponsiveStyles = (
       alignItems: 'center',
     },
     logoContainer: {
-      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+      marginBottom: isSmallDevice ? spacing.sm : spacing.md,
       alignItems: 'center',
     },
     title: {
-      fontSize: isSmallDevice ? 24 : isMobile ? 26 : 30,
+      fontSize: isSmallDevice ? 22 : isMobile ? 24 : 28,
       fontWeight: '700',
       color: 'rgba(255, 255, 255, 0.98)',
-      marginBottom: isSmallDevice ? spacing.lg : spacing.xl,
+      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
       textAlign: 'center',
       letterSpacing: -0.5,
     },
-  toggleContainer: {
-    marginBottom: spacing.md + 4,
-  },
-  rememberRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    marginTop: 4,
-  },
+    toggleContainer: {
+      marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+    },
+    rememberRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+      marginTop: 2,
+    },
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -493,18 +500,18 @@ const createResponsiveStyles = (
     fontWeight: typography.weight.semibold,
     color: 'rgba(200, 200, 200, 0.9)',
   },
-  actionSection: {
-    width: '100%',
-    marginTop: spacing.lg + 4,
-    marginBottom: spacing.xl,
-    gap: spacing.md + 2,
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs + 2,
-  },
+    actionSection: {
+      width: '100%',
+      marginTop: isSmallDevice ? spacing.md : spacing.lg,
+      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+      gap: isSmallDevice ? spacing.sm : spacing.md,
+    },
+    signupContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: spacing.xs + 2,
+    },
     signupText: {
       fontSize: isSmallDevice ? 13 : 14,
       fontWeight: '500',
@@ -516,16 +523,16 @@ const createResponsiveStyles = (
       color: 'rgba(255, 255, 255, 0.95)',
       textDecorationLine: 'underline',
     },
-  oauthSection: {
-    width: '100%',
-    marginTop: spacing.xs,
-    marginBottom: spacing.xl,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md + 2,
-  },
+    oauthSection: {
+      width: '100%',
+      marginTop: spacing.xs,
+      marginBottom: isSmallDevice ? spacing.md : spacing.lg,
+    },
+    dividerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: isSmallDevice ? spacing.sm : spacing.md,
+    },
   dividerLine: {
     flex: 1,
     height: 1,
@@ -538,16 +545,16 @@ const createResponsiveStyles = (
       marginHorizontal: isSmallDevice ? spacing.sm : spacing.md + 2,
       letterSpacing: 0.5,
     },
-  oauthContainer: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  footer: {
-    alignItems: 'center',
-    gap: spacing.sm + 2,
-    marginTop: spacing.lg,
-    paddingTop: spacing.lg,
-  },
+    oauthContainer: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    footer: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: isSmallDevice ? spacing.sm : spacing.md,
+      paddingTop: isSmallDevice ? spacing.sm : spacing.md,
+    },
   securityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
