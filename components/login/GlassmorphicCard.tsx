@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, Text } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Shield } from 'lucide-react-native';
 import { spacing } from '@/constants/theme';
 
 interface GlassmorphicCardProps {
@@ -17,11 +16,6 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
       entering={FadeIn.duration(600).delay(400)}
       style={[styles.container, style]}
     >
-      <View style={styles.securityBadge}>
-        <Shield size={13} color="rgba(255, 255, 255, 0.3)" strokeWidth={2} />
-        <Text style={styles.securityText}>256-bit SSL</Text>
-      </View>
-
       <BlurView intensity={50} tint="dark" style={styles.blur}>
         <LinearGradient
           colors={[
@@ -63,20 +57,5 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.lg + 4,
     paddingVertical: spacing.lg + 4,
-  },
-  securityBadge: {
-    position: 'absolute',
-    top: spacing.md + 2,
-    right: spacing.md + 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    zIndex: 10,
-  },
-  securityText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.3)',
-    letterSpacing: 0.3,
   },
 });

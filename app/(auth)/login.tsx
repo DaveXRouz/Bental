@@ -225,9 +225,15 @@ export default function LoginScreen() {
           <View style={styles.content}>
             <Animated.View
               entering={FadeIn.duration(800).delay(300)}
-              style={styles.logoContainer}
+              style={styles.headerContainer}
             >
-              <MinimalLogo size={48} />
+              <View style={styles.logoContainer}>
+                <MinimalLogo size={48} />
+              </View>
+              <View style={styles.securityBadge}>
+                <Shield size={14} color="rgba(255, 255, 255, 0.4)" strokeWidth={2} />
+                <Text style={styles.securityText}>256-bit SSL</Text>
+              </View>
             </Animated.View>
 
             <Animated.Text
@@ -409,9 +415,32 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
   },
-  logoContainer: {
-    marginBottom: spacing.md,
+  headerContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  logoContainer: {
+    alignItems: 'center',
+  },
+  securityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs + 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  securityText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.4)',
+    letterSpacing: 0.3,
   },
   title: {
     fontSize: 32,
