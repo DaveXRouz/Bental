@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, TextInput, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Settings, Shield } from 'lucide-react-native';
+import { ArrowLeft, Settings, Shield, Edit2, Check, X } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 
 export default function ConfigurationPage() {
@@ -9,6 +9,8 @@ export default function ConfigurationPage() {
   const [configs, setConfigs] = useState<any[]>([]);
   const [featureFlags, setFeatureFlags] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'config' | 'features'>('config');
+  const [editingConfig, setEditingConfig] = useState<any>(null);
+  const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -52,6 +54,72 @@ export default function ConfigurationPage() {
       Alert.alert('Success', 'Feature flag updated');
     } catch (e) {
       Alert.alert('Error', 'Failed to update');
+    }
+  };
+
+  const handleToggleConfig = async (config: any) => {
+    try {
+      const currentValue = JSON.parse(config.value);
+      const newValue = !currentValue;
+      const { error } = await supabase
+        .from('app_configuration')
+        .update({ value: newValue })
+        .eq('id', config.id);
+      if (error) throw error;
+      await supabase.rpc('log_admin_action', {
+        p_action_type: 'config_update',
+        p_target_entity: 'app_configuration',
+        p_target_entity_id: config.id,
+        p_changes: { key: config.key, old: currentValue, new: newValue },
+      });
+      setConfigs((prev) =>
+        prev.map((c) => (c.id === config.id ? { ...c, value: newValue } : c))
+      );
+      Alert.alert('Success', 'Configuration updated');
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to update');
+    }
+  };
+
+  const handleEditConfig = (config: any) => {
+    const value = JSON.parse(config.value);
+    setEditingConfig(config);
+    setEditValue(String(value));
+  };
+
+  const handleSaveConfig = async () => {
+    if (!editingConfig) return;
+    try {
+      const oldValue = JSON.parse(editingConfig.value);
+      let newValue: any = editValue;
+      if (editingConfig.data_type === 'number') {
+        newValue = parseFloat(editValue);
+        if (isNaN(newValue)) {
+          Alert.alert('Error', 'Invalid number');
+          return;
+        }
+      } else if (editingConfig.data_type === 'boolean') {
+        newValue = editValue.toLowerCase() === 'true';
+      }
+      const { error } = await supabase
+        .from('app_configuration')
+        .update({ value: newValue })
+        .eq('id', editingConfig.id);
+      if (error) throw error;
+      await supabase.rpc('log_admin_action', {
+        p_action_type: 'config_update',
+        p_target_entity: 'app_configuration',
+        p_target_entity_id: editingConfig.id,
+        p_changes: { key: editingConfig.key, old: oldValue, new: newValue },
+      });
+      setConfigs((prev) =>
+        prev.map((c) => (c.id === editingConfig.id ? { ...c, value: newValue } : c))
+      );
+      setEditingConfig(null);
+      setEditValue('');
+      Alert.alert('Success', 'Configuration updated');
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to update');
     }
   };
 
@@ -101,13 +169,37 @@ export default function ConfigurationPage() {
               <Text style={styles.categoryTitle}>{category.toUpperCase()}</Text>
               {(items as any[]).map((config: any) => {
                 const value = JSON.parse(config.value);
+                const isBoolean = typeof value === 'boolean';
+                const isString = typeof value === 'string';
+                const isNumber = typeof value === 'number';
                 return (
                   <View key={config.id} style={styles.configItem}>
-                    <Text style={styles.configKey}>{config.key.replace(/_/g, ' ')}</Text>
-                    <Text style={styles.configDesc}>{config.description}</Text>
-                    <Text style={styles.configValue}>
-                      {typeof value === 'boolean' ? (value ? 'Enabled' : 'Disabled') : String(value)}
-                    </Text>
+                    <View style={styles.configHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.configKey}>{config.key.replace(/_/g, ' ')}</Text>
+                        <Text style={styles.configDesc}>{config.description}</Text>
+                      </View>
+                      {isBoolean ? (
+                        <Switch
+                          value={value}
+                          onValueChange={() => handleToggleConfig(config)}
+                          trackColor={{ false: '#334155', true: '#10b981' }}
+                          thumbColor="#fff"
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.editButton}
+                          onPress={() => handleEditConfig(config)}
+                        >
+                          <Edit2 size={16} color="#3b82f6" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    {!isBoolean && (
+                      <Text style={styles.configValue}>
+                        {String(value)}
+                      </Text>
+                    )}
                   </View>
                 );
               })}
@@ -141,6 +233,53 @@ export default function ConfigurationPage() {
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={editingConfig !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingConfig(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Configuration</Text>
+              <TouchableOpacity onPress={() => setEditingConfig(null)}>
+                <X size={24} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+            {editingConfig && (
+              <>
+                <Text style={styles.modalLabel}>{editingConfig.key.replace(/_/g, ' ')}</Text>
+                <Text style={styles.modalDesc}>{editingConfig.description}</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={editValue}
+                  onChangeText={setEditValue}
+                  placeholder={`Enter ${editingConfig.data_type} value`}
+                  placeholderTextColor="#64748b"
+                  keyboardType={editingConfig.data_type === 'number' ? 'numeric' : 'default'}
+                />
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonCancel]}
+                    onPress={() => setEditingConfig(null)}
+                  >
+                    <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSave]}
+                    onPress={handleSaveConfig}
+                  >
+                    <Check size={18} color="#fff" />
+                    <Text style={styles.modalButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -160,9 +299,24 @@ const styles = StyleSheet.create({
   section: { marginBottom: 32 },
   categoryTitle: { fontSize: 12, fontWeight: '700', color: '#64748b', letterSpacing: 1, marginBottom: 16 },
   configItem: { backgroundColor: '#1e293b', padding: 20, borderRadius: 12, marginBottom: 12 },
-  configKey: { fontSize: 16, fontWeight: '600', color: '#fff', marginBottom: 8, textTransform: 'capitalize' },
-  configDesc: { fontSize: 13, color: '#94a3b8', marginBottom: 8 },
-  configValue: { fontSize: 14, color: '#3b82f6', fontWeight: '500' },
+  configHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  configKey: { fontSize: 16, fontWeight: '600', color: '#fff', marginBottom: 4, textTransform: 'capitalize' },
+  configDesc: { fontSize: 13, color: '#94a3b8' },
+  configValue: { fontSize: 14, color: '#3b82f6', fontWeight: '500', marginTop: 8 },
+  editButton: { width: 36, height: 36, borderRadius: 8, backgroundColor: '#1e40af20', justifyContent: 'center', alignItems: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.8)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#1e293b', borderRadius: 16, padding: 24, width: '100%', maxWidth: 500, borderWidth: 1, borderColor: '#334155' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
+  modalLabel: { fontSize: 16, fontWeight: '600', color: '#fff', marginBottom: 8, textTransform: 'capitalize' },
+  modalDesc: { fontSize: 13, color: '#94a3b8', marginBottom: 16 },
+  modalInput: { backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155', borderRadius: 8, padding: 12, fontSize: 15, color: '#fff', marginBottom: 20 },
+  modalActions: { flexDirection: 'row', gap: 12 },
+  modalButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 14, borderRadius: 8, gap: 8 },
+  modalButtonCancel: { backgroundColor: '#334155' },
+  modalButtonSave: { backgroundColor: '#3b82f6' },
+  modalButtonText: { fontSize: 15, fontWeight: '600', color: '#fff' },
+  modalButtonTextCancel: { fontSize: 15, fontWeight: '600', color: '#94a3b8' },
   featureFlag: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e293b', padding: 20, borderRadius: 12, marginBottom: 12 },
   flagContent: { flex: 1, marginRight: 16 },
   flagName: { fontSize: 16, fontWeight: '600', color: '#fff', marginBottom: 6 },

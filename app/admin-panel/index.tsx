@@ -29,6 +29,8 @@ export default function AdminPanelDashboard() {
     activeUsers: 0,
     totalAccounts: 0,
     totalValue: 0,
+    totalTrades: 0,
+    activeBots: 0,
   });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -40,10 +42,12 @@ export default function AdminPanelDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [usersRes, accountsRes, holdingsRes] = await Promise.all([
+      const [usersRes, accountsRes, holdingsRes, tradesRes, botsRes] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('holdings').select('market_value'),
+        supabase.from('trades').select('*', { count: 'exact', head: true }),
+        supabase.from('bots').select('*', { count: 'exact', head: true }).eq('status', 'active'),
       ]);
 
       const totalValue = holdingsRes.data?.reduce((sum, h) => sum + Number(h.market_value || 0), 0) || 0;
@@ -53,6 +57,8 @@ export default function AdminPanelDashboard() {
         activeUsers: usersRes.count || 0,
         totalAccounts: accountsRes.count || 0,
         totalValue,
+        totalTrades: tradesRes.count || 0,
+        activeBots: botsRes.count || 0,
       });
     } catch (error) {
       console.error('Error:', error);
@@ -137,6 +143,16 @@ export default function AdminPanelDashboard() {
                 ${(stats.totalValue / 1000000).toFixed(2)}M
               </Text>
               <Text style={styles.statTitle}>Portfolio Value</Text>
+            </View>
+            <View style={[styles.statCard, { borderLeftColor: '#f59e0b' }]}>
+              <Activity size={24} color="#f59e0b" />
+              <Text style={styles.statValue}>{stats.totalTrades}</Text>
+              <Text style={styles.statTitle}>Total Trades</Text>
+            </View>
+            <View style={[styles.statCard, { borderLeftColor: '#ec4899' }]}>
+              <Shield size={24} color="#ec4899" />
+              <Text style={styles.statValue}>{stats.activeBots}</Text>
+              <Text style={styles.statTitle}>Active Bots</Text>
             </View>
           </View>
 
