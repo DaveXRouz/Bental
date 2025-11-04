@@ -39,9 +39,9 @@ export function PasswordField({
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           {isSecure ? (
-            <Eye size={20} color={colors.textSecondary} />
+            <Eye size={20} color="rgba(255, 255, 255, 0.7)" />
           ) : (
-            <EyeOff size={20} color={colors.textSecondary} />
+            <EyeOff size={20} color="rgba(255, 255, 255, 0.7)" />
           )}
         </TouchableOpacity>
       }

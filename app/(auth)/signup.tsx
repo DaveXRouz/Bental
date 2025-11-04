@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { User, Mail, Phone, Lock, Chrome, Apple as AppleIcon, Shield } from 'lucide-react-native';
-import { QuantumFieldBackground } from '@/components/backgrounds';
+import { VibrantGradientBackground } from '@/components/backgrounds';
 import { useBrandImages } from '@/services/media';
 import AuthFooter from '@/components/ui/AuthFooter';
 import { UnifiedInput } from '@/components/ui/UnifiedInput';
@@ -136,7 +136,7 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
-      <QuantumFieldBackground />
+      <VibrantGradientBackground />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -300,20 +300,27 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
   title: {
-    fontSize: typography.size.xxxl,
+    fontSize: 36,
     fontWeight: '700',
     color: colors.white,
     fontFamily: typography.family.bold,
     marginBottom: spacing.sm,
-    letterSpacing: -0.8,
+    letterSpacing: -1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   subtitle: {
     fontSize: typography.size.md,

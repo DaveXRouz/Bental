@@ -24,7 +24,7 @@ import { PasswordField } from '@/components/login/PasswordField';
 import { PrimaryButton } from '@/components/login/PrimaryButton';
 import { OAuthButton } from '@/components/login/OAuthButton';
 import { Chrome as GoogleIcon, Apple as AppleIcon, Twitter, Linkedin, Github } from 'lucide-react-native';
-import { QuantumFieldBackground } from '@/components/backgrounds';
+import { VibrantGradientBackground } from '@/components/backgrounds';
 
 const { width } = Dimensions.get('window');
 
@@ -214,7 +214,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <QuantumFieldBackground />
+        <VibrantGradientBackground />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -253,7 +253,7 @@ export default function LoginScreen() {
                   textContentType="username"
                   error={emailError}
                   onBlur={() => handleBlur('email')}
-                  icon={<Mail size={20} color={colors.textSecondary} />}
+                  icon={<Mail size={20} color="rgba(255, 255, 255, 0.7)" />}
                 />
               ) : (
                 <TextField
@@ -269,7 +269,7 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   error={passportError}
                   onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={20} color={colors.textSecondary} />}
+                  icon={<CreditCard size={20} color="rgba(255, 255, 255, 0.7)" />}
                 />
               )}
 
@@ -288,7 +288,7 @@ export default function LoginScreen() {
                 placeholder="Enter your password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
-                icon={<Lock size={20} color={colors.textSecondary} />}
+                icon={<Lock size={20} color="rgba(255, 255, 255, 0.7)" />}
               />
 
               <View style={styles.rememberRow}>
@@ -347,13 +347,13 @@ export default function LoginScreen() {
               <View style={styles.footer}>
                 <View style={styles.socialIcons}>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
-                    <Twitter size={18} color={colors.textSecondary} />
+                    <Twitter size={18} color="rgba(255, 255, 255, 0.5)" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
-                    <Linkedin size={18} color={colors.textSecondary} />
+                    <Linkedin size={18} color="rgba(255, 255, 255, 0.5)" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
-                    <Github size={18} color={colors.textSecondary} />
+                    <Github size={18} color="rgba(255, 255, 255, 0.5)" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.footerLinks}>
@@ -427,11 +427,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: typography.size.xxl,
-    fontWeight: typography.weight.semibold,
-    color: colors.text,
+    fontSize: 36,
+    fontWeight: '700',
+    color: colors.white,
     marginBottom: spacing.md * 3,
     textAlign: 'center',
+    letterSpacing: -1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   segmentedContainer: {
     marginBottom: spacing.md * 3,
@@ -450,12 +454,12 @@ const styles = StyleSheet.create({
   rememberText: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.medium,
-    color: colors.text,
+    color: colors.white,
   },
   forgotText: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.medium,
-    color: colors.accent,
+    color: '#60a5fa',
   },
   signInContainer: {
     marginBottom: spacing.md * 3,
@@ -468,12 +472,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   dividerText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.6)',
     marginHorizontal: spacing.md * 2,
   },
   oauthContainer: {
@@ -507,11 +511,11 @@ const styles = StyleSheet.create({
   footerLink: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   footerDot: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.5)',
   },
 });
