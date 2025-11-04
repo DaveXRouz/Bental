@@ -149,7 +149,7 @@ export function Glass3DButton({
               {loading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator
-                    color="rgba(96, 255, 218, 0.9)"
+                    color="rgba(200, 200, 200, 0.9)"
                     size="small"
                   />
                   {[...Array(6)].map((_, i) => (
@@ -198,10 +198,10 @@ export function Glass3DButton({
                   disabled || loading
                     ? ['rgba(100, 100, 110, 0.3)', 'rgba(80, 80, 90, 0.3)']
                     : [
-                        'rgba(96, 255, 218, 0.7)',
-                        'rgba(120, 220, 255, 0.6)',
-                        'rgba(200, 160, 255, 0.5)',
-                        'rgba(96, 255, 218, 0.7)',
+                        'rgba(255, 255, 255, 0.5)',
+                        'rgba(220, 220, 220, 0.45)',
+                        'rgba(200, 200, 200, 0.4)',
+                        'rgba(255, 255, 255, 0.5)',
                       ]
                 }
                 style={styles.borderGradient}
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: radius.lg,
     overflow: 'hidden',
-    shadowColor: 'rgba(96, 255, 218, 0.5)',
+    shadowColor: 'rgba(255, 255, 255, 0.25)',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.5,
     shadowRadius: 16,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(96, 255, 218, 0.8)',
+    backgroundColor: 'rgba(200, 200, 200, 0.7)',
   },
   text: {
     fontSize: typography.size.md + 1,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
-    textShadowColor: 'rgba(96, 255, 218, 0.5)',
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },

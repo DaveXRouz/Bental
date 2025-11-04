@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     textAlign: 'center',
     letterSpacing: 1.2,
-    textShadowColor: 'rgba(96, 255, 218, 0.3)',
+    textShadowColor: 'rgba(255, 255, 255, 0.15)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 16,
   },
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   forgotText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.semibold,
-    color: 'rgba(96, 255, 218, 0.8)',
+    color: 'rgba(200, 200, 200, 0.9)',
   },
   buttonContainer: {
     marginBottom: spacing.lg,
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(96, 255, 218, 0.15)',
+    backgroundColor: 'rgba(200, 200, 200, 0.12)',
   },
   dividerText: {
     fontSize: typography.size.xs,

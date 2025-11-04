@@ -24,9 +24,9 @@ export function GlassFooter() {
         <LinearGradient
           colors={[
             'transparent',
-            'rgba(96, 255, 218, 0.2)',
-            'rgba(120, 220, 255, 0.15)',
-            'rgba(200, 160, 255, 0.1)',
+            'rgba(255, 255, 255, 0.12)',
+            'rgba(220, 220, 220, 0.1)',
+            'rgba(200, 200, 200, 0.08)',
             'transparent',
           ]}
           start={{ x: 0, y: 0 }}
@@ -46,9 +46,9 @@ export function GlassFooter() {
       <View style={styles.copyrightContainer}>
         <LinearGradient
           colors={[
-            'rgba(96, 255, 218, 0.4)',
-            'rgba(120, 220, 255, 0.35)',
-            'rgba(200, 160, 255, 0.3)',
+            'rgba(255, 255, 255, 0.25)',
+            'rgba(220, 220, 220, 0.22)',
+            'rgba(200, 200, 200, 0.2)',
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -85,8 +85,8 @@ function SocialIcon({ icon, label }: { icon: React.ReactNode; label: string }) {
         <View style={styles.iconGlow}>
           <LinearGradient
             colors={[
-              'rgba(96, 255, 218, 0.15)',
-              'rgba(120, 220, 255, 0.1)',
+              'rgba(220, 220, 225, 0.1)',
+              'rgba(200, 200, 205, 0.08)',
               'transparent',
             ]}
             style={styles.iconGlowGradient}
@@ -98,9 +98,9 @@ function SocialIcon({ icon, label }: { icon: React.ReactNode; label: string }) {
         <View style={styles.socialIconBorder}>
           <LinearGradient
             colors={[
-              'rgba(96, 255, 218, 0.3)',
-              'rgba(120, 220, 255, 0.25)',
-              'rgba(200, 160, 255, 0.2)',
+              'rgba(255, 255, 255, 0.25)',
+              'rgba(220, 220, 220, 0.22)',
+              'rgba(200, 200, 200, 0.18)',
             ]}
             style={styles.socialBorderGradient}
           />
@@ -122,7 +122,7 @@ function FooterLink({ text }: { text: string }) {
         <LinearGradient
           colors={[
             'transparent',
-            'rgba(96, 255, 218, 0.4)',
+            'rgba(255, 255, 255, 0.25)',
             'transparent',
           ]}
           start={{ x: 0, y: 0 }}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: 'rgba(96, 255, 218, 0.3)',
+    shadowColor: 'rgba(255, 255, 255, 0.2)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     letterSpacing: 0.3,
-    textShadowColor: 'rgba(96, 255, 218, 0.4)',
+    textShadowColor: 'rgba(255, 255, 255, 0.25)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },

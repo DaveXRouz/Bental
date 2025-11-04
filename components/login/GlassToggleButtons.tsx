@@ -71,10 +71,10 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
         <BlurView intensity={80} tint="light" style={styles.indicatorBlur}>
           <LinearGradient
             colors={[
-              'rgba(96, 255, 218, 0.25)',
-              'rgba(120, 220, 255, 0.20)',
-              'rgba(200, 160, 255, 0.18)'
-            ]}
+              'rgba(220, 220, 225, 0.18)',
+              'rgba(200, 200, 205, 0.15)',
+              'rgba(180, 180, 185, 0.13)'
+            ]
             style={styles.indicatorGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -96,10 +96,10 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
           <View style={styles.indicatorBorder}>
             <LinearGradient
               colors={[
-                'rgba(96, 255, 218, 0.6)',
-                'rgba(120, 220, 255, 0.5)',
-                'rgba(200, 160, 255, 0.4)'
-              ]}
+                'rgba(255, 255, 255, 0.45)',
+                'rgba(220, 220, 220, 0.4)',
+                'rgba(200, 200, 200, 0.35)'
+              ]
               style={styles.borderGradient}
             />
           </View>
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     height: 48,
-    shadowColor: 'rgba(96, 255, 218, 0.3)',
+    shadowColor: 'rgba(255, 255, 255, 0.2)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     bottom: 4,
     borderRadius: radius.pill,
     overflow: 'hidden',
-    shadowColor: 'rgba(96, 255, 218, 0.6)',
+    shadowColor: 'rgba(255, 255, 255, 0.35)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.6,
     shadowRadius: 12,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     letterSpacing: 0.5,
-    textShadowColor: 'rgba(96, 255, 218, 0.8)',
+    textShadowColor: 'rgba(255, 255, 255, 0.5)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
     opacity: 0.4,

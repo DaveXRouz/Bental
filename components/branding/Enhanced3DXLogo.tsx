@@ -128,7 +128,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
     <View style={[styles.container, { width: logoSize, height: logoSize }]}>
       <Animated.View style={[styles.halo, haloStyle]}>
         <LinearGradient
-          colors={['rgba(96, 255, 218, 0.4)', 'rgba(120, 220, 255, 0.3)', 'rgba(200, 160, 255, 0.25)']}
+          colors={['rgba(255, 255, 255, 0.15)', 'rgba(200, 200, 200, 0.1)', 'rgba(160, 160, 160, 0.08)']}
           style={[styles.haloGradient, {
             width: logoSize * 2.2,
             height: logoSize * 2.2,
@@ -139,7 +139,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
 
       <Animated.View style={[styles.glowContainer, glowStyle]}>
         <LinearGradient
-          colors={['rgba(96, 255, 218, 0.5)', 'rgba(120, 220, 255, 0.4)', 'rgba(200, 160, 255, 0.3)']}
+          colors={['rgba(255, 255, 255, 0.2)', 'rgba(192, 192, 192, 0.15)', 'rgba(160, 160, 160, 0.12)']}
           style={[styles.glow, {
             width: logoSize * 1.6,
             height: logoSize * 1.6,
@@ -175,7 +175,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
               ]}
             >
               <LinearGradient
-                colors={['rgba(40, 150, 140, 0.6)', 'rgba(30, 100, 120, 0.7)']}
+                colors={['rgba(100, 100, 110, 0.4)', 'rgba(80, 80, 90, 0.5)']}
                 style={styles.strokeGradient}
               />
             </View>
@@ -193,7 +193,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
               ]}
             >
               <LinearGradient
-                colors={['rgba(130, 90, 160, 0.6)', 'rgba(80, 60, 140, 0.7)']}
+                colors={['rgba(110, 110, 120, 0.4)', 'rgba(90, 90, 100, 0.5)']}
                 style={styles.strokeGradient}
               />
             </View>
@@ -211,7 +211,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
               ]}
             >
               <LinearGradient
-                colors={['#70FFE8', '#50E5D0', '#88E8FF', '#60FFDA']}
+                colors={['#E8E8E8', '#C0C0C8', '#D0D0D8', '#F0F0F5']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={styles.strokeGradient}
@@ -260,7 +260,7 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
               ]}
             >
               <LinearGradient
-                colors={['#D8B0FF', '#B090E8', '#88E8FF', '#C8A0FF']}
+                colors={['#D8D8E0', '#B0B0B8', '#C8C8D0', '#E0E0E8']}
                 start={{ x: 1, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={styles.strokeGradient}
@@ -300,10 +300,10 @@ export function Enhanced3DXLogo({ size = 80, reduceMotion = false }: Enhanced3DX
           <View style={[styles.border, { borderRadius: logoSize * 0.24, borderWidth: 2 }]}>
             <LinearGradient
               colors={[
-                'rgba(96, 255, 218, 0.6)',
-                'rgba(120, 220, 255, 0.5)',
-                'rgba(200, 160, 255, 0.4)',
-                'rgba(96, 255, 218, 0.6)'
+                'rgba(255, 255, 255, 0.4)',
+                'rgba(200, 200, 200, 0.35)',
+                'rgba(160, 160, 160, 0.3)',
+                'rgba(255, 255, 255, 0.4)'
               ]}
               style={[styles.borderGradient, { borderRadius: logoSize * 0.24 }]}
               start={{ x: 0, y: 0 }}
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   logoBackground: {
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: 'rgba(96, 255, 218, 0.7)',
+    shadowColor: 'rgba(255, 255, 255, 0.3)',
     shadowOffset: { width: 0, height: 16 },
     shadowOpacity: 0.6,
     shadowRadius: 28,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   xStroke: {
     position: 'absolute',
     borderRadius: 100,
-    shadowColor: 'rgba(120, 220, 255, 0.9)',
+    shadowColor: 'rgba(255, 255, 255, 0.4)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 1,
     shadowRadius: 20,

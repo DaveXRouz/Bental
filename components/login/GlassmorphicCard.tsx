@@ -60,11 +60,11 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
       <Animated.View style={[styles.glowContainer, glowStyle]}>
         <LinearGradient
           colors={[
-            'rgba(96, 255, 218, 0.15)',
-            'rgba(120, 220, 255, 0.12)',
-            'rgba(200, 160, 255, 0.1)',
-            'rgba(96, 255, 218, 0.15)'
-          ]}
+            'rgba(255, 255, 255, 0.08)',
+            'rgba(220, 220, 220, 0.06)',
+            'rgba(200, 200, 200, 0.05)',
+            'rgba(255, 255, 255, 0.08)'
+          ]
           style={styles.glow}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -75,11 +75,11 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
         <Animated.View style={[styles.borderGradientWrapper, borderStyle]}>
           <LinearGradient
             colors={[
-              'rgba(96, 255, 218, 0.6)',
-              'rgba(120, 220, 255, 0.4)',
-              'rgba(200, 160, 255, 0.5)',
-              'rgba(96, 255, 218, 0.6)'
-            ]}
+              'rgba(255, 255, 255, 0.4)',
+              'rgba(220, 220, 220, 0.3)',
+              'rgba(200, 200, 200, 0.35)',
+              'rgba(255, 255, 255, 0.4)'
+            ]
             style={styles.borderGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -103,10 +103,10 @@ export function GlassmorphicCard({ children, style }: GlassmorphicCardProps) {
           <View style={styles.innerGlow}>
             <LinearGradient
               colors={[
-                'rgba(96, 255, 218, 0.08)',
+                'rgba(255, 255, 255, 0.05)',
                 'transparent',
-                'rgba(200, 160, 255, 0.06)'
-              ]}
+                'rgba(200, 200, 200, 0.04)'
+              ]
               style={styles.innerGlowGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     borderRadius: radius.xl,
     position: 'relative',
-    shadowColor: 'rgba(96, 255, 218, 0.5)',
+    shadowColor: 'rgba(255, 255, 255, 0.2)',
     shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.5,
     shadowRadius: 40,

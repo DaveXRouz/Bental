@@ -89,8 +89,8 @@ export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps
                 <View style={styles.iconGlow}>
                   <LinearGradient
                     colors={[
-                      'rgba(96, 255, 218, 0.15)',
-                      'rgba(120, 220, 255, 0.1)',
+                      'rgba(220, 220, 225, 0.1)',
+                      'rgba(200, 200, 205, 0.08)',
                       'transparent',
                     ]}
                     style={styles.iconGlowGradient}
@@ -104,10 +104,10 @@ export function GlassOAuthButton({ onPress, icon, label }: GlassOAuthButtonProps
             <View style={styles.border}>
               <LinearGradient
                 colors={[
-                  'rgba(96, 255, 218, 0.25)',
-                  'rgba(120, 220, 255, 0.2)',
-                  'rgba(200, 160, 255, 0.18)',
-                  'rgba(96, 255, 218, 0.25)',
+                  'rgba(255, 255, 255, 0.2)',
+                  'rgba(220, 220, 220, 0.18)',
+                  'rgba(200, 200, 200, 0.15)',
+                  'rgba(255, 255, 255, 0.2)',
                 ]}
                 style={styles.borderGradient}
                 start={{ x: 0, y: 0 }}
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 50,
     borderRadius: radius.md,
-    shadowColor: 'rgba(96, 255, 218, 0.3)',
+    shadowColor: 'rgba(255, 255, 255, 0.2)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 12,

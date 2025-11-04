@@ -106,7 +106,7 @@ export function GlassInput({
     color: error
       ? '#EF4444'
       : isFocused
-      ? 'rgba(96, 255, 218, 0.9)'
+      ? 'rgba(200, 200, 200, 0.95)'
       : 'rgba(255, 255, 255, 0.5)',
   }));
 
@@ -134,10 +134,10 @@ export function GlassInput({
                 error
                   ? ['rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.8)', 'rgba(239, 68, 68, 0.6)']
                   : [
-                      'rgba(96, 255, 218, 0.6)',
-                      'rgba(120, 220, 255, 0.5)',
-                      'rgba(200, 160, 255, 0.4)',
-                      'rgba(96, 255, 218, 0.6)',
+                      'rgba(255, 255, 255, 0.45)',
+                      'rgba(220, 220, 220, 0.4)',
+                      'rgba(200, 200, 200, 0.35)',
+                      'rgba(255, 255, 255, 0.45)',
                     ]
               }
               style={styles.borderGradient}
@@ -162,7 +162,7 @@ export function GlassInput({
                 secureTextEntry={isPassword && !showPassword}
                 style={styles.input}
                 placeholderTextColor="rgba(255, 255, 255, 0.3)"
-                selectionColor="rgba(96, 255, 218, 0.5)"
+                selectionColor="rgba(200, 200, 200, 0.5)"
                 {...props}
               />
             </View>

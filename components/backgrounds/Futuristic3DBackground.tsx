@@ -118,7 +118,7 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
       ]}
     >
       <LinearGradient
-        colors={['rgba(96, 255, 218, 0.4)', 'rgba(120, 220, 255, 0.3)', 'rgba(200, 160, 255, 0.2)']}
+        colors={['rgba(255, 255, 255, 0.15)', 'rgba(200, 200, 200, 0.1)', 'rgba(160, 160, 160, 0.08)']}
         style={[styles.xStroke, {
           width: strokeWidth,
           height: size * 0.8,
@@ -128,7 +128,7 @@ function FloatingXShape({ size, startX, startY, duration, delay, reduceMotion }:
         }]}
       />
       <LinearGradient
-        colors={['rgba(200, 160, 255, 0.4)', 'rgba(120, 220, 255, 0.3)', 'rgba(96, 255, 218, 0.2)']}
+        colors={['rgba(200, 200, 200, 0.15)', 'rgba(180, 180, 180, 0.1)', 'rgba(160, 160, 160, 0.08)']}
         style={[styles.xStroke, {
           width: strokeWidth,
           height: size * 0.8,
@@ -216,7 +216,7 @@ function FloatingCube({ size, startX, startY, duration, delay, reduceMotion }: F
       ]}
     >
       <LinearGradient
-        colors={['rgba(64, 224, 208, 0.35)', 'rgba(100, 180, 255, 0.25)']}
+        colors={['rgba(180, 180, 190, 0.2)', 'rgba(140, 140, 150, 0.15)']}
         style={[styles.cubeShape, { width: size, height: size }]}
       />
     </Animated.View>
@@ -292,7 +292,7 @@ function FloatingSphere({ size, startX, startY, duration, delay, reduceMotion }:
       ]}
     >
       <LinearGradient
-        colors={['rgba(138, 43, 226, 0.35)', 'rgba(75, 0, 130, 0.25)', 'rgba(147, 112, 219, 0.3)']}
+        colors={['rgba(160, 160, 170, 0.2)', 'rgba(130, 130, 140, 0.15)', 'rgba(150, 150, 160, 0.18)']}
         style={[styles.sphereShape, { width: size, height: size, borderRadius: size / 2 }]}
       />
     </Animated.View>
@@ -366,7 +366,7 @@ function FloatingPyramid({ size, startX, startY, duration, delay, reduceMotion }
       ]}
     >
       <LinearGradient
-        colors={['rgba(255, 140, 0, 0.35)', 'rgba(255, 215, 0, 0.25)', 'rgba(255, 165, 0, 0.3)']}
+        colors={['rgba(170, 170, 180, 0.2)', 'rgba(150, 150, 160, 0.15)', 'rgba(160, 160, 170, 0.18)']}
         style={[styles.pyramidShape, {
           width: size,
           height: size,
@@ -438,7 +438,7 @@ export function Futuristic3DBackground() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#000000', '#0a0514', '#050208', '#000000']}
+        colors={['#000000', '#0A0A0B', '#050505', '#000000']}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -446,7 +446,7 @@ export function Futuristic3DBackground() {
 
       <Animated.View style={[styles.ambientGlow, styles.glow1, glow1Style]}>
         <LinearGradient
-          colors={['rgba(96, 255, 218, 0.3)', 'transparent']}
+          colors={['rgba(255, 255, 255, 0.08)', 'transparent']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -455,7 +455,7 @@ export function Futuristic3DBackground() {
 
       <Animated.View style={[styles.ambientGlow, styles.glow2, glow2Style]}>
         <LinearGradient
-          colors={['rgba(200, 160, 255, 0.3)', 'transparent']}
+          colors={['rgba(200, 200, 200, 0.08)', 'transparent']}
           style={StyleSheet.absoluteFill}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   xStroke: {
     position: 'absolute',
     borderRadius: 100,
-    shadowColor: 'rgba(96, 255, 218, 0.6)',
+    shadowColor: 'rgba(255, 255, 255, 0.25)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.8,
     shadowRadius: 12,
@@ -520,8 +520,8 @@ const styles = StyleSheet.create({
   cubeShape: {
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(96, 255, 218, 0.3)',
-    shadowColor: 'rgba(64, 224, 208, 0.6)',
+    borderColor: 'rgba(200, 200, 200, 0.25)',
+    shadowColor: 'rgba(200, 200, 200, 0.3)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.7,
     shadowRadius: 14,
@@ -529,8 +529,8 @@ const styles = StyleSheet.create({
   },
   sphereShape: {
     borderWidth: 1,
-    borderColor: 'rgba(200, 160, 255, 0.3)',
-    shadowColor: 'rgba(138, 43, 226, 0.6)',
+    borderColor: 'rgba(180, 180, 180, 0.25)',
+    shadowColor: 'rgba(160, 160, 160, 0.3)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.7,
     shadowRadius: 14,
@@ -543,8 +543,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: 'rgba(255, 165, 0, 0.35)',
-    shadowColor: 'rgba(255, 140, 0, 0.6)',
+    borderBottomColor: 'rgba(170, 170, 180, 0.25)',
+    shadowColor: 'rgba(170, 170, 170, 0.3)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.7,
     shadowRadius: 14,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   fogOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(120, 220, 255, 0.03)',
+    backgroundColor: 'rgba(200, 200, 200, 0.02)',
   },
   grainOverlay: {
     ...StyleSheet.absoluteFillObject,
