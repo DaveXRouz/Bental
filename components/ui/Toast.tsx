@@ -125,13 +125,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    gap: 12,
   },
   iconContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
     justifyContent: 'center',
+    marginRight: 12,
     alignItems: 'center',
   },
   message: {

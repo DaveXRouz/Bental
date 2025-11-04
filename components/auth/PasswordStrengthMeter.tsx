@@ -135,7 +135,6 @@ const styles = StyleSheet.create({
   barContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
   },
   barBackground: {
     flex: 1,
@@ -153,20 +152,21 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     minWidth: 60,
     textAlign: 'right',
+    marginLeft: spacing.sm,
   },
   detailsContainer: {
     marginTop: spacing.sm,
-    gap: spacing.xs - 2,
   },
   checkItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    marginBottom: spacing.xs - 2,
   },
   checkLabel: {
     fontSize: typography.size.xs,
     fontWeight: typography.weight.medium,
     color: 'rgba(255, 255, 255, 0.5)',
+    marginLeft: spacing.xs,
   },
   checkLabelChecked: {
     color: 'rgba(255, 255, 255, 0.8)',

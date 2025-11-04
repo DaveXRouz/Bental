@@ -222,7 +222,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
@@ -236,6 +235,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
     color: 'rgba(255, 255, 255, 0.95)',
     padding: 0,
+    marginLeft: spacing.sm,
   },
   errorText: {
     fontSize: typography.size.sm,
@@ -248,7 +248,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
     height: 52,
     borderRadius: 12,
     backgroundColor: 'rgba(200, 200, 200, 0.2)',
@@ -304,7 +303,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.lg,
-    gap: spacing.sm,
   },
   instructionText: {
     fontSize: typography.size.sm,

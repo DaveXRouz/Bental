@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
   codeContainer: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
   codeInput: {
