@@ -39,9 +39,9 @@ export function PasswordField({
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           {isSecure ? (
-            <Eye size={20} color="#909090" />
+            <Eye size={18} color="#909090" />
           ) : (
-            <EyeOff size={20} color="#909090" />
+            <EyeOff size={18} color="#909090" />
           )}
         </TouchableOpacity>
       }
@@ -51,8 +51,8 @@ export function PasswordField({
 
 const styles = StyleSheet.create({
   eyeButton: {
-    padding: spacing.md,
-    marginLeft: spacing.md,
+    padding: spacing.sm,
+    marginLeft: -spacing.sm,
     minWidth: 44,
     minHeight: 44,
     alignItems: 'center',

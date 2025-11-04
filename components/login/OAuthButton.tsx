@@ -13,16 +13,12 @@ export function OAuthButton({ onPress, icon, label }: OAuthButtonProps) {
     <TouchableOpacity
       onPress={onPress}
       style={styles.container}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       accessibilityLabel={`Sign in with ${label}`}
       accessibilityRole="button"
     >
-      <View style={styles.redLayer} />
-      <View style={styles.blueLayer} />
-      <View style={styles.button}>
-        <View style={styles.iconContainer}>{icon}</View>
-        <Text style={styles.label}>{label}</Text>
-      </View>
+      <View style={styles.iconContainer}>{icon}</View>
+      <Text style={styles.label}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -30,52 +26,28 @@ export function OAuthButton({ onPress, icon, label }: OAuthButtonProps) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 48,
-    position: 'relative',
+    height: 44,
     minHeight: 44,
-  },
-  redLayer: {
-    position: 'absolute',
-    top: -1,
-    left: -1,
-    right: 1,
-    bottom: 1,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(255, 50, 50, 0.3)',
-    zIndex: 1,
-  },
-  blueLayer: {
-    position: 'absolute',
-    top: 1,
-    left: 1,
-    right: -1,
-    bottom: -1,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(50, 150, 255, 0.3)',
-    zIndex: 2,
-  },
-  button: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2a2a2a',
+    backgroundColor: 'rgba(40, 40, 40, 0.6)',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(128, 128, 128, 0.4)',
+    borderColor: 'rgba(128, 128, 128, 0.25)',
     paddingHorizontal: spacing.md,
-    zIndex: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   iconContainer: {
-    marginRight: spacing.md,
+    marginRight: spacing.sm,
   },
   label: {
-    fontSize: typography.size.md,
+    fontSize: typography.size.sm,
     fontWeight: '600',
-    color: '#c0c0c0',
+    color: '#b0b0b0',
   },
 });

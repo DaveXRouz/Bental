@@ -253,7 +253,7 @@ export default function LoginScreen() {
                   textContentType="username"
                   error={emailError}
                   onBlur={() => handleBlur('email')}
-                  icon={<Mail size={20} color="#909090" />}
+                  icon={<Mail size={18} color="#909090" />}
                 />
               ) : (
                 <TextField
@@ -269,7 +269,7 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   error={passportError}
                   onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={20} color="#909090" />}
+                  icon={<CreditCard size={18} color="#909090" />}
                 />
               )}
 
@@ -288,7 +288,7 @@ export default function LoginScreen() {
                 placeholder="Enter your password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
-                icon={<Lock size={20} color="#909090" />}
+                icon={<Lock size={18} color="#909090" />}
               />
 
               <View style={styles.rememberRow}>
@@ -312,7 +312,7 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.signInContainer}>
+              <View style={styles.buttonContainer}>
                 <ThreeDButton
                   title="Sign In"
                   onPress={handleSignIn}
@@ -331,14 +331,14 @@ export default function LoginScreen() {
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<GoogleIcon size={20} color="#c0c0c0" />}
+                    icon={<GoogleIcon size={18} color="#b0b0b0" />}
                     label="Google"
                   />
                 </View>
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<AppleIcon size={20} color="#c0c0c0" />}
+                    icon={<AppleIcon size={18} color="#b0b0b0" />}
                     label="Apple"
                   />
                 </View>
@@ -347,13 +347,13 @@ export default function LoginScreen() {
               <View style={styles.footer}>
                 <View style={styles.socialIcons}>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
-                    <Twitter size={18} color="#707070" />
+                    <Twitter size={16} color="#707070" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
-                    <Linkedin size={18} color="#707070" />
+                    <Linkedin size={16} color="#707070" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
-                    <Github size={18} color="#707070" />
+                    <Github size={16} color="#707070" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.footerLinks}>
@@ -423,98 +423,98 @@ const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 380,
     alignSelf: 'center',
   },
   title: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: '700',
     color: '#e0e0e0',
-    marginBottom: spacing.md * 3,
+    marginBottom: spacing.lg + 4,
     textAlign: 'center',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 12,
+    textShadowRadius: 8,
   },
   segmentedContainer: {
-    marginBottom: spacing.md * 3,
+    marginBottom: spacing.lg,
   },
   rememberRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md * 3,
+    marginBottom: spacing.lg,
   },
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md * 1,
+    gap: spacing.sm + 2,
   },
   rememberText: {
-    fontSize: typography.size.md,
+    fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
     color: '#b0b0b0',
   },
   forgotText: {
-    fontSize: typography.size.md,
+    fontSize: typography.size.sm,
     fontWeight: typography.weight.medium,
     color: '#909090',
   },
-  signInContainer: {
-    marginBottom: spacing.md * 3,
+  buttonContainer: {
+    marginBottom: spacing.lg,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.md * 3,
+    marginVertical: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(128, 128, 128, 0.3)',
+    backgroundColor: 'rgba(128, 128, 128, 0.25)',
   },
   dividerText: {
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs,
     fontWeight: typography.weight.regular,
     color: '#808080',
-    marginHorizontal: spacing.md * 2,
+    marginHorizontal: spacing.md,
   },
   oauthContainer: {
     flexDirection: width >= 400 ? 'row' : 'column',
-    gap: spacing.md * 2,
-    marginBottom: spacing.md * 3,
+    gap: spacing.md,
+    marginBottom: spacing.lg,
   },
   oauthButton: {
     flex: width >= 400 ? 1 : undefined,
   },
   footer: {
     alignItems: 'center',
-    marginTop: spacing.md * 2,
+    marginTop: spacing.md,
   },
   socialIcons: {
     flexDirection: 'row',
-    gap: spacing.md * 2,
-    marginBottom: spacing.md * 2,
+    gap: spacing.lg,
+    marginBottom: spacing.md,
   },
   socialIcon: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   footerLinks: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md * 1,
+    gap: spacing.sm + 2,
   },
   footerLink: {
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs,
     fontWeight: typography.weight.regular,
     color: '#707070',
   },
   footerDot: {
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs,
     fontWeight: typography.weight.regular,
     color: '#707070',
   },
