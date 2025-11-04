@@ -364,12 +364,12 @@ export default function LoginScreen() {
             <View style={styles.oauthContainer}>
               <GlassOAuthButton
                 onPress={() => {}}
-                icon={<GoogleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                icon={<GoogleIcon size={22} color="rgba(255, 255, 255, 0.75)" />}
                 label="Google"
               />
               <GlassOAuthButton
                 onPress={() => {}}
-                icon={<AppleIcon size={20} color="rgba(255, 255, 255, 0.7)" />}
+                icon={<AppleIcon size={22} color="rgba(255, 255, 255, 0.75)" />}
                 label="Apple"
               />
             </View>
@@ -426,12 +426,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: '600',
+    fontSize: 30,
+    fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.98)',
     marginBottom: spacing.xl,
     textAlign: 'center',
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   },
   toggleContainer: {
     marginBottom: spacing.md + 4,
@@ -480,9 +480,9 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     width: '100%',
-    marginTop: spacing.xl,
+    marginTop: spacing.lg + 4,
     marginBottom: spacing.xl,
-    gap: spacing.md + 4,
+    gap: spacing.md + 2,
   },
   signupContainer: {
     flexDirection: 'row',
@@ -493,12 +493,12 @@ const styles = StyleSheet.create({
   signupText: {
     fontSize: 14,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'rgba(255, 255, 255, 0.55)',
   },
   signupLink: {
     fontSize: 14,
     fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'rgba(255, 255, 255, 0.95)',
     textDecorationLine: 'underline',
   },
   dividerContainer: {

@@ -63,16 +63,16 @@ export function Glass3DButton({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 56,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 13,
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    shadowColor: 'rgba(0, 0, 0, 0.4)',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 6,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    shadowColor: 'rgba(0, 0, 0, 0.35)',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    elevation: 5,
   },
   touchable: {
     flex: 1,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.98)',
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
   textDisabled: {
     color: 'rgba(255, 255, 255, 0.4)',
