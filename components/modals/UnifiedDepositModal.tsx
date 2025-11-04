@@ -9,10 +9,10 @@ import { useValidatedForm } from '@/hooks/useValidatedForm';
 import { depositSchema } from '@/utils/validation-schemas';
 import { FieldError } from '@/components/ui/ErrorState';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
-import { showToast } from '@/components/ui/ToastManager';
+import { useToast } from '@/components/ui/ToastManager';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccounts } from '@/hooks/useAccounts';
-import { supabase } from '@/lib/supabase';
+import { depositWithdrawalService, DepositMethod as ServiceDepositMethod } from '@/services/banking/deposit-withdrawal-service';
 
 const { height } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ interface UnifiedDepositModalProps {
   onSuccess?: () => void;
 }
 
-type DepositMethod = 'bank' | 'card' | 'crypto' | 'cash-courier';
+type DepositMethod = 'bank_transfer' | 'card' | 'wire' | 'check';
 
 interface DepositMethodOption {
   id: DepositMethod;
@@ -34,11 +34,18 @@ interface DepositMethodOption {
 
 const DEPOSIT_METHODS: DepositMethodOption[] = [
   {
-    id: 'bank',
+    id: 'bank_transfer',
     label: 'Bank Transfer',
     subtitle: '2-3 business days • No fees',
     icon: Building2,
     color: '#06B6D4',
+  },
+  {
+    id: 'wire',
+    label: 'Wire Transfer',
+    subtitle: 'Same day • $25 fee',
+    icon: Building2,
+    color: '#8B5CF6',
   },
   {
     id: 'card',
@@ -48,17 +55,10 @@ const DEPOSIT_METHODS: DepositMethodOption[] = [
     color: '#3B82F6',
   },
   {
-    id: 'crypto',
-    label: 'Cryptocurrency',
-    subtitle: 'Network fees apply',
-    icon: Bitcoin,
-    color: '#F59E0B',
-  },
-  {
-    id: 'cash-courier',
-    label: 'Cash Courier',
-    subtitle: 'For large amounts • Schedule pickup',
-    icon: Truck,
+    id: 'check',
+    label: 'Check Deposit',
+    subtitle: '5-7 business days',
+    icon: Building2,
     color: '#10B981',
   },
 ];
@@ -66,7 +66,8 @@ const DEPOSIT_METHODS: DepositMethodOption[] = [
 export default function UnifiedDepositModal({ visible, onClose, onSuccess }: UnifiedDepositModalProps) {
   const { user } = useAuth();
   const { accounts, refetch: refetchAccounts } = useAccounts();
-  const [activeMethod, setActiveMethod] = useState<DepositMethod>('bank');
+  const { showSuccess, showError } = useToast();
+  const [activeMethod, setActiveMethod] = useState<DepositMethod>('bank_transfer');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useValidatedForm(depositSchema);
   const [primaryAccount, setPrimaryAccount] = useState<any>(null);
@@ -79,64 +80,44 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
 
   const handleDeposit = async () => {
     if (!form.validate()) {
-      showToast('Please fix the errors before submitting', 'error');
+      showError('Please fix the errors before submitting');
       return;
     }
 
     if (!user?.id || !primaryAccount) {
-      showToast('Account information not available', 'error');
+      showError('Account information not available');
       return;
     }
 
     const depositAmount = parseFloat(form.values.amount || '0');
     if (depositAmount <= 0) {
-      showToast('Please enter a valid amount', 'error');
+      showError('Please enter a valid amount');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const { data: deposit, error: depositError } = await supabase
-        .from('deposits')
-        .insert({
-          user_id: user.id,
-          account_id: primaryAccount.id,
+      const result = await depositWithdrawalService.createDeposit(
+        {
+          accountId: primaryAccount.id,
           amount: depositAmount,
-          currency: 'USD',
-          payment_method: activeMethod,
-          status: activeMethod === 'bank' ? 'pending' : 'completed',
-          notes: `Deposit via ${activeMethod}`,
-        })
-        .select()
-        .single();
-
-      if (depositError) throw depositError;
-
-      if (activeMethod !== 'bank') {
-        const newBalance = Number(primaryAccount.balance) + depositAmount;
-        const { error: updateError } = await supabase
-          .from('accounts')
-          .update({ balance: newBalance })
-          .eq('id', primaryAccount.id);
-
-        if (updateError) throw updateError;
-      }
-
-      await refetchAccounts();
-
-      if (onSuccess) onSuccess();
-
-      showToast(
-        activeMethod === 'bank'
-          ? `Deposit of $${depositAmount.toFixed(2)} initiated. Funds will be available in 2-3 business days.`
-          : `Deposit of $${depositAmount.toFixed(2)} completed successfully`,
-        'success'
+          method: activeMethod as ServiceDepositMethod,
+        },
+        user.id
       );
-      form.reset();
-      onClose();
+
+      if (result.success) {
+        await refetchAccounts();
+        if (onSuccess) onSuccess();
+        showSuccess(result.message);
+        form.reset();
+        onClose();
+      } else {
+        showError(result.message);
+      }
     } catch (error: any) {
       console.error('Deposit error:', error);
-      showToast(error.message || 'Failed to process deposit. Please try again.', 'error');
+      showError(error.message || 'Failed to process deposit. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +125,8 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
 
   const renderMethodContent = () => {
     switch (activeMethod) {
-      case 'bank':
+      case 'bank_transfer':
+      case 'wire':
         return (
           <View style={styles.methodContent}>
             <BlurView intensity={40} tint="dark" style={styles.instructionsBox}>
@@ -199,134 +181,34 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
       case 'card':
         return (
           <View style={styles.methodContent}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Card Number</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="1234 5678 9012 3456"
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  maxLength={19}
-                />
-              </BlurView>
-            </View>
-
-            <View style={styles.row}>
-              <View style={[styles.section, { flex: 1 }]}>
-                <Text style={styles.label}>Expiry</Text>
-                <BlurView intensity={60} tint="dark" style={styles.input}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="MM/YY"
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType="number-pad"
-                    maxLength={5}
-                  />
-                </BlurView>
-              </View>
-              <View style={[styles.section, { flex: 1 }]}>
-                <Text style={styles.label}>CVV</Text>
-                <BlurView intensity={60} tint="dark" style={styles.input}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="123"
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    secureTextEntry
-                  />
-                </BlurView>
-              </View>
-            </View>
-
             <BlurView intensity={40} tint="dark" style={styles.infoBox}>
               <Text style={styles.infoText}>
-                A 2.9% processing fee will be added to your deposit amount.
+                Card deposits are processed instantly. A 2.9% processing fee will be added to your deposit amount.
               </Text>
             </BlurView>
           </View>
         );
 
-      case 'crypto':
-        return (
-          <View style={styles.methodContent}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Select Cryptocurrency</Text>
-              <View style={styles.cryptoOptions}>
-                {['Bitcoin (BTC)', 'Ethereum (ETH)', 'USDT', 'USDC'].map((crypto) => (
-                  <TouchableOpacity key={crypto} style={styles.cryptoOption}>
-                    <BlurView intensity={40} tint="dark" style={styles.cryptoOptionInner}>
-                      <Text style={styles.cryptoLabel}>{crypto}</Text>
-                    </BlurView>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <BlurView intensity={40} tint="dark" style={styles.instructionsBox}>
-              <Text style={styles.instructionsTitle}>Deposit Address</Text>
-              <View style={styles.addressBox}>
-                <Text style={styles.addressText}>bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</Text>
-                <TouchableOpacity style={styles.copyButton}>
-                  <Copy size={16} color="#10B981" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.qrPlaceholder}>
-                <Text style={styles.qrText}>QR Code</Text>
-              </View>
-            </BlurView>
-
-            <BlurView intensity={40} tint="dark" style={styles.warningBox}>
-              <AlertCircle size={18} color="#F59E0B" />
-              <Text style={styles.warningText}>
-                Only send Bitcoin to this address. Sending other cryptocurrencies may result in permanent loss.
-              </Text>
-            </BlurView>
-          </View>
-        );
-
-      case 'cash-courier':
+      case 'check':
         return (
           <View style={styles.methodContent}>
             <BlurView intensity={40} tint="dark" style={styles.instructionsBox}>
-              <Text style={styles.instructionsTitle}>Cash Courier Service</Text>
+              <Text style={styles.instructionsTitle}>Check Deposit Instructions</Text>
               <Text style={styles.instructionText}>
-                For deposits over $10,000, we offer secure cash courier pickup service.
+                Mail your check to our processing center. Include your account reference number on the memo line.
               </Text>
             </BlurView>
 
-            <View style={styles.section}>
-              <Text style={styles.label}>Pickup Address</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Enter your address"
-                  placeholderTextColor={colors.textMuted}
-                  multiline
-                  numberOfLines={3}
-                />
-              </BlurView>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.label}>Preferred Pickup Date</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Select date"
-                  placeholderTextColor={colors.textMuted}
-                />
-              </BlurView>
-            </View>
-
             <BlurView intensity={40} tint="dark" style={styles.infoBox}>
               <Text style={styles.infoText}>
-                A representative will contact you within 24 hours to schedule the secure pickup.
+                Checks typically clear within 5-7 business days after receipt.
               </Text>
             </BlurView>
           </View>
         );
+
+      default:
+        return null;
     }
   };
 

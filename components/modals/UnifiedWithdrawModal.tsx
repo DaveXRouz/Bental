@@ -5,11 +5,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { X, Upload, Building2, CreditCard, Bitcoin, Check, AlertCircle } from 'lucide-react-native';
 import { colors, radius, spacing, shadows } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
-import { showToast } from '@/components/ui/ToastManager';
+import { useToast } from '@/components/ui/ToastManager';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccounts } from '@/hooks/useAccounts';
-import { supabase } from '@/lib/supabase';
+import { depositWithdrawalService, WithdrawalMethod as ServiceWithdrawalMethod } from '@/services/banking/deposit-withdrawal-service';
 
 const { height } = Dimensions.get('window');
 
@@ -19,7 +19,7 @@ interface UnifiedWithdrawModalProps {
   onSuccess?: () => void;
 }
 
-type WithdrawMethod = 'bank' | 'card' | 'crypto';
+type WithdrawMethod = 'bank_transfer' | 'wire' | 'check';
 
 interface WithdrawMethodOption {
   id: WithdrawMethod;
@@ -31,33 +31,37 @@ interface WithdrawMethodOption {
 
 const WITHDRAW_METHODS: WithdrawMethodOption[] = [
   {
-    id: 'bank',
+    id: 'bank_transfer',
     label: 'Bank Transfer',
     subtitle: '2-3 business days • No fees',
     icon: Building2,
     color: '#06B6D4',
   },
   {
-    id: 'card',
-    label: 'Debit Card',
-    subtitle: '30 minutes • 1% fee',
-    icon: CreditCard,
-    color: '#3B82F6',
+    id: 'wire',
+    label: 'Wire Transfer',
+    subtitle: 'Same day • $25 fee',
+    icon: Building2,
+    color: '#8B5CF6',
   },
   {
-    id: 'crypto',
-    label: 'Cryptocurrency',
-    subtitle: 'Network fees apply',
-    icon: Bitcoin,
-    color: '#F59E0B',
+    id: 'check',
+    label: 'Check by Mail',
+    subtitle: '5-7 business days',
+    icon: Building2,
+    color: '#10B981',
   },
 ];
 
 export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: UnifiedWithdrawModalProps) {
   const { user } = useAuth();
   const { accounts, refetch: refetchAccounts } = useAccounts();
-  const [activeMethod, setActiveMethod] = useState<WithdrawMethod>('bank');
+  const { showSuccess, showError } = useToast();
+  const [activeMethod, setActiveMethod] = useState<WithdrawMethod>('bank_transfer');
   const [amount, setAmount] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountLast4, setAccountLast4] = useState('');
+  const [routingNumber, setRoutingNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [primaryAccount, setPrimaryAccount] = useState<any>(null);
   const availableBalance = primaryAccount ? Number(primaryAccount.balance) : 0;
@@ -70,17 +74,22 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
 
   const handleWithdraw = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      showToast('Please enter a valid amount', 'error');
+      showError('Please enter a valid amount');
       return;
     }
 
-    if (parseFloat(amount) > availableBalance) {
-      showToast('Insufficient funds', 'error');
+    if (!bankName.trim()) {
+      showError('Please enter bank name');
+      return;
+    }
+
+    if (!accountLast4 || accountLast4.length !== 4) {
+      showError('Please enter last 4 digits of account number');
       return;
     }
 
     if (!user?.id || !primaryAccount) {
-      showToast('Account information not available', 'error');
+      showError('Account information not available');
       return;
     }
 
@@ -88,167 +97,96 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
 
     setIsSubmitting(true);
     try {
-      const { data: withdrawal, error: withdrawalError } = await supabase
-        .from('withdrawals')
-        .insert({
-          user_id: user.id,
-          account_id: primaryAccount.id,
+      const result = await depositWithdrawalService.createWithdrawal(
+        {
+          accountId: primaryAccount.id,
           amount: withdrawAmount,
-          currency: 'USD',
-          destination: activeMethod,
-          status: 'pending',
-          notes: `Withdrawal via ${activeMethod}`,
-        })
-        .select()
-        .single();
-
-      if (withdrawalError) throw withdrawalError;
-
-      const newBalance = Number(primaryAccount.balance) - withdrawAmount;
-      const { error: updateError } = await supabase
-        .from('accounts')
-        .update({ balance: newBalance })
-        .eq('id', primaryAccount.id);
-
-      if (updateError) throw updateError;
-
-      await refetchAccounts();
-
-      if (onSuccess) onSuccess();
-
-      showToast(
-        `Withdrawal of $${withdrawAmount.toFixed(2)} initiated successfully`,
-        'success'
+          method: activeMethod as ServiceWithdrawalMethod,
+          bankName: bankName.trim(),
+          accountNumberLast4: accountLast4,
+          routingNumber: routingNumber || undefined,
+        },
+        user.id
       );
-      setAmount('');
-      onClose();
+
+      if (result.success) {
+        await refetchAccounts();
+        if (onSuccess) onSuccess();
+        showSuccess(result.message);
+        setAmount('');
+        setBankName('');
+        setAccountLast4('');
+        setRoutingNumber('');
+        onClose();
+      } else {
+        showError(result.message);
+      }
     } catch (error: any) {
       console.error('Withdrawal error:', error);
-      showToast(error.message || 'Failed to process withdrawal. Please try again.', 'error');
+      showError(error.message || 'Failed to process withdrawal. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const renderMethodContent = () => {
-    switch (activeMethod) {
-      case 'bank':
-        return (
-          <View style={styles.methodContent}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Withdrawal Destination</Text>
-              <BlurView intensity={60} tint="dark" style={styles.bankCard}>
-                <Building2 size={20} color="#06B6D4" />
-                <View style={styles.bankInfo}>
-                  <Text style={styles.bankName}>Chase Bank ****4532</Text>
-                  <Text style={styles.bankSubtext}>Primary checking account</Text>
-                </View>
-                <Check size={18} color="#10B981" />
-              </BlurView>
-              <TouchableOpacity style={styles.changeButton}>
-                <Text style={styles.changeButtonText}>Change Account</Text>
-              </TouchableOpacity>
-            </View>
+    return (
+      <View style={styles.methodContent}>
+        <View style={styles.section}>
+          <Text style={styles.label}>Bank Name</Text>
+          <BlurView intensity={60} tint="dark" style={styles.input}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Enter bank name"
+              placeholderTextColor={colors.textMuted}
+              value={bankName}
+              onChangeText={setBankName}
+            />
+          </BlurView>
+        </View>
 
-            <BlurView intensity={40} tint="dark" style={styles.infoBox}>
-              <Text style={styles.infoText}>
-                Funds will arrive in your bank account within 2-3 business days. No processing fees.
-              </Text>
+        <View style={styles.section}>
+          <Text style={styles.label}>Account Number (Last 4 Digits)</Text>
+          <BlurView intensity={60} tint="dark" style={styles.input}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="1234"
+              placeholderTextColor={colors.textMuted}
+              value={accountLast4}
+              onChangeText={setAccountLast4}
+              keyboardType="number-pad"
+              maxLength={4}
+            />
+          </BlurView>
+        </View>
+
+        {(activeMethod === 'bank_transfer' || activeMethod === 'wire') && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Routing Number (Optional)</Text>
+            <BlurView intensity={60} tint="dark" style={styles.input}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter routing number"
+                placeholderTextColor={colors.textMuted}
+                value={routingNumber}
+                onChangeText={setRoutingNumber}
+                keyboardType="number-pad"
+              />
             </BlurView>
           </View>
-        );
+        )}
 
-      case 'card':
-        return (
-          <View style={styles.methodContent}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Card Details</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Card number"
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  maxLength={19}
-                />
-              </BlurView>
-            </View>
-
-            <View style={styles.row}>
-              <View style={[styles.section, { flex: 1 }]}>
-                <Text style={styles.label}>Expiry</Text>
-                <BlurView intensity={60} tint="dark" style={styles.input}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="MM/YY"
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType="number-pad"
-                    maxLength={5}
-                  />
-                </BlurView>
-              </View>
-              <View style={[styles.section, { flex: 1 }]}>
-                <Text style={styles.label}>CVV</Text>
-                <BlurView intensity={60} tint="dark" style={styles.input}>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="123"
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    secureTextEntry
-                  />
-                </BlurView>
-              </View>
-            </View>
-
-            <BlurView intensity={40} tint="dark" style={styles.warningBox}>
-              <AlertCircle size={18} color="#F59E0B" />
-              <Text style={styles.warningText}>
-                Fast withdrawal to debit card incurs a 1% processing fee. Funds arrive within 30 minutes.
-              </Text>
-            </BlurView>
-          </View>
-        );
-
-      case 'crypto':
-        return (
-          <View style={styles.methodContent}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Select Cryptocurrency</Text>
-              <View style={styles.cryptoOptions}>
-                {['Bitcoin (BTC)', 'Ethereum (ETH)', 'USDT', 'USDC'].map((crypto) => (
-                  <TouchableOpacity key={crypto} style={styles.cryptoOption}>
-                    <BlurView intensity={40} tint="dark" style={styles.cryptoOptionInner}>
-                      <Text style={styles.cryptoLabel}>{crypto}</Text>
-                    </BlurView>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.label}>Withdrawal Address</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
-                <TextInput
-                  style={styles.textInput}
-                  placeholder="Enter crypto wallet address"
-                  placeholderTextColor={colors.textMuted}
-                  multiline
-                  numberOfLines={2}
-                />
-              </BlurView>
-            </View>
-
-            <BlurView intensity={40} tint="dark" style={styles.warningBox}>
-              <AlertCircle size={18} color="#EF4444" />
-              <Text style={styles.warningText}>
-                Double-check the address. Cryptocurrency transactions cannot be reversed. Network fees will be deducted from your withdrawal.
-              </Text>
-            </BlurView>
-          </View>
-        );
-    }
+        <BlurView intensity={40} tint="dark" style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            {activeMethod === 'wire'
+              ? 'Wire transfers are processed same day. A $25 fee applies.'
+              : activeMethod === 'check'
+              ? 'Checks are mailed within 1-2 business days and typically arrive in 5-7 business days.'
+              : 'Funds will arrive in your bank account within 2-3 business days. No processing fees.'}
+          </Text>
+        </BlurView>
+      </View>
+    );
   };
 
   return (
