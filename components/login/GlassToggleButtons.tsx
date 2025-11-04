@@ -19,7 +19,7 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
   const translateX = useSharedValue(0);
 
   useEffect(() => {
-    translateX.value = withSpring(selected, {
+    translateX.value = withSpring(selected * 100, {
       damping: 20,
       stiffness: 150,
       mass: 0.8,
@@ -30,7 +30,7 @@ export function GlassToggleButtons({ options, selected, onSelect }: GlassToggleB
     return {
       transform: [
         {
-          translateX: translateX.value * (100 / options.length) + '%',
+          translateX: `${translateX.value}%`,
         },
       ],
     };
