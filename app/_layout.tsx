@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
 import {
   Inter_400Regular,
@@ -20,7 +20,10 @@ import { LoadingProvider } from '@/contexts/LoadingContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useTickerStore } from '@/stores/useTickerStore';
 import { validateEnvironment } from '@/config/env';
-// Logger removed for production
+
+if (Platform.OS === 'web') {
+  console.clear();
+}
 
 SplashScreen.preventAutoHideAsync();
 
