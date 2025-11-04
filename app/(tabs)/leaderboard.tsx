@@ -55,7 +55,9 @@ export default function LeaderboardScreen() {
                 <Text style={styles.toggleLabel}>{userRank.public ? 'Public' : 'Private'}</Text>
                 <Switch
                   value={userRank.public}
-                  onValueChange={togglePublicProfile}
+                  onValueChange={async (value) => {
+                    await togglePublicProfile(value);
+                  }}
                   trackColor={{ false: '#334155', true: '#10b98180' }}
                   thumbColor={userRank.public ? '#10b981' : '#94a3b8'}
                 />
@@ -99,7 +101,7 @@ export default function LeaderboardScreen() {
             </GlassCard>
           ) : (
             entries.map((entry, index) => (
-              <GlassCard key={entry.id} style={[styles.leaderCard, index < 3 && styles.topCard]}>
+              <GlassCard key={entry.id} style={[styles.leaderCard, index < 3 ? styles.topCard : undefined]}>
                 <View style={styles.leaderHeader}>
                   <View style={styles.rankSection}>
                     {getRankIcon(entry.rank) || (

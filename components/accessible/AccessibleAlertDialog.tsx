@@ -46,7 +46,7 @@ export function AccessibleAlertDialog({
   dismissible = true,
   announcementDelay = 300,
 }: AccessibleAlertDialogProps) {
-  const firstActionRef = useRef<TouchableOpacity>(null);
+  const firstActionRef = useRef<typeof TouchableOpacity>(null);
 
   useEffect(() => {
     if (visible) {

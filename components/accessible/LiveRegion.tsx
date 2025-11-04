@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, AccessibilityInfo } from 'react-native';
 
 interface LiveRegionProps {
   message: string;
-  politeness?: 'polite' | 'assertive' | 'off';
+  politeness?: 'polite' | 'assertive' | 'none';
   atomic?: boolean;
   children?: React.ReactNode;
 }

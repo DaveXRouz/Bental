@@ -5,7 +5,6 @@ import { Plus, X, TrendingUp, TrendingDown, Star } from 'lucide-react-native';
 import { colors, Spacing, Typography } from '@/constants/theme';
 import { formatCurrency, safePercentage } from '@/utils/formatting';
 import { AccessibleCarousel } from '@/components/accessible/AccessibleCarousel';
-import { TouchableOpacity } from 'react-native';
 
 interface WatchlistItem {
   id: string;
