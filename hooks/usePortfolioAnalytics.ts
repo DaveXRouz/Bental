@@ -10,6 +10,7 @@ export function usePortfolioAnalytics() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    console.clear();
     if (!user?.id) {
       setLoading(false);
       return;
@@ -38,6 +39,7 @@ export function usePortfolioAnalytics() {
   }, [fetchData]);
 
   const createSnapshot = useCallback(async (date?: string) => {
+    console.clear();
     if (!user?.id) return null;
 
     try {
@@ -75,6 +77,7 @@ export function useAssetAllocation(date?: string) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAllocations = useCallback(async () => {
+    console.clear();
     if (!user?.id) {
       setLoading(false);
       return;
@@ -111,6 +114,7 @@ export function usePerformanceChart(period: 'week' | 'month' | 'quarter' | 'year
   const [error, setError] = useState<string | null>(null);
 
   const fetchChartData = useCallback(async () => {
+    console.clear();
     if (!user?.id) {
       setLoading(false);
       return;

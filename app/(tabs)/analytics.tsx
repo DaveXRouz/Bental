@@ -26,6 +26,7 @@ export default function AnalyticsScreen() {
   const { chartData, loading: chartLoading } = usePerformanceChart(selectedPeriod);
 
   const handleExport = async () => {
+    console.clear();
     try {
       const csv = await exportReport('csv');
       await Share.share({
@@ -39,7 +40,13 @@ export default function AnalyticsScreen() {
     }
   };
 
+  const handlePeriodChange = (period: TimePeriod) => {
+    console.clear();
+    setSelectedPeriod(period);
+  };
+
   if (loading) {
+    console.clear();
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -55,6 +62,7 @@ export default function AnalyticsScreen() {
   }
 
   if (error) {
+    console.clear();
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -65,6 +73,7 @@ export default function AnalyticsScreen() {
     );
   }
 
+  console.clear();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -88,7 +97,7 @@ export default function AnalyticsScreen() {
           <Text style={styles.sectionTitle}>Performance</Text>
         </View>
 
-        <PeriodSelector selectedPeriod={selectedPeriod} onSelect={setSelectedPeriod} />
+        <PeriodSelector selectedPeriod={selectedPeriod} onSelect={handlePeriodChange} />
 
         {chartLoading ? (
           <GlassSkeleton width="100%" height={300} style={{ marginBottom: 16 }} />
