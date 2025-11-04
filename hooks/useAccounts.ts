@@ -13,6 +13,37 @@ interface Account {
   created_at: string;
 }
 
+/**
+ * Custom hook for managing user accounts
+ *
+ * Fetches and manages all active accounts for the authenticated user.
+ * Automatically refetches when the user session changes.
+ *
+ * @returns {Object} Account management object
+ * @returns {Account[]} accounts - Array of user's active accounts
+ * @returns {boolean} loading - Loading state for account fetching
+ * @returns {string | null} error - Error message if fetch fails
+ * @returns {Function} refetch - Manual refetch function
+ * @returns {Function} getTotalBalance - Calculate total balance across all accounts
+ *
+ * @example
+ * ```tsx
+ * const { accounts, loading, error, refetch, getTotalBalance } = useAccounts();
+ *
+ * if (loading) return <LoadingSpinner />;
+ * if (error) return <ErrorMessage message={error} />;
+ *
+ * const total = getTotalBalance();
+ * return (
+ *   <View>
+ *     <Text>Total Balance: ${total.toFixed(2)}</Text>
+ *     {accounts.map(account => (
+ *       <AccountCard key={account.id} account={account} />
+ *     ))}
+ *   </View>
+ * );
+ * ```
+ */
 export function useAccounts() {
   const { session } = useAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);

@@ -16,6 +16,42 @@ interface Holding {
   updated_at: string;
 }
 
+/**
+ * Custom hook for managing portfolio holdings
+ *
+ * Fetches and caches holdings for a specific account with automatic refresh.
+ * Uses in-memory caching with 30-second TTL and 60-second refetch interval.
+ *
+ * @param {string} [accountId] - Optional account ID to fetch holdings for
+ * @returns {Object} Holdings management object
+ * @returns {Holding[]} holdings - Array of holdings for the account
+ * @returns {boolean} loading - Loading state
+ * @returns {string | null} error - Error message if fetch fails
+ * @returns {Function} refetch - Manual refetch function
+ * @returns {Function} getTotalValue - Calculate total market value
+ * @returns {Function} getTotalPnL - Calculate total unrealized profit/loss
+ *
+ * @example
+ * ```tsx
+ * const { holdings, loading, getTotalValue, getTotalPnL } = useHoldings(accountId);
+ *
+ * const totalValue = getTotalValue();
+ * const totalPnL = getTotalPnL();
+ * const totalReturn = totalValue > 0 ? (totalPnL / totalValue) * 100 : 0;
+ *
+ * return (
+ *   <View>
+ *     <Text>Portfolio Value: ${totalValue.toFixed(2)}</Text>
+ *     <Text style={{ color: totalPnL >= 0 ? 'green' : 'red' }}>
+ *       P&L: ${totalPnL.toFixed(2)} ({totalReturn.toFixed(2)}%)
+ *     </Text>
+ *     {holdings.map(holding => (
+ *       <HoldingCard key={holding.id} holding={holding} />
+ *     ))}
+ *   </View>
+ * );
+ * ```
+ */
 export function useHoldings(accountId?: string) {
   const {
     data: holdings,

@@ -10,6 +10,47 @@ interface WatchlistItem {
   created_at: string;
 }
 
+/**
+ * Custom hook for managing user watchlist
+ *
+ * Provides CRUD operations for the user's watchlist with automatic caching.
+ * Uses 60-second TTL cache and automatically invalidates on mutations.
+ *
+ * @param {string | undefined} userId - User ID to fetch watchlist for
+ * @returns {Object} Watchlist management object
+ * @returns {WatchlistItem[]} items - Array of watchlist items
+ * @returns {boolean} loading - Loading state
+ * @returns {string | null} error - Error message if operation fails
+ * @returns {Function} addToWatchlist - Add symbol to watchlist
+ * @returns {Function} removeFromWatchlist - Remove item from watchlist
+ * @returns {Function} refreshWatchlist - Manually refresh watchlist
+ *
+ * @example
+ * ```tsx
+ * const { items, loading, addToWatchlist, removeFromWatchlist } = useWatchlist(userId);
+ *
+ * const handleAdd = async () => {
+ *   try {
+ *     await addToWatchlist('AAPL');
+ *     toast.success('Added to watchlist');
+ *   } catch (error) {
+ *     toast.error('Failed to add to watchlist');
+ *   }
+ * };
+ *
+ * return (
+ *   <View>
+ *     {items.map(item => (
+ *       <WatchlistCard
+ *         key={item.id}
+ *         item={item}
+ *         onRemove={() => removeFromWatchlist(item.id)}
+ *       />
+ *     ))}
+ *   </View>
+ * );
+ * ```
+ */
 export function useWatchlist(userId: string | undefined) {
   const {
     data: items,
