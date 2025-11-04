@@ -7,6 +7,7 @@ import { colors, radius } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { formatCurrency } from '@/utils/formatting';
 import { ButtonSpinner } from '@/components/ui/LoadingSpinner';
+import { clearConsole } from '@/utils/console-manager';
 
 const { height } = Dimensions.get('window');
 
@@ -37,6 +38,7 @@ export default function TradeConfirmationModal({
   const [isConfirming, setIsConfirming] = useState(false);
 
   const handleConfirm = async () => {
+    clearConsole();
     setIsConfirming(true);
     try {
       await onConfirm();

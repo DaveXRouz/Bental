@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { setUser as setSentryUser, clearUser as clearSentryUser } from '@/utils/sentry';
+import { clearConsole } from '@/utils/console-manager';
 
 interface AuthContextType {
   session: Session | null;
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (identifier: string, password: string, loginMode: 'email' | 'passport' = 'email') => {
+    clearConsole();
     try {
       let emailToUse = identifier;
 
@@ -106,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
+    clearConsole();
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,

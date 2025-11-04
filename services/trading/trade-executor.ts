@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import marketDataService from '@/services/marketData';
+import { clearConsole } from '@/utils/console-manager';
 
 export interface TradeOrder {
   symbol: string;
@@ -342,6 +343,7 @@ class TradeExecutor {
    * Execute a trade order
    */
   async executeTrade(order: TradeOrder, userId: string): Promise<TradeResult> {
+    clearConsole();
     try {
       // 1. Validate trade
       const validation = await this.validateTrade(order, userId);

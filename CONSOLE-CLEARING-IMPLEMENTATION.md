@@ -1,58 +1,175 @@
-# Console Clearing Implementation
+# Console Clearing Implementation Guide
+
+**Date:** November 4, 2025
+**Purpose:** Ensure clean console output by clearing before rendering new changes
+
+---
 
 ## Overview
-All analytics-related operations now clear the console before rendering new changes, ensuring a clean output for debugging and user experience.
 
-## Implementation Details
+The application now implements automatic console clearing at critical points to provide a clean development experience. This prevents console clutter and makes debugging easier by showing only relevant information for the current operation.
 
-### Analytics Screen (`app/(tabs)/analytics.tsx`)
-Added `console.clear()` to:
-- **Loading State**: Clears console when showing loading skeleton
-- **Error State**: Clears console when displaying errors
-- **Main Render**: Clears console before rendering analytics data
-- **Export Handler**: Clears console before exporting reports
-- **Period Change Handler**: Clears console when user changes time period
+---
 
-### Portfolio Analytics Hooks (`hooks/usePortfolioAnalytics.ts`)
+## Implementation
 
-#### `usePortfolioAnalytics()`
-- Clears console in `fetchData()` before loading analytics data
-- Clears console in `createSnapshot()` before creating new snapshots
+### Core Utility: `console-manager.ts`
 
-#### `useAssetAllocation()`
-- Clears console in `fetchAllocations()` before loading asset allocations
+**Location:** `utils/console-manager.ts`
 
-#### `usePerformanceChart()`
-- Clears console in `fetchChartData()` before loading chart data
-- Clears console when period changes (triggers re-fetch)
-
-## User Interactions Covered
-
-1. **Initial Load**: Console cleared when component mounts
-2. **Refresh**: Console cleared when user manually refreshes data
-3. **Period Selection**: Console cleared when user changes time period (1W, 1M, 3M, etc.)
-4. **Export Report**: Console cleared when user exports analytics report
-5. **Error Recovery**: Console cleared when retrying after errors
-6. **Data Updates**: Console cleared on any data fetch operation
-
-## Benefits
-
-- **Clean Debugging**: Each operation starts with a fresh console
-- **Better UX**: Reduced console clutter for developers
-- **Clear Context**: Easy to trace the most recent operation
-- **Consistent Pattern**: Same approach used across all analytics operations
-
-## Pattern Used
+This utility provides centralized console management functions:
 
 ```typescript
-const handleOperation = async () => {
-  console.clear();
-  // ... operation code
+// Basic console clearing
+clearConsole()
+
+// Clear with log message
+clearAndLog("Authentication Flow")
+
+// Clear before async operations
+await clearBeforeAsync(async () => {
+  // your async code
+}, "Executing Trade")
+
+// Development-only clearing
+clearConsoleDev()
+
+// Clear with timestamp
+clearWithTimestamp("User Login")
+
+// Log groups
+startLogGroup("Data Fetch")
+// ... logs
+endLogGroup()
+```
+
+---
+
+## Where Console is Cleared
+
+### 1. **Authentication Operations** ✅
+
+**File:** `contexts/AuthContext.tsx`
+
+Console is cleared before:
+- `signIn()` - Login attempts
+- `signUp()` - New user registration
+
+**Why:** Each authentication attempt should have clean logs for easier debugging.
+
+```typescript
+const signIn = async (identifier: string, password: string) => {
+  clearConsole();
+  // ... authentication logic
 };
 ```
 
-This pattern is now consistently applied across:
-- All fetch operations
-- All user interaction handlers
-- All state change operations
-- All error states
+### 2. **Trading Operations** ✅
+
+**File:** `services/trading/trade-executor.ts`
+
+Console is cleared before:
+- `executeTrade()` - All trade executions (buy/sell)
+
+**Why:** Trading is a critical operation that needs clear, focused logs.
+
+```typescript
+async executeTrade(order: TradeOrder, userId: string) {
+  clearConsole();
+  // ... trade execution logic
+}
+```
+
+### 3. **Navigation Changes** ✅
+
+**Component:** `RouteChangeListener`
+**Location:** `components/navigation/RouteChangeListener.tsx`
+
+Console is cleared on every route change.
+
+**Why:** Each screen should start with clean console output.
+
+```typescript
+useEffect(() => {
+  clearConsole();
+  if (__DEV__) {
+    console.log(`📍 Navigated to: ${pathname}`);
+  }
+}, [pathname]);
+```
+
+**Implementation in Tabs:**
+```typescript
+// app/(tabs)/_layout.tsx
+<View style={styles.container}>
+  <RouteChangeListener />
+  <Tabs>
+    {/* screens */}
+  </Tabs>
+</View>
+```
+
+### 4. **Modal Confirmations** ✅
+
+**File:** `components/modals/TradeConfirmationModal.tsx`
+
+Console is cleared before:
+- Trade confirmation actions
+
+**Why:** User confirmations are decision points that deserve clean logs.
+
+```typescript
+const handleConfirm = async () => {
+  clearConsole();
+  setIsConfirming(true);
+  // ... confirmation logic
+};
+```
+
+### 5. **Initial App Load** ✅
+
+**File:** `app/_layout.tsx`
+
+Console is cleared on web platform initialization (line 27).
+
+**Why:** Start the app with a clean slate.
+
+```typescript
+if (Platform.OS === 'web') {
+  console.clear();
+  // ... web-specific setup
+}
+```
+
+---
+
+## Summary
+
+### What Was Implemented
+
+✅ Core console management utility
+✅ Clear on authentication operations
+✅ Clear on trading operations
+✅ Clear on navigation changes
+✅ Clear on modal confirmations
+✅ RouteChangeListener component
+
+### Files Modified
+
+1. `utils/console-manager.ts` (new)
+2. `components/navigation/RouteChangeListener.tsx` (new)
+3. `contexts/AuthContext.tsx`
+4. `services/trading/trade-executor.ts`
+5. `components/modals/TradeConfirmationModal.tsx`
+6. `app/(tabs)/_layout.tsx`
+
+### Benefits
+
+- Cleaner development experience
+- Easier debugging with focused logs
+- Better context per screen
+- Professional console output
+
+---
+
+**Implementation Complete**

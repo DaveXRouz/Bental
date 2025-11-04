@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { Tabs, Redirect } from 'expo-router';
 import { FixedBottomNav } from '@/components/navigation/FixedBottomNav';
+import { RouteChangeListener } from '@/components/navigation/RouteChangeListener';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -40,6 +41,7 @@ export default function TabLayout() {
 
   return (
     <View style={styles.container}>
+      <RouteChangeListener />
       <Tabs
         screenOptions={{
           headerShown: false,
