@@ -88,17 +88,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.size.md,
     fontWeight: '600',
-    color: colors.white,
+    color: '#c0c0c0',
     marginBottom: spacing.sm,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(40, 40, 40, 0.6)',
     borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(128, 128, 128, 0.3)',
     paddingHorizontal: spacing.lg,
   },
   inputContainerFocused: {
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.md,
     fontFamily: typography.family.regular,
-    color: colors.white,
+    color: '#e0e0e0',
     height: '100%',
   },
   error: {

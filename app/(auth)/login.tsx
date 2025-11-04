@@ -21,10 +21,10 @@ import { GlassCard } from '@/components/login/GlassCard';
 import { Segmented } from '@/components/login/Segmented';
 import { TextField } from '@/components/login/TextField';
 import { PasswordField } from '@/components/login/PasswordField';
-import { PrimaryButton } from '@/components/login/PrimaryButton';
+import { ThreeDButton } from '@/components/login/ThreeDButton';
 import { OAuthButton } from '@/components/login/OAuthButton';
 import { Chrome as GoogleIcon, Apple as AppleIcon, Twitter, Linkedin, Github } from 'lucide-react-native';
-import { VibrantGradientBackground } from '@/components/backgrounds';
+import { ParallaxBackground } from '@/components/backgrounds/ParallaxBackground';
 
 const { width } = Dimensions.get('window');
 
@@ -214,7 +214,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <VibrantGradientBackground />
+        <ParallaxBackground />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -223,7 +223,7 @@ export default function LoginScreen() {
         >
           <View style={styles.content}>
             <GlassCard>
-              <Text style={styles.title}>Welcome back</Text>
+              <Text style={styles.title}>Step Into the Future</Text>
 
               <View style={styles.segmentedContainer}>
                 <Segmented
@@ -253,7 +253,7 @@ export default function LoginScreen() {
                   textContentType="username"
                   error={emailError}
                   onBlur={() => handleBlur('email')}
-                  icon={<Mail size={20} color="rgba(255, 255, 255, 0.7)" />}
+                  icon={<Mail size={20} color="#909090" />}
                 />
               ) : (
                 <TextField
@@ -269,7 +269,7 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   error={passportError}
                   onBlur={() => handleBlur('passport')}
-                  icon={<CreditCard size={20} color="rgba(255, 255, 255, 0.7)" />}
+                  icon={<CreditCard size={20} color="#909090" />}
                 />
               )}
 
@@ -288,7 +288,7 @@ export default function LoginScreen() {
                 placeholder="Enter your password"
                 error={passwordError}
                 onBlur={() => handleBlur('password')}
-                icon={<Lock size={20} color="rgba(255, 255, 255, 0.7)" />}
+                icon={<Lock size={20} color="#909090" />}
               />
 
               <View style={styles.rememberRow}>
@@ -313,7 +313,7 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.signInContainer}>
-                <PrimaryButton
+                <ThreeDButton
                   title="Sign In"
                   onPress={handleSignIn}
                   disabled={!isFormValid || loading}
@@ -331,14 +331,14 @@ export default function LoginScreen() {
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<GoogleIcon size={20} color={colors.text} />}
+                    icon={<GoogleIcon size={20} color="#c0c0c0" />}
                     label="Google"
                   />
                 </View>
                 <View style={styles.oauthButton}>
                   <OAuthButton
                     onPress={() => {}}
-                    icon={<AppleIcon size={20} color={colors.text} />}
+                    icon={<AppleIcon size={20} color="#c0c0c0" />}
                     label="Apple"
                   />
                 </View>
@@ -347,13 +347,13 @@ export default function LoginScreen() {
               <View style={styles.footer}>
                 <View style={styles.socialIcons}>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="Twitter">
-                    <Twitter size={18} color="rgba(255, 255, 255, 0.5)" />
+                    <Twitter size={18} color="#707070" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="LinkedIn">
-                    <Linkedin size={18} color="rgba(255, 255, 255, 0.5)" />
+                    <Linkedin size={18} color="#707070" />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.socialIcon} accessibilityLabel="GitHub">
-                    <Github size={18} color="rgba(255, 255, 255, 0.5)" />
+                    <Github size={18} color="#707070" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.footerLinks}>
@@ -429,13 +429,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: '700',
-    color: colors.white,
+    color: '#e0e0e0',
     marginBottom: spacing.md * 3,
     textAlign: 'center',
-    letterSpacing: -1,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    letterSpacing: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    textShadowRadius: 12,
   },
   segmentedContainer: {
     marginBottom: spacing.md * 3,
@@ -454,12 +454,12 @@ const styles = StyleSheet.create({
   rememberText: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.medium,
-    color: colors.white,
+    color: '#b0b0b0',
   },
   forgotText: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.medium,
-    color: '#60a5fa',
+    color: '#909090',
   },
   signInContainer: {
     marginBottom: spacing.md * 3,
@@ -472,12 +472,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(128, 128, 128, 0.3)',
   },
   dividerText: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: '#808080',
     marginHorizontal: spacing.md * 2,
   },
   oauthContainer: {
@@ -511,11 +511,11 @@ const styles = StyleSheet.create({
   footerLink: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: '#707070',
   },
   footerDot: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.regular,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: '#707070',
   },
 });

@@ -28,13 +28,13 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     borderRadius: radius.xl,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(128, 128, 128, 0.25)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 32,
+    elevation: 12,
   },
   blur: {
     overflow: 'hidden',
@@ -42,6 +42,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md * 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(20, 20, 20, 0.85)',
   },
 });

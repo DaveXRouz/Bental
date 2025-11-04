@@ -54,12 +54,12 @@ export function Segmented({ options, selected, onSelect }: SegmentedProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
+    backgroundColor: 'rgba(40, 40, 40, 0.6)',
     borderRadius: radius.pill,
     padding: 4,
     position: 'relative',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(128, 128, 128, 0.3)',
   },
   indicator: {
     position: 'absolute',
@@ -67,9 +67,11 @@ const styles = StyleSheet.create({
     left: 4,
     bottom: 4,
     width: '50%',
-    backgroundColor: colors.accent,
+    backgroundColor: '#3a3a3a',
     borderRadius: radius.pill,
     zIndex: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(128, 128, 128, 0.4)',
   },
   option: {
     flex: 1,
@@ -81,12 +83,13 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   optionText: {
-    fontSize: typography.size.md, fontWeight: "500",
-    color: colors.textSecondary,
+    fontSize: typography.size.md,
+    fontWeight: '500',
+    color: '#808080',
     textAlign: 'center',
   },
   optionTextActive: {
-    color: colors.background,
+    color: '#e0e0e0',
     fontWeight: '600',
   },
 });
