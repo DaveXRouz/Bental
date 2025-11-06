@@ -36,6 +36,7 @@ import { BottomInsetSpacer } from '@/components/ui/BottomInsetSpacer';
 import TransferModal from '@/components/modals/TransferModal';
 import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
 import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
+import CreateAccountModal from '@/components/modals/CreateAccountModal';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -50,6 +51,7 @@ export default function AccountsScreen() {
   const [transferModalVisible, setTransferModalVisible] = useState(false);
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
+  const [createAccountModalVisible, setCreateAccountModalVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -57,6 +59,7 @@ export default function AccountsScreen() {
       setTransferModalVisible(false);
       setDepositModalVisible(false);
       setWithdrawModalVisible(false);
+      setCreateAccountModalVisible(false);
     }, [])
   );
 
@@ -224,7 +227,22 @@ export default function AccountsScreen() {
 
         {/* Accounts List */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Accounts</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Your Accounts</Text>
+            {accounts.length > 0 && (
+              <TouchableOpacity
+                style={styles.createAccountHeaderButton}
+                onPress={() => setCreateAccountModalVisible(true)}
+                activeOpacity={0.7}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Create new account"
+              >
+                <Plus size={18} color="#10B981" />
+                <Text style={styles.createAccountHeaderText}>New</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           {accounts.map((account) => {
             const performance = getAccountPerformance(account.id);
@@ -339,7 +357,14 @@ export default function AccountsScreen() {
               <Text style={styles.emptyStateText}>
                 Create your first account to start managing your funds
               </Text>
-              <TouchableOpacity style={styles.createAccountButton} activeOpacity={0.8}>
+              <TouchableOpacity
+                style={styles.createAccountButton}
+                activeOpacity={0.8}
+                onPress={() => setCreateAccountModalVisible(true)}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Create your first account"
+              >
                 <LinearGradient
                   colors={['#3B82F6', '#8B5CF6']}
                   style={styles.createAccountGradient}
@@ -386,6 +411,14 @@ export default function AccountsScreen() {
           setWithdrawModalVisible(false);
           setSelectedAccountId(null);
         }}
+        onSuccess={() => {
+          refetch();
+        }}
+      />
+
+      <CreateAccountModal
+        visible={createAccountModalVisible}
+        onClose={() => setCreateAccountModalVisible(false)}
         onSuccess={() => {
           refetch();
         }}
@@ -511,11 +544,32 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: spacing.xl,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.md,
+  },
+  createAccountHeaderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  createAccountHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#10B981',
   },
   accountCard: {
     borderRadius: radius.xl,
