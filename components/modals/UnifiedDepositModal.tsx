@@ -1,5 +1,5 @@
-import { useState, useEffect, Platform } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions, Clipboard } from 'react-native';
+import { useState, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions, Clipboard, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
