@@ -16,20 +16,32 @@ export class PortfolioCalculator {
     const [accountsResult, holdingsResult] = await Promise.all([
       supabase
         .from('accounts')
-        .select('balance')
-        .eq('user_id', userId),
+        .select('account_type, balance, status')
+        .eq('user_id', userId)
+        .eq('status', 'active'),
       supabase
         .from('holdings')
-        .select('market_value, unrealized_pnl, day_change, quantity, average_cost, symbol')
+        .select('asset_type, market_value, unrealized_pnl, day_change, quantity, average_cost, symbol')
         .eq('user_id', userId)
     ]);
 
     const accounts = accountsResult.data || [];
     const holdings = holdingsResult.data || [];
 
-    const cashBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
+    // Only count true cash accounts as "cash"
+    const cashAccountTypes = ['primary_cash', 'savings_cash', 'trading_cash'];
+    const cashBalance = accounts
+      .filter(a => cashAccountTypes.includes(a.account_type))
+      .reduce((sum, acc) => sum + Number(acc.balance), 0);
 
-    const investmentBalance = holdings.reduce((sum, h) => sum + Number(h.market_value), 0);
+    // Investment balance = holdings + uninvested cash in investment accounts
+    const investmentAccountTypes = ['equity_trading', 'dividend_income', 'margin_trading', 'crypto_portfolio', 'retirement_fund'];
+    const investmentCash = accounts
+      .filter(a => investmentAccountTypes.includes(a.account_type))
+      .reduce((sum, acc) => sum + Number(acc.balance), 0);
+
+    const holdingsValue = holdings.reduce((sum, h) => sum + Number(h.market_value), 0);
+    const investmentBalance = holdingsValue + investmentCash;
 
     const totalValue = cashBalance + investmentBalance;
 
@@ -41,8 +53,8 @@ export class PortfolioCalculator {
       sum + (Number(h.quantity) * Number(h.average_cost)), 0
     );
 
-    const todayChangePercent = investmentBalance > 0
-      ? (todayChange / investmentBalance) * 100
+    const todayChangePercent = holdingsValue > 0
+      ? (todayChange / holdingsValue) * 100
       : 0;
 
     const totalReturnPercent = costBasis > 0

@@ -19,6 +19,7 @@ import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
 import { usePortfolioMetrics } from '@/hooks/usePortfolioMetrics';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useMarketPriceUpdater } from '@/hooks/useMarketPriceUpdater';
+import { portfolioAggregationService } from '@/services/portfolio/portfolio-aggregation-service';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
 import { DataStreamBackground } from '@/components/backgrounds';
 
@@ -49,6 +50,7 @@ export default function HomeScreen() {
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
 
   const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
   const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
@@ -113,6 +115,10 @@ export default function HomeScreen() {
         }
       }
 
+      // Get real asset allocation data
+      const allocations = await portfolioAggregationService.getAssetAllocation(user.id);
+      setAssetAllocations(allocations);
+
       refetchMetrics();
     } catch (error) {
       console.error('[Dashboard] Error:', error);
@@ -143,36 +149,7 @@ export default function HomeScreen() {
     setTimeRange(range);
   }, []);
 
-  const assetAllocations = useMemo(() => [
-    {
-      label: 'Cash',
-      value: cashBalance,
-      percent: netWorth > 0 ? (cashBalance / netWorth) * 100 : 0,
-      color: '#9CA3AF',
-      type: 'cash' as const,
-    },
-    {
-      label: 'Equities',
-      value: investmentBalance * 0.7,
-      percent: netWorth > 0 ? ((investmentBalance * 0.7) / netWorth) * 100 : 0,
-      color: '#3B82F6',
-      type: 'equities' as const,
-    },
-    {
-      label: 'Crypto',
-      value: investmentBalance * 0.2,
-      percent: netWorth > 0 ? ((investmentBalance * 0.2) / netWorth) * 100 : 0,
-      color: '#8B5CF6',
-      type: 'crypto' as const,
-    },
-    {
-      label: 'Bonds',
-      value: investmentBalance * 0.1,
-      percent: netWorth > 0 ? ((investmentBalance * 0.1) / netWorth) * 100 : 0,
-      color: '#10B981',
-      type: 'bonds' as const,
-    },
-  ].filter(a => a.value > 0), [cashBalance, investmentBalance, netWorth]);
+  // Asset allocations are now fetched from the aggregation service
 
   const performanceData = useMemo(() => snapshots.map(s => ({
     date: s.snapshot_date,
