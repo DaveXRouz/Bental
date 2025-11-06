@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
 export type DepositMethod = 'bank_transfer' | 'wire' | 'check' | 'card' | 'crypto' | 'cash_courier';
-export type WithdrawalMethod = 'bank_transfer' | 'wire' | 'check' | 'crypto';
+export type WithdrawalMethod = 'bank_transfer' | 'wire' | 'check' | 'ach' | 'paypal' | 'venmo' | 'crypto' | 'debit_card';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
 export interface Deposit {
@@ -28,9 +28,19 @@ export interface Withdrawal {
   method: WithdrawalMethod;
   status: TransactionStatus;
   reference_number: string;
-  bank_name: string;
-  account_number_last4: string;
+  // Traditional banking fields
+  bank_name?: string;
+  account_number_last4?: string;
   routing_number?: string;
+  // Digital wallet fields
+  email?: string;
+  // Crypto fields
+  crypto_address?: string;
+  crypto_currency?: string;
+  crypto_network?: string;
+  // Card fields
+  card_last4?: string;
+  // Common fields
   notes?: string;
   processed_at?: string;
   created_at: string;
@@ -50,9 +60,18 @@ export interface WithdrawalRequest {
   accountId: string;
   amount: number;
   method: WithdrawalMethod;
-  bankName: string;
-  accountNumberLast4: string;
+  // Traditional banking fields
+  bankName?: string;
+  accountNumberLast4?: string;
   routingNumber?: string;
+  // Digital wallet fields
+  email?: string; // For PayPal, Venmo
+  // Crypto fields
+  cryptoAddress?: string;
+  cryptoCurrency?: string; // BTC, ETH, USDT, USDC
+  cryptoNetwork?: string;
+  // Card fields
+  cardLast4?: string;
   notes?: string;
 }
 
@@ -130,20 +149,59 @@ class DepositWithdrawalService {
       return { valid: false, error: 'Insufficient funds in account' };
     }
 
-    const validMethods: WithdrawalMethod[] = ['bank_transfer', 'wire', 'check'];
+    const validMethods: WithdrawalMethod[] = ['bank_transfer', 'wire', 'check', 'ach', 'paypal', 'venmo', 'crypto', 'debit_card'];
     if (!validMethods.includes(request.method)) {
       return { valid: false, error: 'Invalid withdrawal method' };
     }
 
-    if (!request.bankName || request.bankName.trim().length === 0) {
-      return { valid: false, error: 'Bank name is required' };
+    // Method-specific validation
+    if (request.method === 'bank_transfer' || request.method === 'wire' || request.method === 'check' || request.method === 'ach') {
+      if (!request.bankName || request.bankName.trim().length === 0) {
+        return { valid: false, error: 'Bank name is required' };
+      }
+      if (!request.accountNumberLast4 || request.accountNumberLast4.length !== 4) {
+        return { valid: false, error: 'Invalid account number (last 4 digits required)' };
+      }
     }
 
-    if (!request.accountNumberLast4 || request.accountNumberLast4.length !== 4) {
-      return { valid: false, error: 'Invalid account number (last 4 digits required)' };
+    if (request.method === 'paypal' || request.method === 'venmo') {
+      if (!request.email || !this.isValidEmail(request.email)) {
+        return { valid: false, error: 'Valid email address is required' };
+      }
+    }
+
+    if (request.method === 'crypto') {
+      if (!request.cryptoAddress || request.cryptoAddress.trim().length === 0) {
+        return { valid: false, error: 'Crypto wallet address is required' };
+      }
+      if (!request.cryptoCurrency) {
+        return { valid: false, error: 'Cryptocurrency type is required' };
+      }
+      const validCryptos = ['BTC', 'ETH', 'USDT', 'USDC'];
+      if (!validCryptos.includes(request.cryptoCurrency)) {
+        return { valid: false, error: 'Invalid cryptocurrency type' };
+      }
+    }
+
+    if (request.method === 'debit_card') {
+      if (!request.cardLast4 || request.cardLast4.length !== 4) {
+        return { valid: false, error: 'Invalid card number (last 4 digits required)' };
+      }
+      // Instant withdrawal fee for debit card
+      if (request.amount > 10000) {
+        return { valid: false, error: 'Debit card withdrawals limited to $10,000' };
+      }
     }
 
     return { valid: true };
+  }
+
+  /**
+   * Validate email format
+   */
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   /**
@@ -217,20 +275,29 @@ class DepositWithdrawalService {
       const referenceNumber = this.generateReferenceNumber('WTH');
 
       // Create withdrawal record (funds will be deducted when processed)
+      const insertData: any = {
+        user_id: userId,
+        account_id: request.accountId,
+        amount: request.amount,
+        method: request.method,
+        status: 'pending',
+        reference_number: referenceNumber,
+        notes: request.notes,
+      };
+
+      // Add method-specific fields
+      if (request.bankName) insertData.bank_name = request.bankName;
+      if (request.accountNumberLast4) insertData.account_number_last4 = request.accountNumberLast4;
+      if (request.routingNumber) insertData.routing_number = request.routingNumber;
+      if (request.email) insertData.email = request.email;
+      if (request.cryptoAddress) insertData.crypto_address = request.cryptoAddress;
+      if (request.cryptoCurrency) insertData.crypto_currency = request.cryptoCurrency;
+      if (request.cryptoNetwork) insertData.crypto_network = request.cryptoNetwork;
+      if (request.cardLast4) insertData.card_last4 = request.cardLast4;
+
       const { data: withdrawal, error } = await supabase
         .from('withdrawals')
-        .insert({
-          user_id: userId,
-          account_id: request.accountId,
-          amount: request.amount,
-          method: request.method,
-          status: 'pending',
-          reference_number: referenceNumber,
-          bank_name: request.bankName,
-          account_number_last4: request.accountNumberLast4,
-          routing_number: request.routingNumber,
-          notes: request.notes,
-        })
+        .insert(insertData)
         .select()
         .single();
 
