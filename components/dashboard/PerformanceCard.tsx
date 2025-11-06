@@ -29,11 +29,13 @@ export const PerformanceCard = React.memo(({
   loading = false,
 }: PerformanceCardProps) => {
   const [activeRange, setActiveRange] = useState<TimeRange>('1M');
-  const [showBenchmark, setShowBenchmark] = useState(false);
+  const [isChangingRange, setIsChangingRange] = useState(false);
 
   const handleRangeChange = useCallback((range: TimeRange) => {
+    setIsChangingRange(true);
     setActiveRange(range);
     onTimeRangeChange?.(range);
+    setTimeout(() => setIsChangingRange(false), 100);
   }, [onTimeRangeChange]);
 
   const chartData = useMemo(() => {
@@ -44,15 +46,23 @@ export const PerformanceCard = React.memo(({
   const maxValue = useMemo(() => Math.max(...data.map(d => d.value)) * 1.02, [data]);
 
   const lastValue = useMemo(() => {
-    if (data.length === 0) return 0;
+    if (data.length === 0) return currentValue || 0;
     return data[data.length - 1].value;
-  }, [data]);
+  }, [data, currentValue]);
 
   const change = useMemo(() => {
     if (data.length < 2) return 0;
     const first = data[0].value;
     const last = data[data.length - 1].value;
+    if (first === 0) return 0;
     return ((last - first) / first) * 100;
+  }, [data]);
+
+  const changeAmount = useMemo(() => {
+    if (data.length < 2) return 0;
+    const first = data[0].value;
+    const last = data[data.length - 1].value;
+    return last - first;
   }, [data]);
 
   const isPositive = change >= 0;
@@ -82,16 +92,6 @@ export const PerformanceCard = React.memo(({
     <BlurView intensity={15} tint="dark" style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Performance</Text>
-        <TouchableOpacity
-          onPress={() => setShowBenchmark(!showBenchmark)}
-          style={styles.benchmarkToggle}
-          accessibilityLabel={`${showBenchmark ? 'Hide' : 'Show'} SPY benchmark`}
-          accessibilityRole="button"
-        >
-          <Text style={[styles.benchmarkText, showBenchmark && styles.benchmarkTextActive]}>
-            vs SPY
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.valueContainer}>
@@ -99,9 +99,14 @@ export const PerformanceCard = React.memo(({
         <Text style={styles.value}>
           ${lastValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
-        <Text style={[styles.change, isPositive ? styles.changePositive : styles.changeNegative]}>
-          {isPositive ? '+' : ''}{change.toFixed(2)}%
-        </Text>
+        <View style={styles.changeRow}>
+          <Text style={[styles.change, isPositive ? styles.changePositive : styles.changeNegative]}>
+            {isPositive ? '+' : ''}{change.toFixed(2)}%
+          </Text>
+          <Text style={[styles.changeAmount, isPositive ? styles.changePositive : styles.changeNegative]}>
+            {' '}({isPositive ? '+' : ''}${Math.abs(changeAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+          </Text>
+        </View>
       </View>
 
       <View style={styles.timeRangeRow}>
@@ -156,24 +161,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
     color: colors.white,
   },
-  benchmarkToggle: {
-    paddingHorizontal: S * 1.5,
-    paddingVertical: S,
-    borderRadius: radius.sm,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    minHeight: 44,
-    minWidth: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  benchmarkText: {
-    fontSize: typography.size.xs,
-    fontWeight: typography.weight.semibold,
-    color: colors.textMuted,
-  },
-  benchmarkTextActive: {
-    color: colors.white,
-  },
   valueContainer: {
     marginBottom: S * 2,
   },
@@ -188,9 +175,17 @@ const styles = StyleSheet.create({
     color: colors.white,
     marginBottom: S * 0.5,
   },
+  changeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   change: {
     fontSize: typography.size.md,
     fontWeight: typography.weight.semibold,
+  },
+  changeAmount: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.medium,
   },
   changePositive: {
     color: '#10B981',

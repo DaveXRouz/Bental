@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
-interface PortfolioSnapshot {
+export interface PortfolioSnapshot {
   id: string;
   snapshot_date: string;
   total_value: number;
   cash_value: number;
   investment_value: number;
   daily_change: number;
+  created_at: string;
 }
 
 type TimeRange = '1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL';

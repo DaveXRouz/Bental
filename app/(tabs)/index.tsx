@@ -51,8 +51,9 @@ export default function HomeScreen() {
   const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
 
-  const { snapshots, createSnapshot } = usePortfolioSnapshots(user?.id, timeRange);
+  const { snapshots, createSnapshot, loading: snapshotsLoading, refreshSnapshots } = usePortfolioSnapshots(user?.id, timeRange);
   const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
   const { unreadCount: notificationCount } = useNotifications(user?.id);
   const { lastUpdate: priceLastUpdate, isRunning: priceUpdaterRunning } = useMarketPriceUpdater(true, 30000);
@@ -145,8 +146,10 @@ export default function HomeScreen() {
     setBotStatus(active ? 'active' : 'paused');
   }, []);
 
-  const handleTimeRangeChange = useCallback((range: TimeRange) => {
+  const handleTimeRangeChange = useCallback(async (range: TimeRange) => {
+    setPerformanceLoading(true);
     setTimeRange(range);
+    setTimeout(() => setPerformanceLoading(false), 300);
   }, []);
 
   // Asset allocations are now fetched from the aggregation service
@@ -253,7 +256,7 @@ export default function HomeScreen() {
                   data={performanceData}
                   currentValue={netWorth}
                   onTimeRangeChange={handleTimeRangeChange}
-                  loading={false}
+                  loading={performanceLoading || snapshotsLoading}
                 />
                 {assetAllocations.length > 0 && (
                   <AllocationDonut allocations={assetAllocations} totalValue={netWorth} />
@@ -272,7 +275,7 @@ export default function HomeScreen() {
                 data={performanceData}
                 currentValue={netWorth}
                 onTimeRangeChange={handleTimeRangeChange}
-                loading={false}
+                loading={performanceLoading || snapshotsLoading}
               />
 
               {assetAllocations.length > 0 && (
