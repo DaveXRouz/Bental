@@ -53,6 +53,7 @@ export default function AdminPanelLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="users" />
+      <Stack.Screen name="withdrawals" />
       <Stack.Screen name="configuration" />
       <Stack.Screen name="logs" />
     </Stack>

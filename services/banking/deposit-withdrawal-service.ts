@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase';
 export type DepositMethod = 'bank_transfer' | 'wire' | 'check' | 'card' | 'crypto' | 'cash_courier';
 export type WithdrawalMethod = 'bank_transfer' | 'wire' | 'check' | 'ach' | 'paypal' | 'venmo' | 'crypto' | 'debit_card';
 export type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+export type AdminApprovalStatus = 'pending_review' | 'approved' | 'rejected' | 'cancelled';
+export type RejectionReason = 'insufficient_verification' | 'suspicious_activity' | 'incorrect_details' | 'insufficient_funds' | 'other';
 
 export interface Deposit {
   id: string;
@@ -40,6 +42,14 @@ export interface Withdrawal {
   crypto_network?: string;
   // Card fields
   card_last4?: string;
+  // Admin approval fields
+  admin_approval_status?: AdminApprovalStatus;
+  reviewed_by?: string;
+  reviewed_at?: string;
+  admin_notes?: string;
+  original_amount?: number;
+  modified_amount?: number;
+  rejection_reason?: RejectionReason;
   // Common fields
   notes?: string;
   processed_at?: string;
@@ -306,7 +316,7 @@ class DepositWithdrawalService {
       return {
         success: true,
         transactionId: withdrawal.id,
-        message: `Withdrawal request submitted successfully. Reference: ${referenceNumber}`,
+        message: `Withdrawal request submitted for admin review. Reference: ${referenceNumber}`,
       };
     } catch (error: any) {
       console.error('Create withdrawal error:', error);
@@ -383,6 +393,212 @@ class DepositWithdrawalService {
     } catch (error) {
       console.error('Error fetching pending count:', error);
       return { deposits: 0, withdrawals: 0 };
+    }
+  }
+
+  /**
+   * Approve withdrawal (admin only)
+   */
+  async approveWithdrawal(
+    withdrawalId: string,
+    adminId: string,
+    notes?: string,
+    modifiedAmount?: number
+  ): Promise<TransactionResult> {
+    try {
+      const { data, error } = await supabase.rpc('admin_approve_withdrawal', {
+        p_withdrawal_id: withdrawalId,
+        p_admin_id: adminId,
+        p_notes: notes || null,
+        p_modified_amount: modifiedAmount || null,
+      });
+
+      if (error) throw error;
+
+      const result = data as any;
+      const message = result.modified
+        ? `Withdrawal approved with modified amount: $${result.final_amount}`
+        : `Withdrawal approved: $${result.final_amount}`;
+
+      return {
+        success: true,
+        transactionId: withdrawalId,
+        message,
+      };
+    } catch (error: any) {
+      console.error('Approve withdrawal error:', error);
+      return {
+        success: false,
+        message: 'Failed to approve withdrawal',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Reject withdrawal (admin only)
+   */
+  async rejectWithdrawal(
+    withdrawalId: string,
+    adminId: string,
+    rejectionReason: RejectionReason,
+    notes: string
+  ): Promise<TransactionResult> {
+    try {
+      const { data, error } = await supabase.rpc('admin_reject_withdrawal', {
+        p_withdrawal_id: withdrawalId,
+        p_admin_id: adminId,
+        p_rejection_reason: rejectionReason,
+        p_notes: notes,
+      });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        transactionId: withdrawalId,
+        message: 'Withdrawal rejected successfully',
+      };
+    } catch (error: any) {
+      console.error('Reject withdrawal error:', error);
+      return {
+        success: false,
+        message: 'Failed to reject withdrawal',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Cancel withdrawal (user only, before admin review)
+   */
+  async cancelWithdrawal(withdrawalId: string, userId: string): Promise<TransactionResult> {
+    try {
+      const { data, error } = await supabase.rpc('user_cancel_withdrawal', {
+        p_withdrawal_id: withdrawalId,
+        p_user_id: userId,
+      });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        transactionId: withdrawalId,
+        message: 'Withdrawal cancelled successfully',
+      };
+    } catch (error: any) {
+      console.error('Cancel withdrawal error:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to cancel withdrawal',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get pending withdrawals for admin review
+   */
+  async getPendingWithdrawalsForAdmin(limit: number = 50): Promise<Withdrawal[]> {
+    try {
+      const { data, error } = await supabase
+        .from('withdrawals')
+        .select(`
+          *,
+          profiles!withdrawals_user_id_fkey(email, full_name),
+          accounts!withdrawals_account_id_fkey(name, balance)
+        `)
+        .eq('admin_approval_status', 'pending_review')
+        .order('created_at', { ascending: true })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching pending withdrawals for admin:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get all withdrawals for admin with filters
+   */
+  async getAdminWithdrawals(
+    status?: AdminApprovalStatus,
+    limit: number = 100
+  ): Promise<Withdrawal[]> {
+    try {
+      let query = supabase
+        .from('withdrawals')
+        .select(`
+          *,
+          profiles!withdrawals_user_id_fkey(email, full_name),
+          accounts!withdrawals_account_id_fkey(name, balance)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (status) {
+        query = query.eq('admin_approval_status', status);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching admin withdrawals:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get withdrawal statistics for admin dashboard
+   */
+  async getWithdrawalStats(): Promise<{
+    pending: number;
+    pendingAmount: number;
+    approvedToday: number;
+    rejectedToday: number;
+  }> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [pendingResult, approvedResult, rejectedResult] = await Promise.all([
+        supabase
+          .from('withdrawals')
+          .select('amount')
+          .eq('admin_approval_status', 'pending_review'),
+        supabase
+          .from('withdrawals')
+          .select('id', { count: 'exact', head: true })
+          .eq('admin_approval_status', 'approved')
+          .gte('reviewed_at', today.toISOString()),
+        supabase
+          .from('withdrawals')
+          .select('id', { count: 'exact', head: true })
+          .eq('admin_approval_status', 'rejected')
+          .gte('reviewed_at', today.toISOString()),
+      ]);
+
+      const pendingWithdrawals = pendingResult.data || [];
+      const pendingAmount = pendingWithdrawals.reduce((sum, w) => sum + Number(w.amount), 0);
+
+      return {
+        pending: pendingWithdrawals.length,
+        pendingAmount,
+        approvedToday: approvedResult.count || 0,
+        rejectedToday: rejectedResult.count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching withdrawal stats:', error);
+      return {
+        pending: 0,
+        pendingAmount: 0,
+        approvedToday: 0,
+        rejectedToday: 0,
+      };
     }
   }
 

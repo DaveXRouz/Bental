@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Shield,
   Activity,
+  DollarSign,
 } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -91,6 +92,13 @@ export default function AdminPanelDashboard() {
           >
             <Users size={20} color="#94a3b8" />
             <Text style={styles.navText}>Users</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => router.push('/admin-panel/withdrawals')}
+          >
+            <DollarSign size={20} color="#94a3b8" />
+            <Text style={styles.navText}>Withdrawals</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}

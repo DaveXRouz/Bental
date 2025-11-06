@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Upload, Building2, CreditCard, Bitcoin, Check, AlertCircle, Zap, DollarSign, Wallet } from 'lucide-react-native';
+import { X, Upload, Building2, CreditCard, Bitcoin, Check, AlertCircle, Zap, DollarSign, Wallet, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { colors, radius, spacing, shadows } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { useToast } from '@/components/ui/ToastManager';
@@ -20,71 +20,61 @@ interface UnifiedWithdrawModalProps {
 }
 
 type WithdrawMethod = 'bank_transfer' | 'wire' | 'check' | 'ach' | 'paypal' | 'venmo' | 'crypto' | 'debit_card';
+type CategoryType = 'banking' | 'digital' | 'crypto';
 
-interface WithdrawMethodOption {
+interface MethodOption {
   id: WithdrawMethod;
   label: string;
-  subtitle: string;
+  speed: string;
+  fee: string;
   icon: typeof Building2;
   color: string;
 }
 
-const WITHDRAW_METHODS: WithdrawMethodOption[] = [
+interface CategoryOption {
+  id: CategoryType;
+  label: string;
+  subtitle: string;
+  icon: typeof Building2;
+  color: string;
+  methods: MethodOption[];
+}
+
+const CATEGORIES: CategoryOption[] = [
   {
-    id: 'ach',
-    label: 'ACH Transfer',
-    subtitle: 'Next day • Free',
-    icon: Zap,
-    color: '#06B6D4',
-  },
-  {
-    id: 'bank_transfer',
-    label: 'Bank Transfer',
-    subtitle: '2-3 days • Free',
+    id: 'banking',
+    label: 'Traditional Banking',
+    subtitle: 'Bank transfers & checks',
     icon: Building2,
     color: '#3B82F6',
+    methods: [
+      { id: 'ach', label: 'ACH Transfer', speed: 'Next day', fee: 'Free', icon: Zap, color: '#06B6D4' },
+      { id: 'bank_transfer', label: 'Bank Transfer', speed: '2-3 days', fee: 'Free', icon: Building2, color: '#3B82F6' },
+      { id: 'wire', label: 'Wire Transfer', speed: 'Same day', fee: '$25', icon: Building2, color: '#8B5CF6' },
+      { id: 'check', label: 'Check by Mail', speed: '5-7 days', fee: 'Free', icon: Check, color: '#6B7280' },
+    ],
   },
   {
-    id: 'paypal',
-    label: 'PayPal',
-    subtitle: 'Instant • 1% fee',
-    icon: DollarSign,
-    color: '#0070BA',
-  },
-  {
-    id: 'venmo',
-    label: 'Venmo',
-    subtitle: 'Instant • 1% fee',
+    id: 'digital',
+    label: 'Digital Wallets',
+    subtitle: 'PayPal, Venmo & Cards',
     icon: Wallet,
-    color: '#3D95CE',
-  },
-  {
-    id: 'debit_card',
-    label: 'Debit Card',
-    subtitle: 'Instant • 2.9% fee',
-    icon: CreditCard,
     color: '#10B981',
+    methods: [
+      { id: 'paypal', label: 'PayPal', speed: 'Instant', fee: '1%', icon: DollarSign, color: '#0070BA' },
+      { id: 'venmo', label: 'Venmo', speed: 'Instant', fee: '1%', icon: Wallet, color: '#3D95CE' },
+      { id: 'debit_card', label: 'Debit Card', speed: 'Instant', fee: '2.9%', icon: CreditCard, color: '#10B981' },
+    ],
   },
   {
     id: 'crypto',
-    label: 'Crypto',
-    subtitle: '15-60 min • Network fees',
+    label: 'Cryptocurrency',
+    subtitle: 'BTC, ETH, USDT, USDC',
     icon: Bitcoin,
     color: '#F7931A',
-  },
-  {
-    id: 'wire',
-    label: 'Wire Transfer',
-    subtitle: 'Same day • $25 fee',
-    icon: Building2,
-    color: '#8B5CF6',
-  },
-  {
-    id: 'check',
-    label: 'Check by Mail',
-    subtitle: '5-7 days • Free',
-    icon: Check,
-    color: '#6B7280',
+    methods: [
+      { id: 'crypto', label: 'Crypto Wallet', speed: '15-60 min', fee: 'Network fees', icon: Bitcoin, color: '#F7931A' },
+    ],
   },
 ];
 
@@ -92,17 +82,23 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
   const { user } = useAuth();
   const { accounts, refetch: refetchAccounts } = useAccounts();
   const { showSuccess, showError } = useToast();
-  const [activeMethod, setActiveMethod] = useState<WithdrawMethod>('ach');
+
+  const [expandedCategory, setExpandedCategory] = useState<CategoryType | null>(null);
+  const [activeMethod, setActiveMethod] = useState<WithdrawMethod | null>(null);
   const [amount, setAmount] = useState('');
+
   // Traditional banking fields
   const [bankName, setBankName] = useState('');
   const [accountLast4, setAccountLast4] = useState('');
   const [routingNumber, setRoutingNumber] = useState('');
+
   // Digital wallet fields
   const [email, setEmail] = useState('');
+
   // Crypto fields
   const [cryptoAddress, setCryptoAddress] = useState('');
   const [cryptoCurrency, setCryptoCurrency] = useState<'BTC' | 'ETH' | 'USDT' | 'USDC'>('BTC');
+
   // Card fields
   const [cardLast4, setCardLast4] = useState('');
 
@@ -114,6 +110,8 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
   useEffect(() => {
     if (!visible) {
       console.clear();
+      setExpandedCategory(null);
+      setActiveMethod(null);
       setAmount('');
       setBankName('');
       setAccountLast4('');
@@ -123,7 +121,6 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
       setCryptoCurrency('BTC');
       setCardLast4('');
       setIsSubmitting(false);
-      setActiveMethod('ach');
     }
   }, [visible]);
 
@@ -134,10 +131,33 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
     }
   }, [visible, accounts]);
 
+  const handleCategoryPress = (categoryId: CategoryType) => {
+    if (expandedCategory === categoryId) {
+      setExpandedCategory(null);
+      setActiveMethod(null);
+    } else {
+      setExpandedCategory(categoryId);
+      // Auto-select first method in category
+      const category = CATEGORIES.find((c) => c.id === categoryId);
+      if (category && category.methods.length > 0) {
+        setActiveMethod(category.methods[0].id);
+      }
+    }
+  };
+
+  const handleMethodSelect = (methodId: WithdrawMethod) => {
+    setActiveMethod(methodId);
+  };
+
   const handleWithdraw = async () => {
     console.clear();
     if (!amount || parseFloat(amount) <= 0) {
       showError('Please enter a valid amount');
+      return;
+    }
+
+    if (!activeMethod) {
+      showError('Please select a withdrawal method');
       return;
     }
 
@@ -236,6 +256,8 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
         setEmail('');
         setCryptoAddress('');
         setCardLast4('');
+        setExpandedCategory(null);
+        setActiveMethod(null);
         onClose();
       } else {
         showError(result.message);
@@ -248,14 +270,16 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
     }
   };
 
-  const renderMethodContent = () => {
-    // Traditional banking methods (Bank Transfer, Wire, Check, ACH)
+  const renderMethodFields = () => {
+    if (!activeMethod) return null;
+
+    // Traditional banking methods
     if (['bank_transfer', 'wire', 'check', 'ach'].includes(activeMethod)) {
       return (
-        <View style={styles.methodContent}>
-          <View style={styles.section}>
-            <Text style={styles.label}>Bank Name</Text>
-            <BlurView intensity={60} tint="dark" style={styles.input}>
+        <View style={styles.fieldsContainer}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Bank Name</Text>
+            <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
               <TextInput
                 style={styles.textInput}
                 placeholder="Enter bank name"
@@ -266,9 +290,9 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
             </BlurView>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.label}>Account Number (Last 4 Digits)</Text>
-            <BlurView intensity={60} tint="dark" style={styles.input}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Account Number (Last 4 Digits)</Text>
+            <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
               <TextInput
                 style={styles.textInput}
                 placeholder="1234"
@@ -282,9 +306,9 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
           </View>
 
           {(activeMethod === 'bank_transfer' || activeMethod === 'wire' || activeMethod === 'ach') && (
-            <View style={styles.section}>
-              <Text style={styles.label}>Routing Number (Optional)</Text>
-              <BlurView intensity={60} tint="dark" style={styles.input}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>Routing Number (Optional)</Text>
+              <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
                 <TextInput
                   style={styles.textInput}
                   placeholder="Enter routing number"
@@ -296,18 +320,6 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
               </BlurView>
             </View>
           )}
-
-          <BlurView intensity={40} tint="dark" style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              {activeMethod === 'ach'
-                ? 'ACH transfers arrive next business day. No processing fees.'
-                : activeMethod === 'wire'
-                ? 'Wire transfers are processed same day. A $25 fee applies.'
-                : activeMethod === 'check'
-                ? 'Checks are mailed within 1-2 business days and typically arrive in 5-7 business days.'
-                : 'Funds will arrive in your bank account within 2-3 business days. No processing fees.'}
-            </Text>
-          </BlurView>
         </View>
       );
     }
@@ -315,10 +327,10 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
     // PayPal / Venmo
     if (activeMethod === 'paypal' || activeMethod === 'venmo') {
       return (
-        <View style={styles.methodContent}>
-          <View style={styles.section}>
-            <Text style={styles.label}>{activeMethod === 'paypal' ? 'PayPal' : 'Venmo'} Email</Text>
-            <BlurView intensity={60} tint="dark" style={styles.input}>
+        <View style={styles.fieldsContainer}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>{activeMethod === 'paypal' ? 'PayPal' : 'Venmo'} Email</Text>
+            <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
               <TextInput
                 style={styles.textInput}
                 placeholder="your@email.com"
@@ -330,14 +342,6 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
               />
             </BlurView>
           </View>
-
-          <BlurView intensity={40} tint="dark" style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              {activeMethod === 'paypal'
-                ? 'Instant withdrawal to your PayPal account. A 1% processing fee applies.'
-                : 'Instant withdrawal to your Venmo account. A 1% processing fee applies.'}
-            </Text>
-          </BlurView>
 
           <BlurView intensity={30} tint="dark" style={styles.warningBox}>
             <AlertCircle size={18} color="#F59E0B" />
@@ -352,45 +356,43 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
     // Crypto
     if (activeMethod === 'crypto') {
       const CRYPTO_OPTIONS = [
-        { value: 'BTC', label: 'Bitcoin', network: 'Bitcoin Mainnet' },
-        { value: 'ETH', label: 'Ethereum', network: 'Ethereum (ERC-20)' },
-        { value: 'USDT', label: 'Tether', network: 'Ethereum (ERC-20)' },
-        { value: 'USDC', label: 'USD Coin', network: 'Ethereum (ERC-20)' },
+        { value: 'BTC', label: 'Bitcoin' },
+        { value: 'ETH', label: 'Ethereum' },
+        { value: 'USDT', label: 'Tether' },
+        { value: 'USDC', label: 'USD Coin' },
       ];
 
       return (
-        <View style={styles.methodContent}>
-          <View style={styles.section}>
-            <Text style={styles.label}>Select Cryptocurrency</Text>
-            <View style={styles.cryptoOptions}>
+        <View style={styles.fieldsContainer}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Select Cryptocurrency</Text>
+            <View style={styles.cryptoGrid}>
               {CRYPTO_OPTIONS.map((crypto) => (
                 <TouchableOpacity
                   key={crypto.value}
                   style={[
-                    styles.cryptoOption,
-                    cryptoCurrency === crypto.value && styles.cryptoOptionActive,
+                    styles.cryptoChip,
+                    cryptoCurrency === crypto.value && styles.cryptoChipActive,
                   ]}
                   onPress={() => setCryptoCurrency(crypto.value as any)}
                 >
-                  <BlurView intensity={cryptoCurrency === crypto.value ? 60 : 30} tint="dark" style={styles.cryptoOptionInner}>
-                    <Text
-                      style={[
-                        styles.cryptoLabel,
-                        cryptoCurrency === crypto.value && { color: '#F7931A' },
-                      ]}
-                    >
-                      {crypto.value}
-                    </Text>
-                    {cryptoCurrency === crypto.value && <Check size={16} color="#F7931A" />}
-                  </BlurView>
+                  <Text
+                    style={[
+                      styles.cryptoChipText,
+                      cryptoCurrency === crypto.value && styles.cryptoChipTextActive,
+                    ]}
+                  >
+                    {crypto.value}
+                  </Text>
+                  {cryptoCurrency === crypto.value && <Check size={14} color="#F7931A" />}
                 </TouchableOpacity>
               ))}
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.label}>Wallet Address</Text>
-            <BlurView intensity={60} tint="dark" style={styles.input}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Wallet Address</Text>
+            <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
               <TextInput
                 style={[styles.textInput, { fontFamily: 'monospace', fontSize: 13 }]}
                 placeholder="Enter your wallet address"
@@ -402,12 +404,6 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
               />
             </BlurView>
           </View>
-
-          <BlurView intensity={40} tint="dark" style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              Crypto withdrawals typically arrive within 15-60 minutes. Network fees apply and vary by blockchain congestion.
-            </Text>
-          </BlurView>
 
           <BlurView intensity={30} tint="dark" style={styles.warningBox}>
             <AlertCircle size={18} color="#EF4444" />
@@ -422,10 +418,10 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
     // Debit Card
     if (activeMethod === 'debit_card') {
       return (
-        <View style={styles.methodContent}>
-          <View style={styles.section}>
-            <Text style={styles.label}>Card Number (Last 4 Digits)</Text>
-            <BlurView intensity={60} tint="dark" style={styles.input}>
+        <View style={styles.fieldsContainer}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Card Number (Last 4 Digits)</Text>
+            <BlurView intensity={60} tint="dark" style={styles.fieldInput}>
               <CreditCard size={18} color={colors.textSecondary} />
               <TextInput
                 style={[styles.textInput, { marginLeft: 12 }]}
@@ -439,16 +435,10 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
             </BlurView>
           </View>
 
-          <BlurView intensity={40} tint="dark" style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              Instant withdrawal to your linked debit card. A 2.9% processing fee applies. Maximum withdrawal is $10,000 per transaction.
-            </Text>
-          </BlurView>
-
           <BlurView intensity={30} tint="dark" style={styles.warningBox}>
             <AlertCircle size={18} color="#F59E0B" />
             <Text style={styles.warningText}>
-              Ensure your card is active and has not expired to avoid processing delays.
+              Maximum withdrawal is $10,000 per transaction. A 2.9% processing fee applies.
             </Text>
           </BlurView>
         </View>
@@ -496,34 +486,12 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
                 </Text>
               </BlurView>
 
-              <View style={styles.methodTabs}>
-                {WITHDRAW_METHODS.map((method) => {
-                  const Icon = method.icon;
-                  const isActive = activeMethod === method.id;
-                  return (
-                    <TouchableOpacity
-                      key={method.id}
-                      style={[styles.methodTab, isActive && styles.methodTabActive]}
-                      onPress={() => setActiveMethod(method.id)}
-                    >
-                      <BlurView intensity={isActive ? 60 : 30} tint="dark" style={styles.methodTabInner}>
-                        <Icon size={20} color={isActive ? method.color : colors.textSecondary} />
-                        <Text style={[styles.methodTabLabel, isActive && { color: method.color }]}>
-                          {method.label}
-                        </Text>
-                        {isActive && <Check size={16} color={method.color} />}
-                      </BlurView>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
               <View style={styles.section}>
-                <Text style={styles.label}>Withdrawal Amount</Text>
-                <BlurView intensity={60} tint="dark" style={styles.input}>
+                <Text style={styles.sectionTitle}>Withdrawal Amount</Text>
+                <BlurView intensity={60} tint="dark" style={styles.amountInput}>
                   <Text style={styles.currencySymbol}>$</Text>
                   <TextInput
-                    style={styles.amountInput}
+                    style={styles.amountTextInput}
                     value={amount}
                     onChangeText={setAmount}
                     placeholder="0.00"
@@ -539,16 +507,89 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
                 </TouchableOpacity>
               </View>
 
-              {renderMethodContent()}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Select Withdrawal Method</Text>
+                {CATEGORIES.map((category) => {
+                  const Icon = category.icon;
+                  const isExpanded = expandedCategory === category.id;
+
+                  return (
+                    <View key={category.id} style={styles.categoryWrapper}>
+                      <TouchableOpacity
+                        style={[styles.categoryCard, isExpanded && styles.categoryCardActive]}
+                        onPress={() => handleCategoryPress(category.id)}
+                      >
+                        <BlurView intensity={isExpanded ? 60 : 40} tint="dark" style={styles.categoryCardInner}>
+                          <View style={styles.categoryHeader}>
+                            <View style={[styles.categoryIcon, { backgroundColor: `${category.color}15` }]}>
+                              <Icon size={24} color={category.color} />
+                            </View>
+                            <View style={styles.categoryInfo}>
+                              <Text style={styles.categoryLabel}>{category.label}</Text>
+                              <Text style={styles.categorySubtitle}>{category.subtitle}</Text>
+                            </View>
+                            {isExpanded ? (
+                              <ChevronUp size={20} color={colors.textSecondary} />
+                            ) : (
+                              <ChevronDown size={20} color={colors.textSecondary} />
+                            )}
+                          </View>
+                        </BlurView>
+                      </TouchableOpacity>
+
+                      {isExpanded && (
+                        <View style={styles.methodsList}>
+                          {category.methods.map((method) => {
+                            const MethodIcon = method.icon;
+                            const isActive = activeMethod === method.id;
+
+                            return (
+                              <TouchableOpacity
+                                key={method.id}
+                                style={[styles.methodChip, isActive && styles.methodChipActive]}
+                                onPress={() => handleMethodSelect(method.id)}
+                              >
+                                <MethodIcon size={16} color={isActive ? method.color : colors.textSecondary} />
+                                <View style={styles.methodChipInfo}>
+                                  <Text style={[styles.methodChipLabel, isActive && { color: method.color }]}>
+                                    {method.label}
+                                  </Text>
+                                  <Text style={styles.methodChipMeta}>
+                                    {method.speed} • {method.fee}
+                                  </Text>
+                                </View>
+                                {isActive && <Check size={16} color={method.color} />}
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+
+              {activeMethod && (
+                <>
+                  {renderMethodFields()}
+
+                  <BlurView intensity={40} tint="dark" style={styles.reviewInfoBox}>
+                    <AlertCircle size={18} color="#3B82F6" />
+                    <Text style={styles.reviewInfoText}>
+                      Your withdrawal will be submitted for admin review. You'll be notified once it's processed, usually within 24 hours.
+                    </Text>
+                  </BlurView>
+                </>
+              )}
 
               <TouchableOpacity
-                style={styles.submitButton}
+                style={[styles.submitButton, !activeMethod && styles.submitButtonDisabled]}
                 onPress={handleWithdraw}
                 activeOpacity={0.8}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !activeMethod}
               >
                 <LinearGradient
-                  colors={['#F59E0B', '#D97706']}
+                  colors={!activeMethod ? ['#4B5563', '#374151'] : ['#F59E0B', '#D97706']}
                   style={styles.submitButtonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -558,7 +599,7 @@ export default function UnifiedWithdrawModal({ visible, onClose, onSuccess }: Un
                   ) : (
                     <>
                       <Upload size={18} color="#FFFFFF" />
-                      <Text style={styles.submitButtonText}>Complete Withdrawal</Text>
+                      <Text style={styles.submitButtonText}>Submit for Review</Text>
                     </>
                   )}
                 </LinearGradient>
@@ -648,43 +689,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
   },
-  methodTabs: {
-    gap: 12,
-    marginBottom: 24,
-  },
-  methodTab: {
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-  },
-  methodTabActive: {
-    borderWidth: 1,
-    borderColor: GLASS.border,
-  },
-  methodTabInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: GLASS.border,
-  },
-  methodTabLabel: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
   section: {
     marginBottom: 24,
   },
-  label: {
-    fontSize: 14,
+  sectionTitle: {
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: 12,
+    color: colors.text,
+    marginBottom: 16,
   },
-  input: {
+  amountInput: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -700,16 +714,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginRight: 8,
   },
-  amountInput: {
+  amountTextInput: {
     flex: 1,
     fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
     color: colors.text,
   },
   maxButton: {
@@ -727,98 +735,141 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#F59E0B',
   },
-  methodContent: {
-    gap: 16,
+  categoryWrapper: {
+    marginBottom: 12,
   },
-  bankCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  categoryCard: {
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  categoryCardActive: {
+    borderWidth: 1,
+    borderColor: GLASS.border,
+  },
+  categoryCardInner: {
     padding: 16,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: GLASS.border,
-    overflow: 'hidden',
   },
-  bankInfo: {
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  categoryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryInfo: {
     flex: 1,
   },
-  bankName: {
-    fontSize: 15,
+  categoryLabel: {
+    fontSize: 16,
     fontWeight: '600',
     color: colors.text,
     marginBottom: 2,
   },
-  bankSubtext: {
-    fontSize: 12,
+  categorySubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  methodsList: {
+    marginTop: 12,
+    gap: 8,
+    paddingLeft: 8,
+  },
+  methodChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(26, 26, 28, 0.6)',
+    borderWidth: 1,
+    borderColor: GLASS.border,
+  },
+  methodChipActive: {
+    backgroundColor: 'rgba(26, 26, 28, 0.8)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  methodChipInfo: {
+    flex: 1,
+  },
+  methodChipLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  methodChipMeta: {
+    fontSize: 11,
     color: colors.textMuted,
   },
-  changeButton: {
-    marginTop: 12,
-    alignSelf: 'flex-start',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(59,130,246,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(59,130,246,0.3)',
+  fieldsContainer: {
+    marginTop: 24,
+    gap: 16,
   },
-  changeButtonText: {
+  fieldGroup: {
+    gap: 8,
+  },
+  fieldLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#3B82F6',
+    color: colors.textSecondary,
   },
-  row: {
+  fieldInput: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: GLASS.border,
+    overflow: 'hidden',
   },
-  cryptoOptions: {
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  cryptoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
-  cryptoOption: {
-    flex: 1,
-    minWidth: '45%',
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-  },
-  cryptoOptionActive: {
-    borderWidth: 1,
-    borderColor: 'rgba(247, 147, 26, 0.3)',
-  },
-  cryptoOptionInner: {
+  cryptoChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 6,
-    padding: 12,
-    borderRadius: radius.lg,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(26, 26, 28, 0.6)',
     borderWidth: 1,
     borderColor: GLASS.border,
   },
-  cryptoLabel: {
+  cryptoChipActive: {
+    backgroundColor: 'rgba(247, 147, 26, 0.12)',
+    borderColor: 'rgba(247, 147, 26, 0.3)',
+  },
+  cryptoChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: colors.text,
-  },
-  infoBox: {
-    padding: 16,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: GLASS.border,
-    overflow: 'hidden',
-  },
-  infoText: {
-    fontSize: 13,
     color: colors.textSecondary,
-    lineHeight: 18,
+  },
+  cryptoChipTextActive: {
+    color: '#F7931A',
   },
   warningBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-    padding: 16,
+    padding: 14,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: 'rgba(245,158,11,0.3)',
@@ -831,11 +882,32 @@ const styles = StyleSheet.create({
     color: '#F59E0B',
     lineHeight: 18,
   },
+  reviewInfoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    padding: 14,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(59,130,246,0.3)',
+    backgroundColor: 'rgba(59,130,246,0.08)',
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  reviewInfoText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#3B82F6',
+    lineHeight: 18,
+  },
   submitButton: {
     borderRadius: radius.lg,
     overflow: 'hidden',
     ...shadows.glass,
     marginTop: 8,
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
   },
   submitButtonGradient: {
     flexDirection: 'row',
