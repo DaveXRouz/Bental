@@ -31,23 +31,41 @@ export function Sparkline({
     return null;
   }
 
-  const minValue = Math.min(...validData);
-  const maxValue = Math.max(...validData);
+  // Smooth data to reduce extreme spikes using moving average
+  const smoothData = validData.length > 3 ? validData.map((val, idx) => {
+    if (idx === 0 || idx === validData.length - 1) return val;
+
+    // 3-point moving average
+    const prev = validData[idx - 1];
+    const next = validData[idx + 1];
+    return (prev + val + next) / 3;
+  }) : validData;
+
+  const minValue = Math.min(...smoothData);
+  const maxValue = Math.max(...smoothData);
   const range = maxValue - minValue || 1;
 
-  const points = validData.map((value, index) => {
-    const x = (index / (validData.length - 1 || 1)) * width;
+  const points = smoothData.map((value, index) => {
+    const x = (index / (smoothData.length - 1 || 1)) * width;
     const y = height - ((value - minValue) / range) * height;
     return { x: isFinite(x) ? x : 0, y: isFinite(y) ? y : height };
   });
 
+  // Use smooth cubic bezier curves for better line rendering
   const pathData = points.reduce((acc, point, index) => {
     if (index === 0) {
       return `M ${point.x},${point.y}`;
     }
+
     const prevPoint = points[index - 1];
-    const cpX = (prevPoint.x + point.x) / 2;
-    return `${acc} Q ${cpX},${prevPoint.y} ${cpX},${point.y} Q ${cpX},${point.y} ${point.x},${point.y}`;
+
+    // Calculate control points for smooth cubic bezier curve
+    const cp1x = prevPoint.x + (point.x - prevPoint.x) / 3;
+    const cp1y = prevPoint.y;
+    const cp2x = prevPoint.x + (2 * (point.x - prevPoint.x)) / 3;
+    const cp2y = point.y;
+
+    return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${point.x},${point.y}`;
   }, '');
 
   const areaPathData = `${pathData} L ${width},${height} L 0,${height} Z`;
@@ -62,8 +80,10 @@ export function Sparkline({
         <Path
           d={pathData}
           stroke={chartColor}
-          strokeWidth={2}
+          strokeWidth={2.5}
           fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </Svg>
     </View>
