@@ -22,9 +22,10 @@ interface PositionDetailModalProps {
   visible: boolean;
   holding: Holding | null;
   onClose: () => void;
+  onSell?: (holding: Holding) => void;
 }
 
-export default function PositionDetailModal({ visible, holding, onClose }: PositionDetailModalProps) {
+export default function PositionDetailModal({ visible, holding, onClose, onSell }: PositionDetailModalProps) {
   if (!holding) return null;
 
   const totalCost = holding.quantity * holding.average_cost;
@@ -174,7 +175,11 @@ export default function PositionDetailModal({ visible, holding, onClose }: Posit
                   </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.actionButtonSecondary} activeOpacity={0.8}>
+                <TouchableOpacity
+                  style={styles.actionButtonSecondary}
+                  activeOpacity={0.8}
+                  onPress={() => onSell && onSell(holding)}
+                >
                   <BlurView intensity={40} tint="dark" style={styles.actionButtonSecondaryInner}>
                     <TrendingUp size={18} color="#FFFFFF" />
                     <Text style={styles.actionButtonSecondaryText}>Sell</Text>

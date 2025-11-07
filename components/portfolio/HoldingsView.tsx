@@ -1,19 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, TrendingDown, ShoppingCart, DollarSign } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, ShoppingCart, DollarSign, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { colors, Typography } from '@/constants/theme';
 import { formatCurrency, formatNumber, safeNumber, safePercentage } from '@/utils/formatting';
 import { sortHoldings, getSortPreference, setSortPreference, SortOption } from '@/utils/sorting';
 import PositionDetailModal from '@/components/modals/PositionDetailModal';
+import TradingModal from '@/components/modals/TradingModal';
 import SortDropdown from './SortDropdown';
 import { CurrencyDisplay, PercentageDisplay, NumberText } from '@/components/ui';
+import { useAccountContext } from '@/contexts/AccountContext';
+import { usePendingSellOrders } from '@/hooks/usePortfolioOperations';
+import { formatDistance } from 'date-fns';
 
 export default function HoldingsView() {
   const { user } = useAuth();
+  const { selectedAccounts } = useAccountContext();
+  const { pendingOrders, loading: ordersLoading, refresh: refreshPendingOrders } = usePendingSellOrders(user?.id);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [holdings, setHoldings] = useState<any[]>([]);
@@ -23,6 +30,14 @@ export default function HoldingsView() {
   const [selectedHolding, setSelectedHolding] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('value');
+
+  // Trading modal state
+  const [tradingModalVisible, setTradingModalVisible] = useState(false);
+  const [tradingMode, setTradingMode] = useState<'buy' | 'sell'>('buy');
+  const [tradingSymbol, setTradingSymbol] = useState('');
+  const [tradingAssetType, setTradingAssetType] = useState<'stock' | 'crypto' | 'etf' | 'bond'>('stock');
+  const [tradingPrice, setTradingPrice] = useState(0);
+  const [tradingAvailableQty, setTradingAvailableQty] = useState(0);
 
   const fetchHoldings = useCallback(async () => {
     if (!user?.id) {
@@ -81,7 +96,8 @@ export default function HoldingsView() {
 
   useEffect(() => {
     fetchHoldings();
-  }, [fetchHoldings]);
+    refreshPendingOrders();
+  }, [fetchHoldings, refreshPendingOrders]);
 
   const handleSortChange = async (newSort: SortOption) => {
     setSortBy(newSort);
@@ -93,13 +109,59 @@ export default function HoldingsView() {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchHoldings();
-  }, [fetchHoldings]);
+    refreshPendingOrders();
+  }, [fetchHoldings, refreshPendingOrders]);
 
   const isPositive = totalGainLoss >= 0;
 
   const handleHoldingPress = (holding: any) => {
     setSelectedHolding(holding);
     setModalVisible(true);
+  };
+
+  const handleBuyAssets = () => {
+    // For now, we'll open with BTC as a default. In the future, this could open an asset search modal
+    setTradingMode('buy');
+    setTradingSymbol('BTC');
+    setTradingAssetType('crypto');
+    setTradingPrice(67234.56); // Would come from real-time price feed
+    setTradingAvailableQty(0);
+    setTradingModalVisible(true);
+  };
+
+  const handleSellAssets = (holding?: any) => {
+    if (holding) {
+      // Selling a specific holding
+      const quantity = safeNumber(holding.quantity);
+      const marketVal = safeNumber(holding.market_value);
+      const currentPrice = quantity > 0 ? marketVal / quantity : 0;
+
+      setTradingMode('sell');
+      setTradingSymbol(holding.symbol);
+      setTradingAssetType(holding.asset_type || 'stock');
+      setTradingPrice(currentPrice);
+      setTradingAvailableQty(quantity);
+      setTradingModalVisible(true);
+    } else if (holdings.length > 0) {
+      // No specific holding selected, use the first one as default
+      const firstHolding = holdings[0];
+      const quantity = safeNumber(firstHolding.quantity);
+      const marketVal = safeNumber(firstHolding.market_value);
+      const currentPrice = quantity > 0 ? marketVal / quantity : 0;
+
+      setTradingMode('sell');
+      setTradingSymbol(firstHolding.symbol);
+      setTradingAssetType(firstHolding.asset_type || 'stock');
+      setTradingPrice(currentPrice);
+      setTradingAvailableQty(quantity);
+      setTradingModalVisible(true);
+    }
+  };
+
+  const handleCloseTradingModal = () => {
+    setTradingModalVisible(false);
+    // Refresh holdings after a trade
+    fetchHoldings();
   };
 
   return (
@@ -111,6 +173,19 @@ export default function HoldingsView() {
           setModalVisible(false);
           setSelectedHolding(null);
         }}
+        onSell={(holding) => {
+          setModalVisible(false);
+          handleSellAssets(holding);
+        }}
+      />
+      <TradingModal
+        visible={tradingModalVisible}
+        onClose={handleCloseTradingModal}
+        symbol={tradingSymbol}
+        assetType={tradingAssetType}
+        currentPrice={tradingPrice}
+        mode={tradingMode}
+        availableQuantity={tradingAvailableQty}
       />
       <ScrollView
       style={styles.scrollView}
@@ -164,15 +239,107 @@ export default function HoldingsView() {
       </BlurView>
 
       <View style={styles.tradeButtons}>
-        <TouchableOpacity style={[styles.tradeButton, styles.buyButton]} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={[styles.tradeButton, styles.buyButton]}
+          activeOpacity={0.7}
+          onPress={handleBuyAssets}
+        >
           <ShoppingCart size={20} color="#FFFFFF" />
           <Text style={styles.tradeButtonText}>Buy Assets</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tradeButton, styles.sellButton]} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={[styles.tradeButton, styles.sellButton]}
+          activeOpacity={0.7}
+          onPress={() => handleSellAssets()}
+          disabled={holdings.length === 0}
+        >
           <DollarSign size={20} color="#FFFFFF" />
           <Text style={styles.tradeButtonText}>Sell Assets</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Pending Sell Orders Section */}
+      {pendingOrders.length > 0 && (
+        <View style={styles.pendingOrdersSection}>
+          <View style={styles.sectionHeader}>
+            <Clock size={18} color={colors.warning} />
+            <Text style={styles.sectionTitle}>Pending Sell Orders ({pendingOrders.length})</Text>
+          </View>
+
+          {pendingOrders.map((order) => {
+            const getStatusIcon = () => {
+              switch (order.status) {
+                case 'approved':
+                  return <CheckCircle2 size={16} color={colors.success} />;
+                case 'rejected':
+                  return <XCircle size={16} color={colors.danger} />;
+                case 'cancelled':
+                  return <XCircle size={16} color={colors.textMuted} />;
+                default:
+                  return <Clock size={16} color={colors.warning} />;
+              }
+            };
+
+            const getStatusColor = () => {
+              switch (order.status) {
+                case 'approved':
+                  return colors.success;
+                case 'rejected':
+                  return colors.danger;
+                case 'cancelled':
+                  return colors.textMuted;
+                default:
+                  return colors.warning;
+              }
+            };
+
+            return (
+              <BlurView key={order.id} intensity={12} tint="dark" style={styles.pendingOrderCard}>
+                <View style={styles.pendingOrderHeader}>
+                  <View style={styles.pendingOrderLeft}>
+                    <TrendingDown size={18} color={colors.danger} />
+                    <View>
+                      <Text style={styles.pendingOrderSymbol}>{order.symbol}</Text>
+                      <Text style={styles.pendingOrderQuantity}>{order.quantity} shares</Text>
+                    </View>
+                  </View>
+                  <View style={styles.pendingOrderRight}>
+                    <View style={styles.statusBadge}>
+                      {getStatusIcon()}
+                      <Text style={[styles.statusText, { color: getStatusColor() }]}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.pendingOrderDetails}>
+                  <View style={styles.pendingDetailRow}>
+                    <Text style={styles.pendingDetailLabel}>Estimated Value</Text>
+                    <CurrencyDisplay
+                      value={order.estimated_total}
+                      size="small"
+                      style={styles.pendingDetailValue}
+                    />
+                  </View>
+                  <View style={styles.pendingDetailRow}>
+                    <Text style={styles.pendingDetailLabel}>Submitted</Text>
+                    <Text style={styles.pendingDetailValue}>
+                      {formatDistance(new Date(order.submitted_at), new Date(), { addSuffix: true })}
+                    </Text>
+                  </View>
+                  {order.rejection_reason && (
+                    <View style={styles.rejectionNotice}>
+                      <AlertCircle size={14} color={colors.danger} />
+                      <Text style={styles.rejectionText}>{order.rejection_reason}</Text>
+                    </View>
+                  )}
+                </View>
+              </BlurView>
+            );
+          })}
+        </View>
+      )}
 
       {holdings.length > 0 && (
         <View style={styles.sortContainer}>
@@ -445,5 +612,98 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.white,
+  },
+  pendingOrdersSection: {
+    paddingHorizontal: 24,
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  pendingOrderCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
+  },
+  pendingOrderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  pendingOrderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pendingOrderSymbol: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  pendingOrderQuantity: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  pendingOrderRight: {
+    alignItems: 'flex-end',
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  pendingOrderDetails: {
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  pendingDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  pendingDetailLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  pendingDetailValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  rejectionNotice: {
+    flexDirection: 'row',
+    gap: 6,
+    padding: 10,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  rejectionText: {
+    flex: 1,
+    fontSize: 12,
+    color: colors.danger,
+    lineHeight: 16,
   },
 });
