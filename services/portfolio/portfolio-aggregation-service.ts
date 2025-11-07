@@ -44,17 +44,19 @@ export class PortfolioAggregationService {
     // Get all accounts
     const { data: accounts } = await supabase
       .from('accounts')
-      .select('account_type, balance, status')
+      .select('id, account_type, balance, status')
       .eq('user_id', userId)
       .eq('status', 'active');
 
-    // Get all holdings with asset types
+    const accountsList = accounts || [];
+    const accountIds = accountsList.map(a => a.id);
+
+    // Get all holdings with asset types (filter by account_id for RLS compatibility)
     const { data: holdings } = await supabase
       .from('holdings')
       .select('asset_type, market_value, unrealized_pnl, day_change, symbol')
-      .eq('user_id', userId);
+      .in('account_id', accountIds.length > 0 ? accountIds : ['00000000-0000-0000-0000-000000000000']);
 
-    const accountsList = accounts || [];
     const holdingsList = holdings || [];
 
     // Categorize accounts by type
