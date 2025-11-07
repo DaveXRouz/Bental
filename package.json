@@ -7,7 +7,17 @@
     "dev": "EXPO_NO_TELEMETRY=1 expo start",
     "build:web": "expo export --platform web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf node_modules .expo .cache .turbo dist build 2>/dev/null || true",
+    "clean:all": "npm run clean && rm -rf package-lock.json",
+    "seed": "npx ts-node scripts/seed-database.ts",
+    "seed:existing": "npx ts-node scripts/seed-existing-users.ts",
+    "db:migrate": "echo 'No migrations to run - using Supabase'",
+    "codegen": "echo 'No code generation needed'",
+    "test": "echo 'No tests configured yet'",
+    "preflight": "node scripts/preflight-check.js",
+    "reset": "bash scripts/reset-project.sh",
+    "setup": "npm ci && npm run preflight && npm run dev"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
