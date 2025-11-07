@@ -28,6 +28,7 @@ import { useBot } from '@/hooks/useBot';
 import { portfolioAggregationService } from '@/services/portfolio/portfolio-aggregation-service';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
 import { DataStreamBackground } from '@/components/backgrounds';
+import { testSupabaseConnection } from '@/utils/connection-test';
 
 const S = 8;
 
@@ -108,6 +109,25 @@ export default function HomeScreen() {
     }
 
     try {
+      // Run connection test first
+      console.log('[Dashboard] Testing Supabase connection...');
+      const connectionTest = await testSupabaseConnection();
+
+      if (!connectionTest.success) {
+        console.error('[Dashboard] Connection test failed:', connectionTest);
+        console.error('[Dashboard] Error:', connectionTest.error);
+        if (connectionTest.details) {
+          console.error('[Dashboard] Details:', connectionTest.details);
+        }
+
+        // Still continue to show what we can with local data
+        if (!connectionTest.authenticated) {
+          console.warn('[Dashboard] User not authenticated - may need to re-login');
+        }
+      } else {
+        console.log('[Dashboard] Connection test passed');
+      }
+
       console.log('[Dashboard] Fetching data for user:', user.id);
       console.log('[Dashboard] Portfolio metrics:', {
         totalValue: portfolioMetrics.totalValue,
@@ -132,6 +152,13 @@ export default function HomeScreen() {
 
       if (accountsError) {
         console.error('[Dashboard] Error fetching accounts:', accountsError);
+        console.error('[Dashboard] Account error details:', {
+          message: accountsError.message,
+          details: accountsError.details,
+          hint: accountsError.hint,
+          code: accountsError.code
+        });
+        // Continue even if accounts fetch fails to show what we can
       }
 
       if (accounts && accounts.length > 0) {
@@ -146,6 +173,12 @@ export default function HomeScreen() {
 
         if (holdingsError) {
           console.error('[Dashboard] Error fetching holdings:', holdingsError);
+          console.error('[Dashboard] Holdings error details:', {
+            message: holdingsError.message,
+            details: holdingsError.details,
+            hint: holdingsError.hint,
+            code: holdingsError.code
+          });
         }
 
         if (holdings && holdings.length > 0) {
@@ -174,8 +207,17 @@ export default function HomeScreen() {
       refetchMetrics();
       setLastUpdated(new Date());
       console.log('[Dashboard] Data fetch complete');
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Dashboard] Error:', error);
+      console.error('[Dashboard] Error details:', {
+        message: error?.message,
+        name: error?.name,
+        stack: error?.stack
+      });
+      // Check if it's a network error
+      if (error?.message?.includes('Failed to fetch') || error?.name === 'TypeError') {
+        console.error('[Dashboard] Network error detected - possible CORS or connectivity issue');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
