@@ -79,12 +79,23 @@ export default function HomeScreen() {
   const fetchDashboardData = useCallback(async () => {
     console.clear();
     if (!user?.id) {
+      console.warn('[Dashboard] No user ID available');
       setLoading(false);
       setRefreshing(false);
       return;
     }
 
     try {
+      console.log('[Dashboard] Fetching data for user:', user.id);
+      console.log('[Dashboard] Portfolio metrics:', {
+        totalValue: portfolioMetrics.totalValue,
+        cashBalance: portfolioMetrics.cashBalance,
+        investmentBalance: portfolioMetrics.investmentBalance,
+        todayChange: portfolioMetrics.todayChange,
+        todayChangePercent: portfolioMetrics.todayChangePercent,
+        totalReturnPercent: portfolioMetrics.totalReturnPercent,
+      });
+
       setNetWorth(portfolioMetrics.totalValue);
       setCashBalance(portfolioMetrics.cashBalance);
       setInvestmentBalance(portfolioMetrics.investmentBalance);
@@ -92,21 +103,31 @@ export default function HomeScreen() {
       setTodayChangePercent(portfolioMetrics.todayChangePercent);
       setPortfolioReturn(portfolioMetrics.totalReturnPercent);
 
-      const { data: accounts } = await supabase
+      const { data: accounts, error: accountsError } = await supabase
         .from('accounts')
         .select('*')
         .eq('user_id', user.id);
 
+      if (accountsError) {
+        console.error('[Dashboard] Error fetching accounts:', accountsError);
+      }
+
       if (accounts && accounts.length > 0) {
+        console.log(`[Dashboard] Found ${accounts.length} accounts`);
         setTotalAccounts(accounts.length);
         const accountIds = accounts.map(a => a.id);
 
-        const { data: holdings } = await supabase
+        const { data: holdings, error: holdingsError } = await supabase
           .from('holdings')
           .select('*')
           .in('account_id', accountIds);
 
+        if (holdingsError) {
+          console.error('[Dashboard] Error fetching holdings:', holdingsError);
+        }
+
         if (holdings && holdings.length > 0) {
+          console.log(`[Dashboard] Found ${holdings.length} holdings`);
           setActiveInvestments(holdings.length);
 
           const holdingsWithChange = holdings.map(h => {
@@ -125,9 +146,11 @@ export default function HomeScreen() {
 
       // Get real asset allocation data
       const allocations = await portfolioAggregationService.getAssetAllocation(user.id);
+      console.log('[Dashboard] Asset allocations:', allocations.length);
       setAssetAllocations(allocations);
 
       refetchMetrics();
+      console.log('[Dashboard] Data fetch complete');
     } catch (error) {
       console.error('[Dashboard] Error:', error);
     } finally {

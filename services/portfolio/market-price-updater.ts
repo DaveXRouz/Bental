@@ -84,6 +84,11 @@ class MarketPriceUpdater {
       // Update database
       const updated = await this.updateDatabaseQuotes(quotes);
 
+      // Sync holdings prices from quotes
+      if (updated > 0) {
+        await this.syncHoldingsPrices();
+      }
+
       return updated;
     } catch (error) {
       console.error('Error updating market prices:', error);
@@ -203,6 +208,28 @@ class MarketPriceUpdater {
       return data || 0;
     } catch (error) {
       console.error('Error calling batch_update_market_quotes:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Sync holdings prices from market_quotes table
+   */
+  private async syncHoldingsPrices(): Promise<number> {
+    try {
+      const { data, error } = await supabase.rpc('sync_holdings_prices_from_quotes');
+
+      if (error) {
+        console.error('Error syncing holdings prices:', error);
+        return 0;
+      }
+
+      if (data > 0) {
+        console.log(`Synced prices for ${data} holdings`);
+      }
+      return data || 0;
+    } catch (error) {
+      console.error('Error calling sync_holdings_prices_from_quotes:', error);
       return 0;
     }
   }

@@ -13,6 +13,11 @@ export interface PortfolioMetrics {
 
 export class PortfolioCalculator {
   async calculatePortfolioMetrics(userId: string): Promise<PortfolioMetrics> {
+    if (!userId) {
+      console.warn('[PortfolioCalculator] No userId provided');
+      return this.getEmptyMetrics();
+    }
+
     const [accountsResult, holdingsResult] = await Promise.all([
       supabase
         .from('accounts')
@@ -25,17 +30,27 @@ export class PortfolioCalculator {
         .eq('user_id', userId)
     ]);
 
+    if (accountsResult.error) {
+      console.error('[PortfolioCalculator] Error fetching accounts:', accountsResult.error);
+    }
+    if (holdingsResult.error) {
+      console.error('[PortfolioCalculator] Error fetching holdings:', holdingsResult.error);
+    }
+
     const accounts = accountsResult.data || [];
     const holdings = holdingsResult.data || [];
 
-    // Only count true cash accounts as "cash"
-    const cashAccountTypes = ['primary_cash', 'savings_cash', 'trading_cash'];
+    console.log(`[PortfolioCalculator] User ${userId}: ${accounts.length} accounts, ${holdings.length} holdings`);
+
+    // Categorize accounts into cash vs investment types
+    const cashAccountTypes = ['primary_cash', 'savings_cash', 'trading_cash', 'demo_cash', 'live_cash'];
+    const investmentAccountTypes = ['equity_trading', 'dividend_income', 'margin_trading', 'crypto_portfolio', 'retirement_fund'];
+
     const cashBalance = accounts
       .filter(a => cashAccountTypes.includes(a.account_type))
       .reduce((sum, acc) => sum + Number(acc.balance), 0);
 
     // Investment balance = holdings + uninvested cash in investment accounts
-    const investmentAccountTypes = ['equity_trading', 'dividend_income', 'margin_trading', 'crypto_portfolio', 'retirement_fund'];
     const investmentCash = accounts
       .filter(a => investmentAccountTypes.includes(a.account_type))
       .reduce((sum, acc) => sum + Number(acc.balance), 0);
@@ -66,7 +81,7 @@ export class PortfolioCalculator {
       dayChangeByHolding.set(h.symbol, Number(h.day_change || 0));
     });
 
-    return {
+    const metrics = {
       totalValue,
       cashBalance,
       investmentBalance,
@@ -75,6 +90,31 @@ export class PortfolioCalculator {
       totalReturn,
       totalReturnPercent,
       dayChangeByHolding
+    };
+
+    console.log('[PortfolioCalculator] Calculated metrics:', {
+      totalValue: metrics.totalValue.toFixed(2),
+      cashBalance: metrics.cashBalance.toFixed(2),
+      investmentBalance: metrics.investmentBalance.toFixed(2),
+      todayChange: metrics.todayChange.toFixed(2),
+      todayChangePercent: metrics.todayChangePercent.toFixed(2),
+      totalReturn: metrics.totalReturn.toFixed(2),
+      totalReturnPercent: metrics.totalReturnPercent.toFixed(2),
+    });
+
+    return metrics;
+  }
+
+  private getEmptyMetrics(): PortfolioMetrics {
+    return {
+      totalValue: 0,
+      cashBalance: 0,
+      investmentBalance: 0,
+      todayChange: 0,
+      todayChangePercent: 0,
+      totalReturn: 0,
+      totalReturnPercent: 0,
+      dayChangeByHolding: new Map()
     };
   }
 
