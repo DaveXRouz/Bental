@@ -72,6 +72,85 @@ export default function RootLayout() {
 
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
+
+      // Inject custom fonts for web platform
+      if (Platform.OS === 'web' && typeof document !== 'undefined') {
+        // Check if font styles already injected
+        if (!document.getElementById('custom-font-injection')) {
+          const fontStyle = document.createElement('style');
+          fontStyle.id = 'custom-font-injection';
+          fontStyle.textContent = `
+            /* Apply Inter font family globally for React Native Web */
+            body,
+            html,
+            #root,
+            input,
+            textarea,
+            select,
+            button {
+              font-family: 'Inter-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+            }
+
+            /* Override React Native Web default text rendering */
+            [dir] {
+              font-family: 'Inter-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+            }
+
+            /* Font smoothing for better rendering */
+            body,
+            html {
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              text-rendering: optimizeLegibility;
+            }
+
+            /* Ensure @font-face rules for all Inter variants */
+            @font-face {
+              font-family: 'Inter-Regular';
+              font-style: normal;
+              font-weight: 400;
+              font-display: swap;
+            }
+
+            @font-face {
+              font-family: 'Inter-Medium';
+              font-style: normal;
+              font-weight: 500;
+              font-display: swap;
+            }
+
+            @font-face {
+              font-family: 'Inter-SemiBold';
+              font-style: normal;
+              font-weight: 600;
+              font-display: swap;
+            }
+
+            @font-face {
+              font-family: 'Inter-Bold';
+              font-style: normal;
+              font-weight: 700;
+              font-display: swap;
+            }
+
+            @font-face {
+              font-family: 'Playfair-Regular';
+              font-style: normal;
+              font-weight: 400;
+              font-display: swap;
+            }
+
+            @font-face {
+              font-family: 'Playfair-Bold';
+              font-style: normal;
+              font-weight: 700;
+              font-display: swap;
+            }
+          `;
+          document.head.appendChild(fontStyle);
+          console.log('[App] Custom fonts injected for web platform');
+        }
+      }
     }
   }, [fontsLoaded, fontError]);
 
