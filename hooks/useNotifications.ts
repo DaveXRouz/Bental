@@ -36,9 +36,28 @@ export function useNotifications(userId: string | undefined) {
       setNotifications(data || []);
       setUnreadCount((data || []).filter(n => !n.is_read).length);
       setError(null);
-    } catch (err) {
-      console.error('[useNotifications] Error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load notifications');
+    } catch (err: any) {
+      console.error('[useNotifications] Error fetching notifications:', err);
+
+      // Provide detailed error messages based on error type
+      let errorMessage = 'Failed to load notifications';
+
+      if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      // Check for specific Supabase errors
+      if (err?.code === 'PGRST116') {
+        errorMessage = 'Unable to access notifications. Please try again.';
+      } else if (err?.code === '42501') {
+        errorMessage = 'Permission denied. Please contact support.';
+      } else if (err?.message?.includes('JWT')) {
+        errorMessage = 'Session expired. Please log in again.';
+      } else if (err?.message?.includes('network') || err?.message?.includes('fetch')) {
+        errorMessage = 'Network error. Check your connection and try again.';
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

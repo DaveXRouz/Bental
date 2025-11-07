@@ -63,9 +63,25 @@ export default function NotificationCenterModal({ visible, onClose }: Notificati
       if (fetchError) throw fetchError;
 
       setNotifications(data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching notifications:', err);
-      setError('Failed to load notifications');
+
+      // Provide specific error messages
+      let errorMessage = 'Failed to load notifications';
+
+      if (err?.message) {
+        if (err.message.includes('JWT')) {
+          errorMessage = 'Your session has expired. Please log in again.';
+        } else if (err.message.includes('network') || err.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (err.code === '42501') {
+          errorMessage = 'Permission denied accessing notifications.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
