@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, useWindowDimensions, SafeAreaView, Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { TickerRibbon } from '@/components/ticker/TickerRibbon';
@@ -12,6 +13,7 @@ import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { NotificationBadge } from '@/components/dashboard/NotificationBadge';
 import { BottomInsetSpacer, TAB_BAR_HEIGHT_CONSTANT } from '@/components/ui/BottomInsetSpacer';
 import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
+import { ConnectionStatusBanner } from '@/components/ui/ConnectionStatusBanner';
 import TransferModal from '@/components/modals/TransferModal';
 import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
 import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
@@ -182,6 +184,9 @@ export default function HomeScreen() {
   }, [fetchDashboardData]);
 
   const onRefresh = useCallback(() => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     setRefreshing(true);
     fetchDashboardData();
   }, [fetchDashboardData]);
@@ -337,6 +342,8 @@ export default function HomeScreen() {
 
         <TickerRibbon />
 
+        <ConnectionStatusBanner />
+
         <View style={[styles.header, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]} accessible={true} accessibilityLabel="Page header">
           <View style={styles.headerLeft}>
             <View>
@@ -358,7 +365,13 @@ export default function HomeScreen() {
           style={styles.scrollView}
           contentContainerStyle={[styles.scrollContent, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#3B82F6"
+              colors={['#3B82F6']}
+              progressBackgroundColor="rgba(26, 26, 28, 0.8)"
+            />
           }
           showsVerticalScrollIndicator={false}
           accessible={true}
