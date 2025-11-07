@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -6,6 +6,9 @@ import { Wallet, TrendingUp, Bitcoin, DollarSign, PiggyBank, Zap } from 'lucide-
 import { CurrencyDisplay } from '@/components/ui/CurrencyDisplay';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAccountContext } from '@/contexts/AccountContext';
 
 interface Account {
   id: string;
@@ -15,6 +18,14 @@ interface Account {
   displayName?: string;
 }
 
+interface AssetAllocation {
+  label: string;
+  value: number;
+  percent: number;
+  color: string;
+  icon: any;
+}
+
 interface AccountSplitProps {
   accounts: Account[];
   totalValue: number;
@@ -22,73 +33,178 @@ interface AccountSplitProps {
 
 const S = 8;
 
-// Color and icon mapping by account type
-const ACCOUNT_STYLES: Record<string, { color: string; icon: any }> = {
-  primary_cash: { color: '#10B981', icon: Wallet },
-  savings_cash: { color: '#059669', icon: PiggyBank },
-  trading_cash: { color: '#10B981', icon: Wallet },
-  equity_trading: { color: '#3B82F6', icon: TrendingUp },
-  crypto_portfolio: { color: '#F59E0B', icon: Bitcoin },
-  dividend_income: { color: '#8B5CF6', icon: DollarSign },
-  retirement_fund: { color: '#EC4899', icon: PiggyBank },
-  margin_trading: { color: '#EF4444', icon: Zap },
-  // Legacy types
-  demo_cash: { color: '#10B981', icon: Wallet },
-  demo_equity: { color: '#3B82F6', icon: TrendingUp },
-  demo_crypto: { color: '#F59E0B', icon: Bitcoin },
-  live_cash: { color: '#10B981', icon: Wallet },
-  live_equity: { color: '#3B82F6', icon: TrendingUp },
-};
-
-// Get shortened display name based on account type and name
-const getDisplayName = (account: Account): string => {
-  // First priority: use database display_name if set
-  if (account.displayName) return account.displayName;
-
-  // Second priority: use predefined short names based on account type
-  const typeToName: Record<string, string> = {
-    primary_cash: 'Cash',
-    savings_cash: 'Savings',
-    trading_cash: 'Trading',
-    equity_trading: 'Stocks',
-    crypto_portfolio: 'Crypto',
-    dividend_income: 'Dividends',
-    retirement_fund: 'Retirement',
-    margin_trading: 'Margin',
-  };
-
-  // Third priority: truncate account name if too long
-  if (typeToName[account.account_type]) {
-    return typeToName[account.account_type];
-  }
-
-  // Fallback: shorten name to max 15 characters
-  return account.name.length > 15
-    ? account.name.substring(0, 12) + '...'
-    : account.name;
+// Asset type styles for allocation breakdown
+const ASSET_TYPE_STYLES: Record<string, { color: string; icon: any; label: string }> = {
+  cash: { color: '#10B981', icon: Wallet, label: 'Cash' },
+  stocks: { color: '#3B82F6', icon: TrendingUp, label: 'Stocks' },
+  crypto: { color: '#F59E0B', icon: Bitcoin, label: 'Crypto' },
+  bonds: { color: '#8B5CF6', icon: DollarSign, label: 'Bonds' },
+  other: { color: '#6B7280', icon: PiggyBank, label: 'Other' },
 };
 
 export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitProps) => {
-  // Sort accounts by balance (highest to lowest)
-  const sortedAccounts = useMemo(() => {
-    return [...accounts]
-      .filter(acc => acc.balance > 0)
-      .sort((a, b) => b.balance - a.balance);
-  }, [accounts]);
+  const { user } = useAuth();
+  const { selectedAccountIds } = useAccountContext();
+  const [assetAllocations, setAssetAllocations] = useState<AssetAllocation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Calculate percentages
-  const accountsWithPercent = useMemo(() => {
-    return sortedAccounts.map(account => ({
-      ...account,
-      percent: totalValue > 0 ? (account.balance / totalValue) * 100 : 0,
-    }));
-  }, [sortedAccounts, totalValue]);
+  useEffect(() => {
+    const fetchAssetBreakdown = async () => {
+      if (!user?.id) return;
 
-  if (sortedAccounts.length === 0) {
+      try {
+        setLoading(true);
+
+        // Determine which accounts to include
+        const accountIds = selectedAccountIds.length > 0
+          ? selectedAccountIds
+          : accounts.map(a => a.id);
+
+        if (accountIds.length === 0) {
+          setAssetAllocations([]);
+          setLoading(false);
+          return;
+        }
+
+        // Get account balances by type
+        const { data: accountsData } = await supabase
+          .from('accounts')
+          .select('id, account_type, balance')
+          .eq('user_id', user.id)
+          .in('id', accountIds)
+          .eq('status', 'active');
+
+        const accountsList = accountsData || [];
+
+        // Get holdings by asset type
+        const { data: holdingsData } = await supabase
+          .from('holdings')
+          .select('asset_type, market_value')
+          .in('account_id', accountIds);
+
+        const holdingsList = holdingsData || [];
+
+        // Categorize accounts
+        const cashAccountTypes = ['primary_cash', 'savings_cash', 'trading_cash', 'demo_cash', 'live_cash'];
+        const equityAccountTypes = ['equity_trading', 'dividend_income', 'margin_trading', 'demo_equity', 'live_equity'];
+        const cryptoAccountTypes = ['crypto_portfolio', 'demo_crypto'];
+
+        // Calculate pure cash (only from cash-type accounts)
+        const cashTotal = accountsList
+          .filter(a => cashAccountTypes.includes(a.account_type))
+          .reduce((sum, a) => sum + Number(a.balance), 0);
+
+        // Calculate stock holdings + uninvested cash in equity accounts
+        const stockHoldings = holdingsList
+          .filter(h => h.asset_type === 'stock')
+          .reduce((sum, h) => sum + Number(h.market_value), 0);
+        const equityCash = accountsList
+          .filter(a => equityAccountTypes.includes(a.account_type))
+          .reduce((sum, a) => sum + Number(a.balance), 0);
+        const stocksTotal = stockHoldings + equityCash;
+
+        // Calculate crypto holdings + uninvested cash in crypto accounts
+        const cryptoHoldings = holdingsList
+          .filter(h => h.asset_type === 'crypto')
+          .reduce((sum, h) => sum + Number(h.market_value), 0);
+        const cryptoCash = accountsList
+          .filter(a => cryptoAccountTypes.includes(a.account_type))
+          .reduce((sum, a) => sum + Number(a.balance), 0);
+        const cryptoTotal = cryptoHoldings + cryptoCash;
+
+        // Calculate bonds
+        const bondsTotal = holdingsList
+          .filter(h => h.asset_type === 'bond')
+          .reduce((sum, h) => sum + Number(h.market_value), 0);
+
+        // Calculate other
+        const otherTotal = holdingsList
+          .filter(h => !['stock', 'crypto', 'bond'].includes(h.asset_type))
+          .reduce((sum, h) => sum + Number(h.market_value), 0);
+
+        // Build allocations array
+        const allocations: AssetAllocation[] = [];
+        const total = cashTotal + stocksTotal + cryptoTotal + bondsTotal + otherTotal;
+
+        if (cashTotal > 0) {
+          allocations.push({
+            label: ASSET_TYPE_STYLES.cash.label,
+            value: cashTotal,
+            percent: total > 0 ? (cashTotal / total) * 100 : 0,
+            color: ASSET_TYPE_STYLES.cash.color,
+            icon: ASSET_TYPE_STYLES.cash.icon,
+          });
+        }
+
+        if (stocksTotal > 0) {
+          allocations.push({
+            label: ASSET_TYPE_STYLES.stocks.label,
+            value: stocksTotal,
+            percent: total > 0 ? (stocksTotal / total) * 100 : 0,
+            color: ASSET_TYPE_STYLES.stocks.color,
+            icon: ASSET_TYPE_STYLES.stocks.icon,
+          });
+        }
+
+        if (cryptoTotal > 0) {
+          allocations.push({
+            label: ASSET_TYPE_STYLES.crypto.label,
+            value: cryptoTotal,
+            percent: total > 0 ? (cryptoTotal / total) * 100 : 0,
+            color: ASSET_TYPE_STYLES.crypto.color,
+            icon: ASSET_TYPE_STYLES.crypto.icon,
+          });
+        }
+
+        if (bondsTotal > 0) {
+          allocations.push({
+            label: ASSET_TYPE_STYLES.bonds.label,
+            value: bondsTotal,
+            percent: total > 0 ? (bondsTotal / total) * 100 : 0,
+            color: ASSET_TYPE_STYLES.bonds.color,
+            icon: ASSET_TYPE_STYLES.bonds.icon,
+          });
+        }
+
+        if (otherTotal > 0) {
+          allocations.push({
+            label: ASSET_TYPE_STYLES.other.label,
+            value: otherTotal,
+            percent: total > 0 ? (otherTotal / total) * 100 : 0,
+            color: ASSET_TYPE_STYLES.other.color,
+            icon: ASSET_TYPE_STYLES.other.icon,
+          });
+        }
+
+        // Sort by value (highest first)
+        allocations.sort((a, b) => b.value - a.value);
+
+        setAssetAllocations(allocations);
+      } catch (error) {
+        console.error('Failed to fetch asset breakdown:', error);
+        setAssetAllocations([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAssetBreakdown();
+  }, [user?.id, accounts, selectedAccountIds]);
+
+  if (loading) {
     return (
       <BlurView intensity={15} tint="dark" style={styles.container}>
         <Text style={styles.title}>Account Split</Text>
-        <Text style={styles.emptyText}>No active accounts</Text>
+        <Text style={styles.emptyText}>Loading...</Text>
+      </BlurView>
+    );
+  }
+
+  if (assetAllocations.length === 0) {
+    return (
+      <BlurView intensity={15} tint="dark" style={styles.container}>
+        <Text style={styles.title}>Account Split</Text>
+        <Text style={styles.emptyText}>No assets</Text>
       </BlurView>
     );
   }
@@ -97,32 +213,30 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
     <BlurView intensity={15} tint="dark" style={styles.container}>
       <Text style={styles.title}>Account Split</Text>
 
-      {accountsWithPercent.map((account, index) => {
-        const style = ACCOUNT_STYLES[account.account_type] || ACCOUNT_STYLES.primary_cash;
-        const Icon = style.icon;
-        const displayName = getDisplayName(account);
+      {assetAllocations.map((allocation, index) => {
+        const Icon = allocation.icon;
 
         return (
           <Animated.View
-            key={account.id}
+            key={allocation.label}
             entering={FadeIn.duration(400).delay(index * 100)}
           >
             <View style={styles.row}>
               <View style={styles.labelRow}>
-                <View style={[styles.iconContainer, { backgroundColor: `${style.color}20` }]}>
-                  <Icon size={14} color={style.color} strokeWidth={2} />
+                <View style={[styles.iconContainer, { backgroundColor: `${allocation.color}20` }]}>
+                  <Icon size={14} color={allocation.color} strokeWidth={2} />
                 </View>
                 <Text style={styles.label} numberOfLines={1} ellipsizeMode="tail">
-                  {displayName}
+                  {allocation.label}
                 </Text>
               </View>
               <CurrencyDisplay
-                value={account.balance}
+                value={allocation.value}
                 size="small"
-                compact={account.balance >= 100000}
+                compact={allocation.value >= 100000}
                 style={styles.amount}
               />
-              <Text style={styles.percent}>{account.percent.toFixed(1)}%</Text>
+              <Text style={styles.percent}>{allocation.percent.toFixed(1)}%</Text>
             </View>
 
             <View style={styles.progressBar}>
@@ -130,8 +244,8 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
                 style={[
                   styles.progressFill,
                   {
-                    width: `${account.percent}%`,
-                    backgroundColor: style.color,
+                    width: `${allocation.percent}%`,
+                    backgroundColor: allocation.color,
                   },
                 ]}
                 entering={FadeIn.duration(600).delay(index * 100 + 200)}

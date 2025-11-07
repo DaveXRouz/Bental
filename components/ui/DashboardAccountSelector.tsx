@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Dimensions, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { ChevronDown, Wallet, Check, Filter } from 'lucide-react-native';
@@ -8,6 +8,7 @@ import { GLASS } from '@/constants/glass';
 import { formatCurrency } from '@/utils/formatting';
 import { useAccountContext } from '@/contexts/AccountContext';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useFilteredPortfolioMetrics } from '@/hooks/useFilteredPortfolioMetrics';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +21,9 @@ export function DashboardAccountSelector() {
     toggleAccount,
     selectAllAccounts,
   } = useAccountContext();
+
+  // Get actual portfolio metrics including holdings
+  const { metrics } = useFilteredPortfolioMetrics(selectedAccountIds);
 
   const activeAccounts = accounts.filter(acc => acc.is_active && (acc.status === 'active' || !acc.status));
 
@@ -61,14 +65,10 @@ export function DashboardAccountSelector() {
     return `${selectedAccountIds.length} Accounts`;
   };
 
-  const getTotalBalance = () => {
-    if (isAllAccountsSelected) {
-      return activeAccounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
-    }
-    return activeAccounts
-      .filter(acc => selectedAccountIds.includes(acc.id))
-      .reduce((sum, acc) => sum + Number(acc.balance), 0);
-  };
+  // Use the total portfolio value from metrics (includes cash + holdings)
+  const getTotalValue = useMemo(() => {
+    return metrics.totalValue;
+  }, [metrics.totalValue]);
 
   return (
     <>
@@ -83,11 +83,16 @@ export function DashboardAccountSelector() {
       >
         <BlurView intensity={50} tint="dark" style={styles.selectorBlur}>
           <View style={styles.selectorContent}>
-            <Filter size={16} color={isAllAccountsSelected ? colors.textSecondary : '#3B82F6'} />
+            <View style={styles.iconWrapper}>
+              <Filter size={16} color={isAllAccountsSelected ? colors.textSecondary : '#3B82F6'} />
+              {!isAllAccountsSelected && (
+                <View style={styles.filterBadge} />
+              )}
+            </View>
             <View style={styles.selectorInfo}>
               <Text style={styles.selectorName}>{getDisplayText()}</Text>
               <Text style={styles.selectorBalance}>
-                {formatCurrency(getTotalBalance())}
+                {formatCurrency(getTotalValue)}
               </Text>
             </View>
             <ChevronDown
@@ -264,6 +269,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 8,
+  },
+  iconWrapper: {
+    position: 'relative',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#3B82F6',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 0, 0, 0.8)',
   },
   selectorInfo: {
     flex: 1,
