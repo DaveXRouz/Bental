@@ -21,7 +21,7 @@ export function DashboardAccountSelector() {
     selectAllAccounts,
   } = useAccountContext();
 
-  const activeAccounts = accounts.filter(acc => acc.is_active && acc.status === 'active');
+  const activeAccounts = accounts.filter(acc => acc.is_active && (acc.status === 'active' || !acc.status));
 
   const handleOpen = () => {
     if (activeAccounts.length === 0) return;
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   chevron: {
-    transition: 'transform 0.2s',
+    // Rotation animation handled via transform
   },
   chevronOpen: {
     transform: [{ rotate: '180deg' }],

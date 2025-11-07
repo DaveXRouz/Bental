@@ -51,7 +51,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (accounts.length > 0 && selectedAccountIds.length > 0) {
       const validAccountIds = selectedAccountIds.filter(id =>
-        accounts.some(acc => acc.id === id && acc.is_active && acc.status === 'active')
+        accounts.some(acc => acc.id === id && acc.is_active && (acc.status === 'active' || !acc.status))
       );
 
       if (validAccountIds.length !== selectedAccountIds.length) {
@@ -122,7 +122,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   const selectAllAccounts = useCallback(() => {
-    const allIds = accounts.filter(acc => acc.is_active && acc.status === 'active').map(acc => acc.id);
+    const allIds = accounts.filter(acc => acc.is_active && (acc.status === 'active' || !acc.status)).map(acc => acc.id);
     setSelectedAccountIdsState([]);
     saveSelection([]);
   }, [accounts, user?.id]);
@@ -133,7 +133,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   const isAllAccountsSelected = selectedAccountIds.length === 0 ||
-    (accounts.length > 0 && selectedAccountIds.length === accounts.filter(a => a.is_active && a.status === 'active').length);
+    (accounts.length > 0 && selectedAccountIds.length === accounts.filter(a => a.is_active && (a.status === 'active' || !a.status)).length);
 
   const selectedAccounts = accounts.filter(acc =>
     selectedAccountIds.length === 0 || selectedAccountIds.includes(acc.id)

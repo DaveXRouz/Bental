@@ -10,6 +10,8 @@ interface Account {
   balance: number;
   currency: string;
   is_active: boolean;
+  is_default: boolean;
+  status: string;
   created_at: string;
 }
 

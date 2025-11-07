@@ -57,13 +57,13 @@ export class PortfolioAggregationService {
     const { data: accounts } = await accountsQuery;
 
     const accountsList = accounts || [];
-    const accountIds = accountsList.map(a => a.id);
+    const accountIdsList = accountsList.map(a => a.id);
 
     // Get all holdings with asset types (filter by account_id for RLS compatibility)
     const { data: holdings } = await supabase
       .from('holdings')
       .select('asset_type, market_value, unrealized_pnl, day_change, symbol')
-      .in('account_id', accountIds.length > 0 ? accountIds : ['00000000-0000-0000-0000-000000000000']);
+      .in('account_id', accountIdsList.length > 0 ? accountIdsList : ['00000000-0000-0000-0000-000000000000']);
 
     const holdingsList = holdings || [];
 
