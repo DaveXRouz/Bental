@@ -39,14 +39,22 @@ export class PortfolioAggregationService {
   /**
    * Get complete portfolio breakdown for a user
    * This properly categorizes cash vs investments and breaks down by asset type
+   * @param userId - The user ID
+   * @param accountIds - Optional array of specific account IDs to filter by (empty = all accounts)
    */
-  async getDetailedPortfolioMetrics(userId: string): Promise<DetailedPortfolioMetrics> {
-    // Get all accounts
-    const { data: accounts } = await supabase
+  async getDetailedPortfolioMetrics(userId: string, accountIds: string[] = []): Promise<DetailedPortfolioMetrics> {
+    // Get all accounts or filtered accounts
+    let accountsQuery = supabase
       .from('accounts')
       .select('id, account_type, balance, status')
       .eq('user_id', userId)
       .eq('status', 'active');
+
+    if (accountIds.length > 0) {
+      accountsQuery = accountsQuery.in('id', accountIds);
+    }
+
+    const { data: accounts } = await accountsQuery;
 
     const accountsList = accounts || [];
     const accountIds = accountsList.map(a => a.id);
@@ -167,9 +175,11 @@ export class PortfolioAggregationService {
   /**
    * Get asset allocation for allocation chart
    * Returns consistent allocation data with proper types, labels, and colors
+   * @param userId - The user ID
+   * @param accountIds - Optional array of specific account IDs to filter by (empty = all accounts)
    */
-  async getAssetAllocation(userId: string) {
-    const metrics = await this.getDetailedPortfolioMetrics(userId);
+  async getAssetAllocation(userId: string, accountIds: string[] = []) {
+    const metrics = await this.getDetailedPortfolioMetrics(userId, accountIds);
     const { assetBreakdown, totalValue } = metrics;
 
     const allocations = [

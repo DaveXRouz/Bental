@@ -16,6 +16,7 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { AccountProvider } from '@/contexts/AccountContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { ToastProvider as OldToastProvider } from '@/contexts/ToastContext';
 import { ToastProvider } from '@/components/ui/ToastManager';
@@ -94,14 +95,16 @@ export default function RootLayout() {
       <LoadingProvider>
         <ToastProvider>
           <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="admin-panel" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
+            <AccountProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="admin-panel" />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+            </AccountProvider>
           </AuthProvider>
         </ToastProvider>
       </LoadingProvider>

@@ -19,7 +19,9 @@ import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
 import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
 import NotificationCenterModal from '@/components/modals/NotificationCenterModal';
 import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
-import { usePortfolioMetrics } from '@/hooks/usePortfolioMetrics';
+import { useFilteredPortfolioMetrics } from '@/hooks/useFilteredPortfolioMetrics';
+import { useAccountContext } from '@/contexts/AccountContext';
+import { DashboardAccountSelector } from '@/components/ui/DashboardAccountSelector';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useMarketPriceUpdater } from '@/hooks/useMarketPriceUpdater';
 import { useBot } from '@/hooks/useBot';
@@ -70,8 +72,9 @@ export default function HomeScreen() {
   const [performanceLoading, setPerformanceLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
+  const { selectedAccountIds, isAllAccountsSelected } = useAccountContext();
   const { snapshots, createSnapshot, loading: snapshotsLoading, refreshSnapshots } = usePortfolioSnapshots(user?.id, timeRange);
-  const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
+  const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = useFilteredPortfolioMetrics(selectedAccountIds);
   const { unreadCount: notificationCount } = useNotifications(user?.id);
   const { lastUpdate: priceLastUpdate, isRunning: priceUpdaterRunning } = useMarketPriceUpdater(true, 30000);
   const {
@@ -163,8 +166,8 @@ export default function HomeScreen() {
         }
       }
 
-      // Get real asset allocation data
-      const allocations = await portfolioAggregationService.getAssetAllocation(user.id);
+      // Get real asset allocation data (filtered by selected accounts)
+      const allocations = await portfolioAggregationService.getAssetAllocation(user.id, selectedAccountIds);
       console.log('[Dashboard] Asset allocations:', allocations.length);
       setAssetAllocations(allocations);
 
@@ -177,7 +180,7 @@ export default function HomeScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id, portfolioMetrics, refetchMetrics]);
+  }, [user?.id, portfolioMetrics, refetchMetrics, selectedAccountIds]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -346,19 +349,24 @@ export default function HomeScreen() {
 
         <View style={[styles.header, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]} accessible={true} accessibilityLabel="Page header">
           <View style={styles.headerLeft}>
-            <View>
-              <Text style={[styles.greeting, { fontSize: isTablet ? 15 : 13 }]}>Welcome back</Text>
-              <Text style={[styles.headerTitle, { fontSize: isTablet ? 28 : 24 }]} numberOfLines={1} ellipsizeMode="tail">
-                {user?.email?.split('@')[0] || 'User'}
-              </Text>
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={[styles.greeting, { fontSize: isTablet ? 15 : 13 }]}>Welcome back</Text>
+                <Text style={[styles.headerTitle, { fontSize: isTablet ? 28 : 24 }]} numberOfLines={1} ellipsizeMode="tail">
+                  {user?.email?.split('@')[0] || 'User'}
+                </Text>
+              </View>
+              <NotificationBadge count={notificationCount} onPress={handleNotifications} />
             </View>
             {!loading && (
-              <Text style={[styles.lastUpdated, { fontSize: isTablet ? 12 : 11 }]}>
-                Updated {formatTimeSince(lastUpdated)}
-              </Text>
+              <View style={styles.headerBottom}>
+                <DashboardAccountSelector />
+                <Text style={[styles.lastUpdated, { fontSize: isTablet ? 12 : 11 }]}>
+                  Updated {formatTimeSince(lastUpdated)}
+                </Text>
+              </View>
             )}
           </View>
-          <NotificationBadge count={notificationCount} onPress={handleNotifications} />
         </View>
 
         <ScrollView
@@ -489,7 +497,19 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
-    gap: S * 0.75,
+    gap: S,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  headerBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: S * 2,
+    marginTop: S * 0.5,
   },
   lastUpdated: {
     color: colors.textMuted,
