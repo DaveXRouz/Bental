@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TrendingUp, TrendingDown, Bot, ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, AlertTriangle } from 'lucide-react-native';
 import { Sparkline } from '@/components/ui/Sparkline';
+import { CurrencyDisplay } from '@/components/ui/CurrencyDisplay';
 import { colors, radius, spacing, typography, breakpoints } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 
@@ -59,13 +60,6 @@ export const HeroSection = React.memo(({
   const isTablet = useMemo(() => width >= breakpoints.tablet, [width]);
   const [isBotActive, setIsBotActive] = React.useState(botStatus === 'active');
 
-  const formattedValue = useMemo(() => {
-    if (totalValue >= 100000) {
-      return `$${(totalValue / 1000).toFixed(1)}k`;
-    }
-    return `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [totalValue]);
-
   const todayPositive = todayChange >= 0;
   const totalPositive = totalReturn >= 0;
   const pnlPositive = botTodayPnL >= 0;
@@ -92,7 +86,13 @@ export const HeroSection = React.memo(({
               <View style={styles.portfolioHeader}>
                 <View style={styles.portfolioValueSection}>
                   <Text style={styles.label}>Total Portfolio Value</Text>
-                  <Text style={styles.value}>{formattedValue}</Text>
+                  <CurrencyDisplay
+                    value={totalValue}
+                    size="hero"
+                    compact={totalValue >= 100000}
+                    style={styles.value}
+                    accessibilityLabel="Portfolio value"
+                  />
 
                   <View style={styles.pillsRow}>
                     <View style={[styles.pill, todayPositive ? styles.pillPositive : styles.pillNegative]}>
@@ -292,7 +292,13 @@ export const HeroSection = React.memo(({
           <View style={styles.mobileTopRow}>
             <View style={styles.portfolioSection}>
               <Text style={styles.labelMobile}>Total Portfolio Value</Text>
-              <Text style={styles.valueMobile}>{formattedValue}</Text>
+              <CurrencyDisplay
+                value={totalValue}
+                size="hero"
+                compact={totalValue >= 100000}
+                style={styles.valueMobile}
+                accessibilityLabel="Portfolio value"
+              />
 
               <View style={styles.pillsRowMobile}>
                 <View style={[styles.pillSmall, todayPositive ? styles.pillPositive : styles.pillNegative]}>
@@ -549,11 +555,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   value: {
-    fontSize: 48,
-    fontWeight: '800',
-    color: colors.white,
     marginBottom: S * 2,
-    letterSpacing: -1.5,
   },
   pillsRow: {
     flexDirection: 'row',
@@ -774,11 +776,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   valueMobile: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: colors.white,
     marginBottom: S * 1.5,
-    letterSpacing: -1,
   },
   pillsRowMobile: {
     flexDirection: 'row',

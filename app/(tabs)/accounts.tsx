@@ -32,6 +32,7 @@ import { useTransfers } from '@/hooks/useTransfers';
 import { colors, radius, spacing, shadows, Typography, zIndex } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { formatCurrency } from '@/utils/formatting';
+import { CurrencyDisplay } from '@/components/ui/CurrencyDisplay';
 import { BottomInsetSpacer } from '@/components/ui/BottomInsetSpacer';
 import TransferModal from '@/components/modals/TransferModal';
 import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
@@ -169,9 +170,16 @@ export default function AccountsScreen() {
           <View style={styles.summaryContent}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Total Balance</Text>
-              <Text style={styles.summaryValue}>
-                {balancesHidden ? '••••••' : formatCurrency(totalBalance)}
-              </Text>
+              {balancesHidden ? (
+                <Text style={styles.summaryValue}>••••••</Text>
+              ) : (
+                <CurrencyDisplay
+                  value={totalBalance}
+                  size="large"
+                  compact={totalBalance >= 100000}
+                  style={styles.summaryValue}
+                />
+              )}
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summarySubLabel}>Active Accounts</Text>
@@ -268,9 +276,16 @@ export default function AccountsScreen() {
                     </View>
                   </View>
                   <View style={styles.accountHeaderRight}>
-                    <Text style={styles.accountBalance}>
-                      {balancesHidden ? '••••••' : formatCurrency(Number(account.balance))}
-                    </Text>
+                    {balancesHidden ? (
+                      <Text style={styles.accountBalance}>••••••</Text>
+                    ) : (
+                      <CurrencyDisplay
+                        value={Number(account.balance)}
+                        size="medium"
+                        compact={Number(account.balance) >= 100000}
+                        style={styles.accountBalance}
+                      />
+                    )}
                     {performance.net !== 0 && (
                       <View style={styles.performanceRow}>
                         {isPositive ? (
@@ -278,14 +293,18 @@ export default function AccountsScreen() {
                         ) : (
                           <TrendingDown size={12} color="#EF4444" />
                         )}
-                        <Text
-                          style={[
-                            styles.performanceText,
-                            { color: isPositive ? '#10B981' : '#EF4444' },
-                          ]}
-                        >
-                          {formatCurrency(Math.abs(performance.net))}
-                        </Text>
+                        {balancesHidden ? (
+                          <Text style={[styles.performanceText, { color: isPositive ? '#10B981' : '#EF4444' }]}>
+                            •••
+                          </Text>
+                        ) : (
+                          <CurrencyDisplay
+                            value={Math.abs(performance.net)}
+                            size="small"
+                            compact={Math.abs(performance.net) >= 100000}
+                            style={[styles.performanceText, { color: isPositive ? '#10B981' : '#EF4444' }]}
+                          />
+                        )}
                       </View>
                     )}
                   </View>
@@ -295,16 +314,30 @@ export default function AccountsScreen() {
                 <View style={styles.accountStats}>
                   <View style={styles.statItem}>
                     <Text style={styles.statLabel}>Inflow</Text>
-                    <Text style={styles.statValue}>
-                      {balancesHidden ? '•••' : formatCurrency(performance.inflow)}
-                    </Text>
+                    {balancesHidden ? (
+                      <Text style={styles.statValue}>•••</Text>
+                    ) : (
+                      <CurrencyDisplay
+                        value={performance.inflow}
+                        size="small"
+                        compact={performance.inflow >= 100000}
+                        style={styles.statValue}
+                      />
+                    )}
                   </View>
                   <View style={styles.statDivider} />
                   <View style={styles.statItem}>
                     <Text style={styles.statLabel}>Outflow</Text>
-                    <Text style={styles.statValue}>
-                      {balancesHidden ? '•••' : formatCurrency(performance.outflow)}
-                    </Text>
+                    {balancesHidden ? (
+                      <Text style={styles.statValue}>•••</Text>
+                    ) : (
+                      <CurrencyDisplay
+                        value={performance.outflow}
+                        size="small"
+                        compact={performance.outflow >= 100000}
+                        style={styles.statValue}
+                      />
+                    )}
                   </View>
                 </View>
 
@@ -506,8 +539,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   summaryValue: {
-    fontSize: 28,
-    fontWeight: '700',
     color: colors.text,
   },
   summarySubLabel: {
@@ -618,8 +649,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   accountBalance: {
-    fontSize: 20,
-    fontWeight: '700',
     color: colors.text,
     marginBottom: 4,
   },
@@ -629,7 +658,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   performanceText: {
-    fontSize: 12,
     fontWeight: '600',
   },
   accountStats: {
@@ -654,8 +682,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statValue: {
-    fontSize: 14,
-    fontWeight: '600',
     color: colors.text,
   },
   accountActions: {

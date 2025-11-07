@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { CurrencyDisplay } from '@/components/ui/CurrencyDisplay';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 
@@ -23,13 +24,6 @@ export const AccountSplit = React.memo(({ cashBalance, investmentBalance, totalV
     return (investmentBalance / totalValue) * 100;
   }, [investmentBalance, totalValue]);
 
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000) {
-      return `$${(amount / 1000).toFixed(1)}k`;
-    }
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   return (
     <BlurView intensity={15} tint="dark" style={styles.container}>
       <Text style={styles.title}>Account Split</Text>
@@ -39,7 +33,12 @@ export const AccountSplit = React.memo(({ cashBalance, investmentBalance, totalV
           <View style={[styles.colorDot, { backgroundColor: '#10B981' }]} />
           <Text style={styles.label}>Cash</Text>
         </View>
-        <Text style={styles.amount}>{formatAmount(cashBalance)}</Text>
+        <CurrencyDisplay
+          value={cashBalance}
+          size="small"
+          compact={cashBalance >= 100000}
+          style={styles.amount}
+        />
         <Text style={styles.percent}>{cashPercent.toFixed(1)}%</Text>
       </View>
 
@@ -52,7 +51,12 @@ export const AccountSplit = React.memo(({ cashBalance, investmentBalance, totalV
           <View style={[styles.colorDot, { backgroundColor: '#3B82F6' }]} />
           <Text style={styles.label}>Investments</Text>
         </View>
-        <Text style={styles.amount}>{formatAmount(investmentBalance)}</Text>
+        <CurrencyDisplay
+          value={investmentBalance}
+          size="small"
+          compact={investmentBalance >= 100000}
+          style={styles.amount}
+        />
         <Text style={styles.percent}>{investmentPercent.toFixed(1)}%</Text>
       </View>
 
@@ -103,8 +107,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.medium,
   },
   amount: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
     color: colors.white,
     marginRight: S * 2,
   },
