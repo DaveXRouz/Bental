@@ -19,7 +19,7 @@ interface AdvancedStockChartProps {
 }
 
 type ChartType = 'line' | 'area';
-type Indicator = 'SMA' | 'EMA' | 'none';
+type Indicator = 'SMA' | 'EMA' | 'BB' | 'RSI' | 'none';
 
 export function AdvancedStockChart({ data, symbol, showIndicators = true }: AdvancedStockChartProps) {
   const [chartType, setChartType] = useState<ChartType>('area');
@@ -68,6 +68,78 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
     if (indicator !== 'EMA' || data.length < smaPeriod) return [];
     return calculateEMA(data, smaPeriod);
   }, [data, indicator, smaPeriod]);
+
+  // Calculate Bollinger Bands (BB)
+  const calculateBollingerBands = (data: ChartDataPoint[], period: number = 20) => {
+    const sma = calculateSMA(data, period);
+    const bands: Array<{timestamp: number, upper: number, middle: number, lower: number}> = [];
+
+    for (let i = 0; i < sma.length; i++) {
+      const startIdx = i + (data.length - sma.length);
+      const slice = data.slice(startIdx - period + 1, startIdx + 1);
+      const mean = sma[i].price;
+      const squaredDiffs = slice.map(d => Math.pow(d.price - mean, 2));
+      const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / period;
+      const stdDev = Math.sqrt(variance);
+
+      bands.push({
+        timestamp: sma[i].timestamp,
+        upper: mean + (2 * stdDev),
+        middle: mean,
+        lower: mean - (2 * stdDev),
+      });
+    }
+    return bands;
+  };
+
+  // Calculate Relative Strength Index (RSI)
+  const calculateRSI = (data: ChartDataPoint[], period: number = 14) => {
+    if (data.length < period + 1) return [];
+
+    const rsi: Array<{timestamp: number, value: number}> = [];
+    let gains = 0;
+    let losses = 0;
+
+    // Calculate initial average gain/loss
+    for (let i = 1; i <= period; i++) {
+      const change = data[i].price - data[i - 1].price;
+      if (change > 0) gains += change;
+      else losses += Math.abs(change);
+    }
+
+    let avgGain = gains / period;
+    let avgLoss = losses / period;
+    let rs = avgGain / avgLoss;
+    let rsiValue = 100 - (100 / (1 + rs));
+
+    rsi.push({ timestamp: data[period].timestamp, value: rsiValue });
+
+    // Calculate RSI for remaining data points
+    for (let i = period + 1; i < data.length; i++) {
+      const change = data[i].price - data[i - 1].price;
+      const gain = change > 0 ? change : 0;
+      const loss = change < 0 ? Math.abs(change) : 0;
+
+      avgGain = (avgGain * (period - 1) + gain) / period;
+      avgLoss = (avgLoss * (period - 1) + loss) / period;
+      rs = avgGain / avgLoss;
+      rsiValue = 100 - (100 / (1 + rs));
+
+      rsi.push({ timestamp: data[i].timestamp, value: rsiValue });
+    }
+
+    return rsi;
+  };
+
+  const bollingerBands = useMemo(() => {
+    if (indicator !== 'BB' || data.length < smaPeriod) return [];
+    return calculateBollingerBands(data, smaPeriod);
+  }, [data, indicator, smaPeriod]);
+
+  const rsiData = useMemo(() => {
+    if (indicator !== 'RSI' || data.length < 15) return [];
+    return calculateRSI(data, 14);
+  }, [data, indicator]);
 
   // Calculate price range for Y-axis
   const priceRange = useMemo(() => {
@@ -153,6 +225,18 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
               onPress={() => setIndicator('EMA')}
             >
               <Text style={[styles.controlText, indicator === 'EMA' && styles.controlTextActive]}>EMA</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.controlButton, indicator === 'BB' && styles.controlButtonActive]}
+              onPress={() => setIndicator('BB')}
+            >
+              <Text style={[styles.controlText, indicator === 'BB' && styles.controlTextActive]}>BB</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.controlButton, indicator === 'RSI' && styles.controlButtonActive]}
+              onPress={() => setIndicator('RSI')}
+            >
+              <Text style={[styles.controlText, indicator === 'RSI' && styles.controlTextActive]}>RSI</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -242,15 +326,70 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
       </View>
 
       {/* Legend */}
-      {indicator !== 'none' && (
+      {indicator !== 'none' && indicator !== 'RSI' && (
         <View style={styles.legend}>
           <View style={styles.legendItem}>
             <View style={[styles.legendColor, { backgroundColor: '#3b82f6' }]} />
             <Text style={styles.legendText}>Price</Text>
           </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendColor, { backgroundColor: indicator === 'SMA' ? '#f59e0b' : '#8b5cf6' }]} />
-            <Text style={styles.legendText}>{indicator} ({smaPeriod})</Text>
+          {indicator === 'BB' ? (
+            <>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: '#f59e0b' }]} />
+                <Text style={styles.legendText}>Upper Band</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: '#8b5cf6' }]} />
+                <Text style={styles.legendText}>Lower Band</Text>
+              </View>
+            </>
+          ) : (
+            <View style={styles.legendItem}>
+              <View style={[styles.legendColor, { backgroundColor: indicator === 'SMA' ? '#f59e0b' : '#8b5cf6' }]} />
+              <Text style={styles.legendText}>{indicator} ({smaPeriod})</Text>
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* RSI Chart */}
+      {indicator === 'RSI' && rsiData.length > 0 && (
+        <View style={styles.rsiContainer}>
+          <Text style={styles.rsiTitle}>RSI (14)</Text>
+          <View style={{ height: 100 }}>
+            <CartesianChart
+              data={rsiData.map((d, idx) => ({ x: idx, y: d.value }))}
+              xKey="x"
+              yKeys={["y"]}
+              domainPadding={{ top: 10, bottom: 10, left: 20, right: 20 }}
+              axisOptions={{
+                font: { color: '#64748b', size: 9 },
+                lineColor: '#334155',
+                lineWidth: 0.5,
+              }}
+            >
+              {({ points }) => (
+                <>
+                  <Line
+                    points={points.y}
+                    color="#8b5cf6"
+                    strokeWidth={1.5}
+                    curveType="natural"
+                    animate={{ type: 'timing', duration: 300 }}
+                  />
+                </>
+              )}
+            </CartesianChart>
+          </View>
+          <View style={styles.rsiLevels}>
+            <View style={styles.rsiLevel}>
+              <View style={[styles.rsiLevelLine, { backgroundColor: '#ef4444' }]} />
+              <Text style={styles.rsiLevelText}>Overbought (70)</Text>
+            </View>
+            <View style={styles.rsiLevel}>
+              <View style={[styles.rsiLevelLine, { backgroundColor: '#10b981' }]} />
+              <Text style={styles.rsiLevelText}>Oversold (30)</Text>
+            </View>
           </View>
         </View>
       )}
@@ -277,4 +416,10 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendColor: { width: 12, height: 12, borderRadius: 2 },
   legendText: { fontSize: 11, color: '#94a3b8' },
+  rsiContainer: { marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#334155' },
+  rsiTitle: { fontSize: 12, fontWeight: '600', color: '#94a3b8', marginBottom: 8 },
+  rsiLevels: { flexDirection: 'row', justifyContent: 'center', gap: 20, marginTop: 8 },
+  rsiLevel: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  rsiLevelLine: { width: 12, height: 2, borderRadius: 1 },
+  rsiLevelText: { fontSize: 10, color: '#64748b' },
 });

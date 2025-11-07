@@ -142,16 +142,10 @@ export default function ResetPasswordScreen() {
             <PasswordField
               label="New Password"
               value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (touched.password) {
-                  setError('');
-                }
-              }}
+              onChangeText={setPassword}
               onBlur={() => handleBlur('password')}
               placeholder="Enter new password"
               icon={<Lock size={20} color="rgba(255, 255, 255, 0.5)" />}
-              error={touched.password && error && error.includes('Password') ? error : undefined}
               showStrength={true}
               editable={!loading}
             />
@@ -159,22 +153,12 @@ export default function ResetPasswordScreen() {
             <PasswordField
               label="Confirm Password"
               value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                if (touched.confirm) {
-                  setError('');
-                }
-              }}
+              onChangeText={setConfirmPassword}
               onBlur={() => handleBlur('confirm')}
               placeholder="Confirm new password"
               icon={<Lock size={20} color="rgba(255, 255, 255, 0.5)" />}
-              error={touched.confirm && error && error.includes('match') ? error : undefined}
               editable={!loading}
             />
-
-            {error && !error.includes('Password') && !error.includes('match') && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
 
             <PrimaryButton
               title={loading ? 'Resetting...' : 'Reset Password'}

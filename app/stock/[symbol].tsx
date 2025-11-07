@@ -12,6 +12,7 @@ import { GLASS } from '@/constants/glass';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { AdvancedStockChart } from '@/components/charts/AdvancedStockChart';
 
 const { width } = Dimensions.get('window');
 
@@ -22,7 +23,7 @@ export default function StockDetailScreen() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stockData, setStockData] = useState<any>(null);
-  const [chartData, setChartData] = useState<number[]>([]);
+  const [chartData, setChartData] = useState<Array<{timestamp: number, price: number}>>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
   const [inWatchlist, setInWatchlist] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,23 +113,28 @@ export default function StockDetailScreen() {
     }
   };
 
-  const generateMockChartData = (currentPrice: number, range: TimeRange): number[] => {
+  const generateMockChartData = (currentPrice: number, range: TimeRange) => {
     const dataPoints: Record<TimeRange, number> = {
       '1D': 24,
-      '1W': 7,
+      '1W': 7 * 24,
       '1M': 30,
       '3M': 90,
       '1Y': 365,
     };
 
     const points = dataPoints[range];
-    const data: number[] = [];
+    const data: Array<{timestamp: number, price: number}> = [];
     let price = currentPrice * 0.95;
+    const now = Date.now();
+    const interval = range === '1D' ? 3600000 : range === '1W' ? 3600000 : 86400000; // 1 hour or 1 day
 
     for (let i = 0; i < points; i++) {
       const change = (Math.random() - 0.5) * (currentPrice * 0.02);
       price += change;
-      data.push(Math.max(0, price));
+      data.push({
+        timestamp: now - (points - i) * interval,
+        price: Math.max(0, price),
+      });
     }
 
     return data;
@@ -217,11 +223,11 @@ export default function StockDetailScreen() {
           ))}
         </View>
 
-        <BlurView intensity={40} tint="dark" style={styles.chartCard}>
-          <View style={{ height: 220, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: colors.textSecondary, fontSize: 14 }}>Chart visualization coming soon</Text>
-          </View>
-        </BlurView>
+        <AdvancedStockChart
+          data={chartData}
+          symbol={stockData.symbol}
+          showIndicators={true}
+        />
 
         <BlurView intensity={40} tint="dark" style={styles.statsCard}>
           <View style={styles.statRow}>
