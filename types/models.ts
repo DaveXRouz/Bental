@@ -232,3 +232,74 @@ export interface MarketDataProvider {
   getCandles(symbol: string, range: '1D' | '1W' | '1M' | '1Y'): Promise<Candle[]>;
   subscribe?(symbols: string[], onTick: (symbol: string, price: number) => void): () => void;
 }
+
+export interface PendingSellOrder {
+  id: string;
+  user_id: string;
+  account_id: string;
+  symbol: string;
+  asset_type: 'stock' | 'crypto' | 'etf' | 'bond';
+  quantity: number;
+  estimated_price: number;
+  estimated_total: number;
+  actual_price?: number;
+  actual_total?: number;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'expired';
+  approval_status: 'pending_review' | 'under_review' | 'approved' | 'rejected';
+  submitted_at: string;
+  reviewed_at?: string;
+  reviewed_by?: string;
+  executed_at?: string;
+  rejection_reason?: string;
+  admin_notes?: string;
+  user_notes?: string;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserTransferPreference {
+  id: string;
+  user_id: string;
+  preference_type: 'withdrawal' | 'transfer' | 'liquidation';
+  destination_type: 'bank_account' | 'crypto_wallet' | 'internal_account' | 'paypal';
+  destination_id?: string;
+  destination_details: Record<string, any>;
+  is_default: boolean;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PortfolioOperationAudit {
+  id: string;
+  user_id: string;
+  account_id?: string;
+  operation_type: 'buy' | 'sell' | 'transfer' | 'deposit' | 'withdrawal' | 'balance_adjustment';
+  operation_status: 'initiated' | 'pending' | 'completed' | 'failed' | 'cancelled';
+  amount: number;
+  currency: string;
+  symbol?: string;
+  quantity?: number;
+  balance_before?: number;
+  balance_after?: number;
+  related_order_id?: string;
+  metadata: Record<string, any>;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export interface PortfolioStateSnapshot {
+  id: string;
+  user_id: string;
+  account_id: string;
+  snapshot_date: string;
+  total_value: number;
+  cash_balance: number;
+  holdings_value: number;
+  total_pnl: number;
+  total_pnl_percent: number;
+  holdings_snapshot: any[];
+  created_at: string;
+}

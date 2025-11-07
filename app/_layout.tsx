@@ -17,6 +17,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AccountProvider } from '@/contexts/AccountContext';
+import { PortfolioProvider } from '@/contexts/PortfolioContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { ToastProvider } from '@/components/ui/ToastManager';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
@@ -192,22 +193,24 @@ export default function RootLayout() {
         <ToastProvider>
           <AuthProvider>
             <AccountProvider>
-              {!fontsLoaded && !fontError ? (
-                <View style={styles.loading}>
-                  <ActivityIndicator size="large" color="#0B6E4F" />
-                </View>
-              ) : (
-                <>
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="index" />
-                    <Stack.Screen name="(auth)" />
-                    <Stack.Screen name="(tabs)" />
-                    <Stack.Screen name="admin-panel" />
-                    <Stack.Screen name="+not-found" />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </>
-              )}
+              <PortfolioProvider>
+                {!fontsLoaded && !fontError ? (
+                  <View style={styles.loading}>
+                    <ActivityIndicator size="large" color="#0B6E4F" />
+                  </View>
+                ) : (
+                  <>
+                    <Stack screenOptions={{ headerShown: false }}>
+                      <Stack.Screen name="index" />
+                      <Stack.Screen name="(auth)" />
+                      <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="admin-panel" />
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
+                    <StatusBar style="auto" />
+                  </>
+                )}
+              </PortfolioProvider>
             </AccountProvider>
           </AuthProvider>
         </ToastProvider>
