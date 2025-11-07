@@ -1,4 +1,5 @@
 import { MarketDataProvider, Quote, Candle } from '../types';
+import { safeResponseJson, safeWebSocketJson } from '@/utils/safe-json-parser';
 
 class FinnhubProvider implements MarketDataProvider {
   name = 'Finnhub';
@@ -30,7 +31,11 @@ class FinnhubProvider implements MarketDataProvider {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        return await response.json();
+        return await safeResponseJson(response, {
+          errorContext: 'Finnhub API',
+          logOnError: true,
+          allowEmpty: false,
+        });
       } catch (error) {
         if (i === retries - 1) throw error;
         await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
@@ -154,7 +159,12 @@ class FinnhubProvider implements MarketDataProvider {
 
     this.ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data);
+        const message = safeWebSocketJson(event.data, {
+          errorContext: 'Finnhub WebSocket',
+          logOnError: true,
+          allowEmpty: false,
+        });
+
         if (message.type === 'trade') {
           message.data?.forEach((trade: any) => {
             const callbacks = this.subscriptions.get(trade.s);
@@ -163,8 +173,8 @@ class FinnhubProvider implements MarketDataProvider {
             }
           });
         }
-      } catch (error) {
-        // Ignore parsing errors
+      } catch (error: any) {
+        console.error('[Finnhub] WebSocket parse error:', error.message);
       }
     };
 

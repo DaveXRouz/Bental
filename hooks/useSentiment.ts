@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { safeResponseJson, safeJsonParse } from '@/utils/safe-json-parser';
 
 interface SentimentData {
   fearGreedValue: number;
@@ -56,10 +57,18 @@ export function useSentiment(): SentimentData {
       let fngLabel = 'Neutral';
 
       if (fngResponse.status === 'fulfilled' && fngResponse.value.ok) {
-        const fngData = await fngResponse.value.json();
-        if (fngData?.data?.[0]) {
-          fngValue = parseInt(fngData.data[0].value, 10);
-          fngLabel = fngData.data[0].value_classification;
+        try {
+          const fngData = await safeResponseJson(fngResponse.value, {
+            errorContext: 'Fear & Greed Index API',
+            logOnError: true,
+            allowEmpty: true,
+          });
+          if (fngData?.data?.[0]) {
+            fngValue = parseInt(fngData.data[0].value, 10);
+            fngLabel = fngData.data[0].value_classification;
+          }
+        } catch (error) {
+          console.warn('[Sentiment] Failed to parse Fear & Greed data:', error);
         }
       }
 
@@ -104,7 +113,15 @@ export function useSentiment(): SentimentData {
       const cached = localStorage.getItem(CACHE_KEY);
       if (!cached) return null;
 
-      const parsed: CachedData = JSON.parse(cached);
+      const parsed: CachedData = safeJsonParse(cached, {
+        errorContext: 'Sentiment cache',
+        logOnError: false,
+        allowEmpty: true,
+        fallback: null,
+      });
+
+      if (!parsed) return null;
+
       const now = Date.now();
 
       if (now - parsed.timestamp < CACHE_DURATION) {
@@ -113,7 +130,8 @@ export function useSentiment(): SentimentData {
 
       localStorage.removeItem(CACHE_KEY);
       return null;
-    } catch {
+    } catch (error) {
+      console.warn('[Sentiment] Cache read error:', error);
       return null;
     }
   };

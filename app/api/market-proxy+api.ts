@@ -1,3 +1,5 @@
+import { safeResponseJson, isJsonResponse } from '@/utils/safe-json-parser';
+
 const ALLOWED_ORIGINS = [
   'https://stooq.com',
   'https://api.exchangerate.host',
@@ -143,9 +145,53 @@ export async function GET(request: Request): Promise<Response> {
     });
 
     const contentType = response.headers.get('content-type') || 'text/plain';
+
+    // If response is JSON, validate it before proxying
+    if (isJsonResponse(response)) {
+      try {
+        const jsonData = await safeResponseJson(response.clone(), {
+          errorContext: `Market Proxy: ${targetUrl}`,
+          logOnError: true,
+          allowEmpty: false,
+        });
+
+        console.log('[Proxy] Success (JSON):', targetUrl);
+
+        return new Response(JSON.stringify(jsonData), {
+          status: 200,
+          headers: {
+            ...responseHeaders,
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (error: any) {
+        console.error('[Proxy] JSON validation failed:', {
+          url: targetUrl,
+          error: error.message,
+          type: error.type,
+        });
+
+        return new Response(
+          JSON.stringify({
+            error: 'Invalid JSON response from external API',
+            code: 'INVALID_JSON',
+            details: error.message,
+          }),
+          {
+            status: 502,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      }
+    }
+
+    // Non-JSON response, pass through as text
     const data = await response.text();
 
-    console.log('[Proxy] Success:', targetUrl);
+    console.log('[Proxy] Success (text):', targetUrl);
 
     return new Response(data, {
       status: 200,

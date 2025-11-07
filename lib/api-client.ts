@@ -8,9 +8,11 @@
  * - Rate limiting
  * - Request cancellation
  * - Circuit breaker pattern
+ * - Safe JSON parsing with validation
  */
 
 import { supabase } from './supabase';
+import { safeResponseJson, safeResponseJsonOrDefault, isJsonResponse } from '@/utils/safe-json-parser';
 
 export interface ApiClientConfig {
   baseURL?: string;
@@ -283,13 +285,27 @@ class ApiClient {
         if (response.status === 429) error.code = 'RATE_LIMIT';
         if (response.status >= 500) error.code = 'SERVER_ERROR';
 
-        // Try to parse error body
+        // Try to parse error body safely
         try {
-          const errorData = await response.json();
-          error.details = errorData;
-          if (errorData.message) error.message = errorData.message;
+          const errorData = await safeResponseJson(response.clone(), {
+            allowEmpty: true,
+            errorContext: `Error response from ${fullURL}`,
+            logOnError: false,
+          });
+          if (errorData) {
+            error.details = errorData;
+            if (errorData.message) error.message = errorData.message;
+          }
         } catch (e) {
-          // Ignore parse errors
+          // Error response is not JSON, try to read as text
+          try {
+            const errorText = await response.clone().text();
+            if (errorText && errorText.trim().length > 0) {
+              error.details = { rawError: errorText.substring(0, 500) };
+            }
+          } catch (textError) {
+            // Ignore text parse errors
+          }
         }
 
         throw error;
@@ -300,11 +316,37 @@ class ApiClient {
         this.handleCircuitBreaker(true);
       }
 
-      // Parse response
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        return await response.json();
+      // Parse response safely
+      if (isJsonResponse(response)) {
+        try {
+          return await safeResponseJson<T>(response, {
+            errorContext: `Response from ${fullURL}`,
+            logOnError: true,
+            allowEmpty: false,
+          });
+        } catch (jsonError: any) {
+          console.error('[API Client] JSON parse error:', {
+            url: fullURL,
+            status: response.status,
+            error: jsonError.message,
+            type: jsonError.type,
+          });
+
+          // If JSON parsing failed but response was OK, throw detailed error
+          throw {
+            message: `Failed to parse JSON response: ${jsonError.message}`,
+            code: 'JSON_PARSE_ERROR',
+            status: response.status,
+            details: {
+              url: fullURL,
+              parseError: jsonError.message,
+              responsePreview: jsonError.responseText,
+            },
+          } as ApiError;
+        }
       }
+
+      // Non-JSON response, return as text
       return await response.text() as any;
 
     } catch (error: any) {

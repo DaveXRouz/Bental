@@ -5,6 +5,7 @@ export type { CryptoQuote, CryptoCandle } from './crypto-service';
 
 import { ENV, isDemoMode } from '@/config/env';
 import { Quote } from '../marketData/types';
+import { safeWebSocketJson } from '@/utils/safe-json-parser';
 
 class CryptoService {
   private cache: Map<string, { data: any; expires: number }> = new Map();
@@ -120,10 +121,19 @@ class CryptoService {
       const ws = new WebSocket(`${ENV.crypto.binanceWs}/${streams}`);
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.e === 'trade') {
-          const symbol = data.s.replace('USDT', '');
-          onTick(symbol, parseFloat(data.p));
+        try {
+          const data = safeWebSocketJson(event.data, {
+            errorContext: 'Binance Crypto WebSocket',
+            logOnError: true,
+            allowEmpty: false,
+          });
+
+          if (data.e === 'trade') {
+            const symbol = data.s.replace('USDT', '');
+            onTick(symbol, parseFloat(data.p));
+          }
+        } catch (error: any) {
+          console.error('[Crypto] WebSocket parse error:', error.message);
         }
       };
 

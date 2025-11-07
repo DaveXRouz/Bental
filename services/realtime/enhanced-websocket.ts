@@ -7,9 +7,11 @@
  * - Message queuing for offline resilience
  * - Subscription management with deduplication
  * - Event-based architecture for clean integration
+ * - Safe JSON message parsing with validation
  */
 
 import { EventEmitter } from 'events';
+import { safeWebSocketJson } from '@/utils/safe-json-parser';
 
 export interface WebSocketConfig {
   url: string;
@@ -228,7 +230,12 @@ export class EnhancedWebSocket extends EventEmitter {
    */
   private handleMessage(event: MessageEvent): void {
     try {
-      const data = JSON.parse(event.data);
+      // Safely parse WebSocket message
+      const data = safeWebSocketJson(event.data, {
+        errorContext: 'WebSocket message',
+        logOnError: true,
+        allowEmpty: false,
+      });
 
       // Update last heartbeat time
       this.lastHeartbeat = Date.now();
@@ -255,8 +262,13 @@ export class EnhancedWebSocket extends EventEmitter {
         default:
           this.emit('message', data);
       }
-    } catch (error) {
-      console.error('[WebSocket] Message parse error:', error);
+    } catch (error: any) {
+      console.error('[WebSocket] Message parse error:', {
+        error: error.message,
+        type: error.type,
+        data: typeof event.data === 'string' ? event.data.substring(0, 200) : 'Binary data',
+      });
+      this.emit('parse_error', error);
     }
   }
 

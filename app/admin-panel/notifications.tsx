@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert 
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Bell, Send, Users } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
+import { safeDatabaseJson, safeResponseJson } from '@/utils/safe-json-parser';
 
 export default function NotificationsAdmin() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function NotificationsAdmin() {
         to: t.token,
         title: notification.title,
         body: notification.body,
-        data: notification.data ? JSON.parse(notification.data) : {},
+        data: safeDatabaseJson(notification.data, 'notification.data', {}),
         sound: 'default',
         priority: 'high',
       }));
@@ -69,7 +70,12 @@ export default function NotificationsAdmin() {
         body: JSON.stringify(messages),
       });
 
-      const result = await response.json();
+      const result = await safeResponseJson(response, {
+        errorContext: 'Expo Push API',
+        logOnError: true,
+        allowEmpty: true,
+        fallback: {},
+      });
 
       if (result.data && result.data.length > 0) {
         const successCount = result.data.filter((r: any) => r.status === 'ok').length;
@@ -109,8 +115,14 @@ export default function NotificationsAdmin() {
         }),
       });
 
-      const result = await response.json();
-      if (result.data && result.data[0].status === 'ok') {
+      const result = await safeResponseJson(response, {
+        errorContext: 'Expo Push API test',
+        logOnError: true,
+        allowEmpty: true,
+        fallback: {},
+      });
+
+      if (result.data && result.data[0]?.status === 'ok') {
         Alert.alert('Success', 'Test notification sent');
       } else {
         Alert.alert('Error', 'Failed to send test');

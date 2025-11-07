@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Te
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Settings, Shield, Edit2, Check, X } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
+import { safeDatabaseJson } from '@/utils/safe-json-parser';
 
 export default function ConfigurationPage() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function ConfigurationPage() {
 
   const handleToggleConfig = async (config: any) => {
     try {
-      const currentValue = JSON.parse(config.value);
+      const currentValue = safeDatabaseJson(config.value, 'app_config.value', false);
       const newValue = !currentValue;
       const { error } = await supabase
         .from('app_configuration')
@@ -82,7 +83,7 @@ export default function ConfigurationPage() {
   };
 
   const handleEditConfig = (config: any) => {
-    const value = JSON.parse(config.value);
+    const value = safeDatabaseJson(config.value, 'app_config.value', '');
     setEditingConfig(config);
     setEditValue(String(value));
   };
@@ -90,7 +91,7 @@ export default function ConfigurationPage() {
   const handleSaveConfig = async () => {
     if (!editingConfig) return;
     try {
-      const oldValue = JSON.parse(editingConfig.value);
+      const oldValue = safeDatabaseJson(editingConfig.value, 'editingConfig.value', null);
       let newValue: any = editValue;
       if (editingConfig.data_type === 'number') {
         newValue = parseFloat(editValue);
@@ -168,7 +169,7 @@ export default function ConfigurationPage() {
             <View key={category} style={styles.section}>
               <Text style={styles.categoryTitle}>{category.toUpperCase()}</Text>
               {(items as any[]).map((config: any) => {
-                const value = JSON.parse(config.value);
+                const value = safeDatabaseJson(config.value, 'app_config.value', null);
                 const isBoolean = typeof value === 'boolean';
                 const isString = typeof value === 'string';
                 const isNumber = typeof value === 'number';

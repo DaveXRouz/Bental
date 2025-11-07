@@ -1,3 +1,5 @@
+import { safeResponseJson } from '@/utils/safe-json-parser';
+
 export interface CryptoQuote {
   symbol: string;
   name: string;
@@ -68,6 +70,7 @@ class CryptoService {
         const response = await fetch(url);
 
         if (response.status === 429) {
+          console.warn(`[CryptoService] Rate limited, retry ${i + 1}/${retries}`);
           await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
           continue;
         }
@@ -76,8 +79,14 @@ class CryptoService {
           throw new Error(`HTTP ${response.status}`);
         }
 
-        return await response.json();
+        // Safely parse JSON response
+        return await safeResponseJson(response, {
+          errorContext: `CryptoService API: ${url}`,
+          logOnError: true,
+          allowEmpty: false,
+        });
       } catch (error) {
+        console.error(`[CryptoService] Fetch attempt ${i + 1}/${retries} failed:`, error);
         if (i === retries - 1) throw error;
         await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
       }

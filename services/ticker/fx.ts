@@ -1,4 +1,5 @@
 import { TickerData } from './types';
+import { safeResponseJson } from '@/utils/safe-json-parser';
 
 const FX_API_URL = 'https://api.exchangerate.host/latest?base=USD&symbols=CAD,EUR,CHF';
 const CACHE_DURATION = 300000;
@@ -30,7 +31,11 @@ export class FXTickerService {
 
     try {
       const response = await fetch(FX_API_URL);
-      const data: ExchangeRateResponse = await response.json();
+      const data: ExchangeRateResponse = await safeResponseJson(response, {
+        errorContext: 'FX Ticker API',
+        logOnError: true,
+        allowEmpty: false,
+      });
 
       if (!data.rates) {
         throw new Error('Invalid FX API response');

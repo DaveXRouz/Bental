@@ -1,4 +1,5 @@
 import { TickerData } from './types';
+import { safeWebSocketJson } from '@/utils/safe-json-parser';
 
 const BINANCE_WS = 'wss://stream.binance.com:9443/ws/!miniTicker@arr';
 const WATCHED_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
@@ -28,7 +29,12 @@ export class BinanceTickerService {
 
       this.ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const data = safeWebSocketJson(event.data, {
+            errorContext: 'Binance WebSocket',
+            logOnError: true,
+            allowEmpty: false,
+          });
+
           if (Array.isArray(data)) {
             const tickers = data
               .filter((item: any) => WATCHED_SYMBOLS.includes(item.s))
@@ -38,8 +44,11 @@ export class BinanceTickerService {
               this.onDataCallback(tickers);
             }
           }
-        } catch (error) {
-          console.log('[Binance] Parse error:', error);
+        } catch (error: any) {
+          console.error('[Binance] WebSocket parse error:', {
+            error: error.message,
+            type: error.type,
+          });
         }
       };
 

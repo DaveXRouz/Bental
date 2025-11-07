@@ -1,4 +1,5 @@
 import { ENV, isDemoMode } from '@/config/env';
+import { safeResponseJson } from '@/utils/safe-json-parser';
 
 const REQUEST_TIMEOUT = 10000;
 const MAX_RETRIES = 2;
@@ -75,7 +76,11 @@ class FXService {
           throw new Error(`HTTP ${response.status}: Failed to fetch exchange rate ${from}/${to}`);
         }
 
-        const data = await response.json();
+        const data = await safeResponseJson(response, {
+          errorContext: `FX API: ${from}/${to}`,
+          logOnError: true,
+          allowEmpty: false,
+        });
 
         if (!data.success || !data.result) {
           throw new Error(`Invalid API response for ${from}/${to}`);
