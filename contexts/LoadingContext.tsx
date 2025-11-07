@@ -50,7 +50,11 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 export function useLoading() {
   const context = useContext(LoadingContext);
   if (!context) {
-    throw new Error('useLoading must be used within LoadingProvider');
+    throw new Error(
+      'useLoading must be used within LoadingProvider. ' +
+      'Make sure your component is wrapped with <LoadingProvider> in app/_layout.tsx. ' +
+      'If you are seeing this error during app initialization, ensure providers are mounted before routes are evaluated.'
+    );
   }
   return context;
 }

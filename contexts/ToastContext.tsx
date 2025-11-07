@@ -76,7 +76,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+    throw new Error(
+      'useToast must be used within ToastProvider. ' +
+      'Make sure your component is wrapped with <ToastProvider> in app/_layout.tsx. ' +
+      'If you are seeing this error during app initialization, ensure providers are mounted before routes are evaluated.'
+    );
   }
   return context;
 }
