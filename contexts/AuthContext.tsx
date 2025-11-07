@@ -131,18 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: profileError };
     }
 
-    const { error: accountError } = await supabase
-      .from('accounts')
-      .insert({
-        user_id: authData.user.id,
-        account_type: 'demo_cash',
-        name: 'Main Account',
-        balance: 100000.00,
-        currency: 'USD',
-        is_active: true,
-      });
-
-    return { error: accountError };
+    // No automatic account creation - users must create accounts manually
+    // All accounts start with $0.00 balance
+    return { error: null };
   };
 
   const signInWithGoogle = async () => {

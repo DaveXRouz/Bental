@@ -71,7 +71,7 @@ export interface SuitabilityAssessment {
 export interface Account {
   id: string;
   user_id: string;
-  account_type: 'demo_cash' | 'demo_crypto' | 'demo_equity' | 'live_cash' | 'live_equity';
+  account_type: 'cash' | 'crypto' | 'equity' | 'retirement' | 'investment';
   name: string;
   balance: number;
   currency: string;

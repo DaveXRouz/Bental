@@ -126,7 +126,15 @@ class AccountManagementService {
       // Check if this is the first account (should be default)
       const isFirstAccount = !accounts || accounts.length === 0;
 
-      // Create the account
+      // Validate that initial deposit is 0 (all accounts must start at $0.00)
+      if (params.initialDeposit && params.initialDeposit !== 0) {
+        return {
+          success: false,
+          error: 'Accounts must be created with $0.00 balance. Use the deposit feature to add funds (requires admin approval).',
+        };
+      }
+
+      // Create the account with $0.00 balance
       const { data: newAccount, error } = await supabase
         .from('accounts')
         .insert({
@@ -134,7 +142,7 @@ class AccountManagementService {
           account_type: params.accountType,
           name: params.name.trim(),
           account_description: params.description?.trim() || null,
-          balance: params.initialDeposit || 0,
+          balance: 0, // Always $0.00 - users must deposit funds separately
           currency: params.currency || 'USD',
           is_active: true,
           is_default: isFirstAccount,
