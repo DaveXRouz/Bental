@@ -78,7 +78,7 @@ getAccountTransfers(userId, accountId) // Transfers for specific account
 ```
 
 **Validation:**
-- Amount > 0 and ≤ $10M
+- Amount > 0 and ≤ $10,000,000.00
 - Accounts are different
 - Both accounts belong to user
 - Sufficient balance in source account

@@ -45,10 +45,10 @@ This document details all fixes applied to resolve data inconsistencies, formatt
 
 #### Before:
 ```
-Dashboard Header:    $154.7k
+Dashboard Header:    $154,700.00
 Performance Card:    $154,696.31
 Account Split Cash:  $15,250.00
-Asset Allocation:    $15.3k, $95.3k, $44.2k
+Asset Allocation:    $15,300.00, $95,300.00, $44,200.00
 ```
 
 #### After:
@@ -65,7 +65,7 @@ Asset Allocation:    $15,250.00, $95,300.00, $44,200.00
    - Now uses full format with 2 decimals: `$154,696.31`
 
 2. **AccountSplit.tsx** (line 26-29)
-   - Removed abbreviation for values over $100k
+   - Removed abbreviation for values over $100,000.00
    - Uses consistent full format: `$15,250.00`
 
 3. **AllocationChart.tsx** (line 9, 100-103)
@@ -125,8 +125,8 @@ Account Split (removed - see issue #5)
 
 #### Before:
 Dashboard showed TWO separate sections:
-1. **Account Split**: Cash ($15,250) vs Investments ($139,500)
-2. **Asset Allocation**: Cash ($15.3k) + Stocks ($95.3k) + Crypto ($44.2k)
+1. **Account Split**: Cash ($15,250.00) vs Investments ($139,500.00)
+2. **Asset Allocation**: Cash ($15,300.00) + Stocks ($95,300.00) + Crypto ($44,200.00)
 
 **Problem:** Same data presented twice with different formatting = confusion
 

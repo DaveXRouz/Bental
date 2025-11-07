@@ -75,8 +75,8 @@
 **Features:**
 - Pickup address input
 - Time scheduling (Next 4hrs, Same day, Next day)
-- Insurance ($100K-$1M)
-- $10K-$500K range
+- Insurance ($100,000.00-$1,000,000.00)
+- $10,000.00-$500,000.00 range
 - ID verification
 - Tracking numbers
 
@@ -96,7 +96,7 @@
 ### 7. Bot Funding - VERIFIED WORKING ✅
 
 **Status:** Already implemented and functional
-- Quick setup: $25K default
+- Quick setup: $25,000.00 default
 - Manual setup: Custom amounts
 - Guardrails configured
 - Status tracking

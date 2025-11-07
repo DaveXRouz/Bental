@@ -193,7 +193,7 @@ This document catalogs **every feature** implemented in the application.
 - OAuth options (Google, Apple)
 - Auto-profile creation
 - Welcome email (future)
-- Demo account with $100k balance
+- Demo account with $100,000.00 balance
 - Auto-redirect to dashboard
 
 ---

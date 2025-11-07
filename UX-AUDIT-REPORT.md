@@ -224,17 +224,17 @@ interface CashCourierOption {
   subtitle: 'Same day • $50 fee + insurance';
   icon: Truck;
   color: '#EAB308'; // Gold
-  minAmount: 10000; // $10k minimum
-  maxAmount: 500000; // $500k maximum per transaction
+  minAmount: 10000; // $10,000.00 minimum
+  maxAmount: 500000; // $500,000.00 maximum per transaction
 }
 ```
 
 **UI Requirements:**
-- Amount input (min $10,000)
+- Amount input (min $10,000.00)
 - Address verification
 - Pickup time selector (next 4 hours, same day, next day)
 - ID verification requirement notice
-- Insurance options (up to $1M coverage)
+- Insurance options (up to $1,000,000.00 coverage)
 - Courier service selection (Brinks, Loomis, etc.)
 - Tracking number after booking
 - SMS/email notifications
@@ -865,7 +865,7 @@ export class CryptoService {
 ### Required Security Enhancements
 
 1. **2FA for Withdrawals**
-   - Require 2FA for all withdrawals > $1,000
+   - Require 2FA for all withdrawals > $1,000.00
    - SMS or authenticator app verification
 
 2. **Withdrawal Cooling Period**
@@ -873,7 +873,7 @@ export class CryptoService {
    - 1-hour hold for subsequent withdrawals
 
 3. **KYC/AML Compliance**
-   - Require ID verification for deposits > $10,000
+   - Require ID verification for deposits > $10,000.00
    - Flag suspicious transfer patterns
    - Implement OFAC screening
 

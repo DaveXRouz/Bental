@@ -26,7 +26,7 @@
     - ACH: Same as bank_transfer but typically faster (next-day vs 2-3 days)
     - PayPal/Venmo: Requires verified email, instant withdrawal
     - Crypto: Requires wallet address validation, irreversible
-    - Debit Card: Instant, limited to $10,000, higher fees
+    - Debit Card: Instant, limited to $10,000.00, higher fees
 */
 
 -- Add new columns to withdrawals table
@@ -124,7 +124,7 @@ CREATE INDEX IF NOT EXISTS idx_withdrawals_crypto_address ON withdrawals(crypto_
 CREATE INDEX IF NOT EXISTS idx_withdrawals_crypto_currency ON withdrawals(crypto_currency) WHERE crypto_currency IS NOT NULL;
 
 -- Add comment explaining the withdrawal methods
-COMMENT ON COLUMN withdrawals.method IS 'Withdrawal method: bank_transfer (2-3 days, free), wire (same day, $25), check (5-7 days, free), ach (next day, free), paypal (instant, 1% fee), venmo (instant, 1% fee), crypto (15-60 min, network fees), debit_card (instant, 2.9% fee, max $10k)';
+COMMENT ON COLUMN withdrawals.method IS 'Withdrawal method: bank_transfer (2-3 days, free), wire (same day, $25.00), check (5-7 days, free), ach (next day, free), paypal (instant, 1% fee), venmo (instant, 1% fee), crypto (15-60 min, network fees), debit_card (instant, 2.9% fee, max $10,000.00)';
 
 -- Update the deposits table to include crypto and cash_courier if not already present
 ALTER TABLE deposits DROP CONSTRAINT IF EXISTS deposits_method_check;

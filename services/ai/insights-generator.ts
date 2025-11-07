@@ -31,7 +31,7 @@ export class AIInsightsGenerator {
     },
     {
       type: 'market_update' as const,
-      title: 'Bitcoin Surges Past $65K',
+      title: 'Bitcoin Surges Past $65,000.00',
       content: 'Cryptocurrency markets rallied strongly with Bitcoin gaining 8.2% and Ethereum up 6.5%. Your crypto portfolio (BTC, ETH, SOL) shows significant gains.',
       priority: 'high' as const,
     },
@@ -113,7 +113,7 @@ export class AIInsightsGenerator {
     {
       type: 'portfolio_review' as const,
       title: 'Dividend Income Summary',
-      content: 'Total dividend income this quarter: $1,247. Annualized yield: 2.8%. Top payers: JPM ($320), CVX ($290), AAPL ($215). Consider reinvesting for compound growth.',
+      content: 'Total dividend income this quarter: $1,247.00. Annualized yield: 2.8%. Top payers: JPM ($320.00), CVX ($290.00), AAPL ($215.00). Consider reinvesting for compound growth.',
       priority: 'low' as const,
     },
     {
