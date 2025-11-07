@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -48,50 +48,89 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
   const [assetAllocations, setAssetAllocations] = useState<AssetAllocation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAssetBreakdown = async () => {
-      if (!user?.id) {
-        console.warn('[AccountSplit] No user ID available');
-        setAssetAllocations([]);
-        setLoading(false);
+  // Ref to track if fetch is in progress (prevents duplicate requests)
+  const fetchInProgressRef = useRef(false);
+  // Ref to store AbortController for request cancellation
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Memoize accountIds to prevent infinite loop from array reference changes
+  const accountIdsMemo = useMemo(() => {
+    if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+      return [];
+    }
+
+    // Use selected accounts if any, otherwise use all accounts
+    if (selectedAccountIds && selectedAccountIds.length > 0) {
+      return selectedAccountIds;
+    }
+
+    return accounts.map(a => a.id);
+  }, [
+    selectedAccountIds?.length,
+    selectedAccountIds?.[0],
+    accounts.length,
+    accounts[0]?.id
+  ]);
+
+  // Memoized fetch function with abort signal support
+  const fetchAssetBreakdown = useCallback(async (signal: AbortSignal) => {
+    // Prevent duplicate concurrent requests
+    if (fetchInProgressRef.current) {
+      console.log('[AccountSplit] Request already in progress, skipping');
+      return;
+    }
+
+    if (!user?.id) {
+      console.warn('[AccountSplit] No user ID available');
+      setAssetAllocations([]);
+      setLoading(false);
+      return;
+    }
+
+    // Validate accounts prop
+    if (!accounts || !Array.isArray(accounts)) {
+      console.warn('[AccountSplit] Invalid accounts prop');
+      setAssetAllocations([]);
+      setLoading(false);
+      return;
+    }
+
+    // Validate accountIds before making queries
+    if (!accountIdsMemo || accountIdsMemo.length === 0) {
+      console.log('[AccountSplit] No accounts to display');
+      setAssetAllocations([]);
+      setLoading(false);
+      return;
+    }
+
+    fetchInProgressRef.current = true;
+
+    try {
+      setLoading(true);
+
+      console.log(`[AccountSplit] Fetching data for ${accountIdsMemo.length} accounts`);
+
+      // Check if request was aborted
+      if (signal.aborted) {
+        console.log('[AccountSplit] Request aborted before fetch');
         return;
       }
 
-      // Validate accounts prop
-      if (!accounts || !Array.isArray(accounts)) {
-        console.warn('[AccountSplit] Invalid accounts prop');
-        setAssetAllocations([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-
-        // Determine which accounts to include
-        const accountIds = selectedAccountIds && selectedAccountIds.length > 0
-          ? selectedAccountIds
-          : accounts.map(a => a.id);
-
-        // Validate accountIds before making queries
-        if (!accountIds || accountIds.length === 0) {
-          console.log('[AccountSplit] No accounts to display');
-          setAssetAllocations([]);
-          setLoading(false);
-          return;
-        }
-
-        console.log(`[AccountSplit] Fetching data for ${accountIds.length} accounts`);
-
-        // Get account balances by type
-        const { data: accountsData, error: accountsError } = await supabase
-          .from('accounts')
-          .select('id, account_type, balance')
-          .eq('user_id', user.id)
-          .in('id', accountIds)
-          .eq('status', 'active');
+      // Get account balances by type
+      const { data: accountsData, error: accountsError } = await supabase
+        .from('accounts')
+        .select('id, account_type, balance')
+        .eq('user_id', user.id)
+        .in('id', accountIdsMemo)
+        .eq('status', 'active')
+        .abortSignal(signal);
 
         if (accountsError) {
+          // Don't treat abort as an error
+          if (accountsError.message?.includes('aborted') || signal.aborted) {
+            console.log('[AccountSplit] Request was aborted');
+            return;
+          }
           console.error('[AccountSplit] Error fetching accounts:', accountsError);
           setAssetAllocations([]);
           setLoading(false);
@@ -100,16 +139,32 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
 
         const accountsList = accountsData || [];
 
+        // Check if request was aborted
+        if (signal.aborted) {
+          console.log('[AccountSplit] Request aborted after accounts fetch');
+          return;
+        }
+
         // Get holdings by asset type - with proper filters
         const { data: holdingsData, error: holdingsError } = await supabase
           .from('holdings')
           .select('asset_type, market_value')
           .eq('user_id', user.id)
-          .in('account_id', accountIds);
+          .in('account_id', accountIdsMemo)
+          .abortSignal(signal);
 
         if (holdingsError) {
-          console.error('[AccountSplit] Error fetching holdings:', holdingsError);
+          // Don't treat abort as an error
+          if (!holdingsError.message?.includes('aborted') && !signal.aborted) {
+            console.error('[AccountSplit] Error fetching holdings:', holdingsError);
+          }
           // Continue with just account data even if holdings fail
+        }
+
+        // Final abort check before setting state
+        if (signal.aborted) {
+          console.log('[AccountSplit] Request aborted after holdings fetch');
+          return;
         }
 
         const holdingsList = holdingsData || [];
@@ -222,25 +277,37 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
         setAssetAllocations([]);
       } finally {
         setLoading(false);
+        fetchInProgressRef.current = false;
       }
-    };
+  }, [user?.id, accountIdsMemo, accounts.length]);
 
-    // Add timeout to prevent infinite loading
+  useEffect(() => {
+    // Create new AbortController for this request
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
+    // Add timeout to prevent infinite loading (increased to 35s to match API timeout + buffer)
     const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn('[AccountSplit] Query timeout - forcing loading to false');
+      if (fetchInProgressRef.current) {
+        console.warn('[AccountSplit] Query timeout after 35s - aborting request');
+        abortControllerRef.current?.abort();
         setLoading(false);
+        fetchInProgressRef.current = false;
       }
-    }, 10000); // 10 second timeout
+    }, 35000); // 35 second timeout (5s buffer over 30s API timeout)
 
-    fetchAssetBreakdown().finally(() => {
+    // Execute fetch with abort signal
+    fetchAssetBreakdown(signal).finally(() => {
       clearTimeout(timeoutId);
     });
 
+    // Cleanup function: abort request and clear timeout
     return () => {
+      abortControllerRef.current?.abort();
       clearTimeout(timeoutId);
+      fetchInProgressRef.current = false;
     };
-  }, [user?.id, accounts, selectedAccountIds]);
+  }, [user?.id, accountIdsMemo, fetchAssetBreakdown]);
 
   if (loading) {
     return (
