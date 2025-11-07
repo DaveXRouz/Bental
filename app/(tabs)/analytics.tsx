@@ -8,7 +8,7 @@ import { GLASS } from '@/constants/glass';
 import { formatCurrency } from '@/utils/formatting';
 import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 import { usePortfolioAnalytics, useAssetAllocation, usePerformanceChart } from '@/hooks/usePortfolioAnalytics';
 import PerformanceLineChart from '@/components/charts/PerformanceLineChart';
 import AllocationDonutChart from '@/components/charts/AllocationDonutChart';
@@ -33,10 +33,10 @@ export default function AnalyticsScreen() {
         message: csv,
         title: 'Portfolio Analytics Report',
       });
-      toast.success('Report exported successfully');
+      toast.showSuccess('Report exported successfully');
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export report');
+      toast.showError('Failed to export report');
     }
   };
 

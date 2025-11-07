@@ -18,7 +18,6 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AccountProvider } from '@/contexts/AccountContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
-import { ToastProvider as OldToastProvider } from '@/contexts/ToastContext';
 import { ToastProvider } from '@/components/ui/ToastManager';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { useTickerStore } from '@/stores/useTickerStore';

@@ -11,7 +11,7 @@ import {
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Lock, CheckCircle } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 import { QuantumFieldBackground } from '@/components/backgrounds';
 import { GlassCard } from '@/components/login/GlassCard';
 import { PasswordField } from '@/components/login/PasswordField';
@@ -45,36 +45,36 @@ export default function ResetPasswordScreen() {
 
     if (field === 'password') {
       if (!password) {
-        toast.error('Password is required');
+        toast.showError('Password is required');
       } else if (password.length < 8) {
-        toast.error('Password must be at least 8 characters');
+        toast.showError('Password must be at least 8 characters');
       } else if (passwordStrength.score < 2) {
-        toast.warning('Password is too weak');
+        toast.showWarning('Password is too weak');
       }
     }
 
     if (field === 'confirm') {
       if (!confirmPassword) {
-        toast.error('Please confirm your password');
+        toast.showError('Please confirm your password');
       } else if (confirmPassword !== password) {
-        toast.error('Passwords do not match');
+        toast.showError('Passwords do not match');
       }
     }
   };
 
   const handleSubmit = async () => {
     if (!password || password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+      toast.showError('Password must be at least 8 characters');
       return;
     }
 
     if (passwordStrength.score < 2) {
-      toast.error('Password is too weak');
+      toast.showError('Password is too weak');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.showError('Passwords do not match');
       return;
     }
 
@@ -83,10 +83,10 @@ export default function ResetPasswordScreen() {
     const result = await updatePassword(password);
 
     if (result.error) {
-      toast.error(result.error);
+      toast.showError(result.error);
       setLoading(false);
     } else {
-      toast.success('Password reset successfully!');
+      toast.showSuccess('Password reset successfully!');
       setSuccess(true);
       setLoading(false);
     }

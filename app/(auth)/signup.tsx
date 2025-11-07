@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { User, Mail, Phone, Lock, Chrome, Apple as AppleIcon, Shield } from 'lucide-react-native';
@@ -67,17 +67,17 @@ export default function SignUp() {
 
   const handleSignUp = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      toast.error('Please fill in all required fields');
+      toast.showError('Please fill in all required fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.showError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.showError('Password must be at least 6 characters');
       return;
     }
 
@@ -86,10 +86,10 @@ export default function SignUp() {
     const { error } = await signUp(email, password, fullName, phone);
 
     if (error) {
-      toast.error(error.message);
+      toast.showError(error.message);
       setLoading(false);
     } else {
-      toast.success('Account created successfully!');
+      toast.showSuccess('Account created successfully!');
       router.replace('/(tabs)');
     }
   };
@@ -99,12 +99,12 @@ export default function SignUp() {
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        toast.error(error.message);
+        toast.showError(error.message);
       } else {
-        toast.success('Signed in with Google');
+        toast.showSuccess('Signed in with Google');
       }
     } catch (err) {
-      toast.error('An error occurred. Please try again.');
+      toast.showError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -115,12 +115,12 @@ export default function SignUp() {
     try {
       const { error } = await signInWithApple();
       if (error) {
-        toast.error(error.message);
+        toast.showError(error.message);
       } else {
-        toast.success('Signed in with Apple');
+        toast.showSuccess('Signed in with Apple');
       }
     } catch (err) {
-      toast.error('An error occurred. Please try again.');
+      toast.showError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

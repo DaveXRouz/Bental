@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { KeyboardButton } from '@/components/ui/KeyboardButton';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 
 interface Document {
   id: string;
@@ -91,7 +91,7 @@ export default function DocumentUploadScreen() {
       setDocuments(data || []);
     } catch (error) {
       console.error('Failed to load documents:', error);
-      toast.error('Failed to load documents');
+      toast.showError('Failed to load documents');
     } finally {
       setLoading(false);
     }
@@ -181,11 +181,11 @@ export default function DocumentUploadScreen() {
 
       setUploadProgress(100);
 
-      toast.success('Document uploaded successfully');
+      toast.showSuccess('Document uploaded successfully');
       loadDocuments();
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Failed to upload document');
+      toast.showError(error.message || 'Failed to upload document');
     } finally {
       setUploading(null);
       setUploadProgress(0);
@@ -268,11 +268,11 @@ export default function DocumentUploadScreen() {
 
               if (error) throw error;
 
-              toast.success('Document deleted');
+              toast.showSuccess('Document deleted');
               loadDocuments();
             } catch (error) {
               console.error('Delete error:', error);
-              toast.error('Failed to delete document');
+              toast.showError('Failed to delete document');
             }
           },
         },

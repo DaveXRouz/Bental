@@ -13,7 +13,7 @@ import { GLASS } from '@/constants/glass';
 import { formatCurrency, formatDate } from '@/utils/formatting';
 import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 
 type TransactionType = 'all' | 'trades' | 'deposits' | 'withdrawals' | 'transfers';
 
@@ -176,10 +176,10 @@ export default function TransactionHistoryScreen() {
         title: 'Transaction History',
       });
 
-      toast.success('Transaction history exported');
+      toast.showSuccess('Transaction history exported');
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export transactions');
+      toast.showError('Failed to export transactions');
     }
   };
 
