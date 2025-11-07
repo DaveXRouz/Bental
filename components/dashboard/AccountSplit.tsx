@@ -50,39 +50,70 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
 
   useEffect(() => {
     const fetchAssetBreakdown = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.warn('[AccountSplit] No user ID available');
+        setAssetAllocations([]);
+        setLoading(false);
+        return;
+      }
+
+      // Validate accounts prop
+      if (!accounts || !Array.isArray(accounts)) {
+        console.warn('[AccountSplit] Invalid accounts prop');
+        setAssetAllocations([]);
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
 
         // Determine which accounts to include
-        const accountIds = selectedAccountIds.length > 0
+        const accountIds = selectedAccountIds && selectedAccountIds.length > 0
           ? selectedAccountIds
           : accounts.map(a => a.id);
 
-        if (accountIds.length === 0) {
+        // Validate accountIds before making queries
+        if (!accountIds || accountIds.length === 0) {
+          console.log('[AccountSplit] No accounts to display');
           setAssetAllocations([]);
           setLoading(false);
           return;
         }
 
+        console.log(`[AccountSplit] Fetching data for ${accountIds.length} accounts`);
+
         // Get account balances by type
-        const { data: accountsData } = await supabase
+        const { data: accountsData, error: accountsError } = await supabase
           .from('accounts')
           .select('id, account_type, balance')
           .eq('user_id', user.id)
           .in('id', accountIds)
           .eq('status', 'active');
 
+        if (accountsError) {
+          console.error('[AccountSplit] Error fetching accounts:', accountsError);
+          setAssetAllocations([]);
+          setLoading(false);
+          return;
+        }
+
         const accountsList = accountsData || [];
 
-        // Get holdings by asset type
-        const { data: holdingsData } = await supabase
+        // Get holdings by asset type - with proper filters
+        const { data: holdingsData, error: holdingsError } = await supabase
           .from('holdings')
           .select('asset_type, market_value')
+          .eq('user_id', user.id)
           .in('account_id', accountIds);
 
+        if (holdingsError) {
+          console.error('[AccountSplit] Error fetching holdings:', holdingsError);
+          // Continue with just account data even if holdings fail
+        }
+
         const holdingsList = holdingsData || [];
+        console.log(`[AccountSplit] Found ${accountsList.length} accounts and ${holdingsList.length} holdings`);
 
         // Categorize accounts
         const cashAccountTypes = ['primary_cash', 'savings_cash', 'trading_cash', 'demo_cash', 'live_cash'];
@@ -180,15 +211,35 @@ export const AccountSplit = React.memo(({ accounts, totalValue }: AccountSplitPr
         allocations.sort((a, b) => b.value - a.value);
 
         setAssetAllocations(allocations);
-      } catch (error) {
-        console.error('Failed to fetch asset breakdown:', error);
+        console.log(`[AccountSplit] Successfully calculated ${allocations.length} asset allocations`);
+      } catch (error: any) {
+        console.error('[AccountSplit] Failed to fetch asset breakdown:', error);
+        console.error('[AccountSplit] Error details:', {
+          message: error?.message,
+          name: error?.name,
+          code: error?.code
+        });
         setAssetAllocations([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAssetBreakdown();
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('[AccountSplit] Query timeout - forcing loading to false');
+        setLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
+    fetchAssetBreakdown().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [user?.id, accounts, selectedAccountIds]);
 
   if (loading) {
