@@ -13,7 +13,7 @@ Notifications.setNotificationHandler({
 export interface NotificationData {
   title: string;
   body: string;
-  category?: 'trades' | 'deposits' | 'alerts' | 'system';
+  type?: 'price_alert' | 'trade_execution' | 'news' | 'insight' | 'system' | 'trades' | 'alerts' | 'account';
   data?: Record<string, any>;
 }
 
@@ -86,9 +86,9 @@ export async function notifyUser(
       user_id: userId,
       title: notification.title,
       body: notification.body,
-      category: notification.category || 'system',
+      type: notification.type || 'system',
       is_read: false,
-      metadata: notification.data || {},
+      data: notification.data || {},
     };
 
     const { error: insertError } = await supabase
@@ -118,7 +118,7 @@ async function sendPushNotification(
     title: notification.title,
     body: notification.body,
     data: notification.data || {},
-    categoryIdentifier: notification.category,
+    categoryIdentifier: notification.type,
   };
 
   try {

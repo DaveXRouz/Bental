@@ -3,12 +3,12 @@ import { supabase } from '@/lib/supabase';
 
 interface Notification {
   id: string;
-  type: 'price_alert' | 'trade_execution' | 'news' | 'insight' | 'system';
+  type: 'price_alert' | 'trade_execution' | 'news' | 'insight' | 'system' | 'trades' | 'alerts' | 'account';
   title: string;
   body: string;
   data: Record<string, any>;
   is_read: boolean;
-  sent_at: string;
+  created_at: string;
 }
 
 export function useNotifications(userId: string | undefined) {
@@ -28,7 +28,7 @@ export function useNotifications(userId: string | undefined) {
         .from('notifications')
         .select('*')
         .eq('user_id', userId)
-        .order('sent_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
@@ -38,7 +38,7 @@ export function useNotifications(userId: string | undefined) {
       setError(null);
     } catch (err) {
       console.error('[useNotifications] Error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch notifications');
+      setError(err instanceof Error ? err.message : 'Failed to load notifications');
     } finally {
       setLoading(false);
     }

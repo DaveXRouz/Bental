@@ -10,7 +10,7 @@ import { GLASS } from '@/constants/glass';
 import { formatDate } from '@/utils/formatting';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { showToast } from '@/components/ui/ToastManager';
+import { useToast } from '@/components/ui/ToastManager';
 
 const { height } = Dimensions.get('window');
 
@@ -21,10 +21,12 @@ interface NotificationCenterModalProps {
 
 interface Notification {
   id: string;
+  user_id: string;
+  type: string;
   title: string;
-  message: string;
-  category: string;
-  read: boolean;
+  body: string;
+  data: Record<string, any>;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -32,6 +34,7 @@ type FilterType = 'all' | 'trades' | 'alerts' | 'account';
 
 export default function NotificationCenterModal({ visible, onClose }: NotificationCenterModalProps) {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
@@ -52,7 +55,7 @@ export default function NotificationCenterModal({ visible, onClose }: Notificati
         .limit(50);
 
       if (filter !== 'all') {
-        query = query.eq('category', filter);
+        query = query.eq('type', filter);
       }
 
       const { data, error: fetchError } = await query;
@@ -78,11 +81,11 @@ export default function NotificationCenterModal({ visible, onClose }: Notificati
     try {
       await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('id', notificationId);
 
       setNotifications(prev =>
-        prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
+        prev.map(n => (n.id === notificationId ? { ...n, is_read: true } : n))
       );
     } catch (error) {
       console.error('Error marking as read:', error);
@@ -93,19 +96,19 @@ export default function NotificationCenterModal({ visible, onClose }: Notificati
     try {
       await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('user_id', user?.id)
-        .eq('read', false);
+        .eq('is_read', false);
 
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      showToast('All notifications marked as read', 'success');
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      showSuccess('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all as read:', error);
-      showToast('Failed to mark notifications as read', 'error');
+      showError('Failed to mark notifications as read');
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -210,10 +213,12 @@ function NotificationCard({
   onPress: () => void;
 }) {
   const getIcon = () => {
-    switch (notification.category) {
+    switch (notification.type) {
       case 'trades':
+      case 'trade_execution':
         return <TrendingUp size={20} color="#10B981" />;
       case 'alerts':
+      case 'price_alert':
         return <AlertCircle size={20} color="#F59E0B" />;
       case 'account':
         return <DollarSign size={20} color="#3B82F6" />;
@@ -223,10 +228,12 @@ function NotificationCard({
   };
 
   const getCategoryColor = (): readonly [string, string, ...string[]] => {
-    switch (notification.category) {
+    switch (notification.type) {
       case 'trades':
+      case 'trade_execution':
         return ['rgba(16,185,129,0.12)', 'rgba(16,185,129,0.06)'] as const;
       case 'alerts':
+      case 'price_alert':
         return ['rgba(245,158,11,0.12)', 'rgba(245,158,11,0.06)'] as const;
       case 'account':
         return ['rgba(59,130,246,0.12)', 'rgba(59,130,246,0.06)'] as const;
@@ -238,9 +245,9 @@ function NotificationCard({
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
       <BlurView
-        intensity={notification.read ? 20 : 60}
+        intensity={notification.is_read ? 20 : 60}
         tint="dark"
-        style={[styles.notificationCard, !notification.read && styles.notificationCardUnread]}
+        style={[styles.notificationCard, !notification.is_read && styles.notificationCardUnread]}
       >
         <LinearGradient colors={getCategoryColor()} style={StyleSheet.absoluteFill} />
         <View style={styles.notificationContent}>
@@ -248,10 +255,10 @@ function NotificationCard({
           <View style={styles.notificationInfo}>
             <View style={styles.titleRow}>
               <Text style={styles.notificationTitle}>{notification.title}</Text>
-              {!notification.read && <View style={styles.unreadDot} />}
+              {!notification.is_read && <View style={styles.unreadDot} />}
             </View>
             <Text style={styles.notificationMessage} numberOfLines={2}>
-              {notification.message}
+              {notification.body}
             </Text>
             <Text style={styles.notificationDate}>{formatDate(notification.created_at)}</Text>
           </View>
