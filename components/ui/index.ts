@@ -4,3 +4,6 @@ export { UnifiedCard } from './UnifiedCard';
 export { LoadingSpinner } from './LoadingSpinner';
 export { Toast } from './Toast';
 export { ConnectionStatusBanner } from './ConnectionStatusBanner';
+export { NumberText } from './NumberText';
+export { CurrencyDisplay } from './CurrencyDisplay';
+export { PercentageDisplay } from './PercentageDisplay';

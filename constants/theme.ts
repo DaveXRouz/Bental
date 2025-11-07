@@ -104,6 +104,13 @@ export const typography = {
     semibold: '600' as const,
     bold: '700' as const,
   },
+  numeric: {
+    letterSpacing: {
+      tight: -0.5,
+      normal: 0,
+      relaxed: 0.5,
+    },
+  },
 };
 
 export const shadows = {

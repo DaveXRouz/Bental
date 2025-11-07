@@ -1,3 +1,13 @@
+/**
+ * Enhanced Formatting Utilities
+ *
+ * These utilities provide safe number formatting with support for tabular number typography.
+ * For component-based rendering with automatic tabular styling, use the components from @/components/ui:
+ * - CurrencyDisplay for monetary values
+ * - PercentageDisplay for percentages
+ * - NumberText for generic numbers
+ */
+
 export const safeNumber = (value: any, defaultValue: number = 0): number => {
   const num = Number(value);
   if (isNaN(num) || !isFinite(num)) {

@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TrendingUp, TrendingDown } from 'lucide-react-native';
 import { Sparkline } from '@/components/ui/Sparkline';
+import { CurrencyDisplay, PercentageDisplay } from '@/components/ui';
 import { colors, radius, spacing, typography, shadows } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 
@@ -26,13 +27,6 @@ export const BalanceHero = React.memo(({
   totalReturnPercent,
   sparklineData = [],
 }: BalanceHeroProps) => {
-  const formattedValue = useMemo(() => {
-    if (totalValue >= 100000) {
-      return `$${(totalValue / 1000).toFixed(1)}k`;
-    }
-    return `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [totalValue]);
-
   const todayPositive = todayChange >= 0;
   const totalPositive = totalReturn >= 0;
 
@@ -48,13 +42,14 @@ export const BalanceHero = React.memo(({
           <Text style={styles.label} accessibilityLabel="Total portfolio value label">
             Total Portfolio Value
           </Text>
-          <Text
+          <CurrencyDisplay
+            value={totalValue}
+            size="hero"
+            compact={totalValue >= 100000}
             style={styles.value}
-            accessibilityLabel={`Portfolio value ${formattedValue}`}
+            accessibilityLabel={`Portfolio value`}
             accessibilityRole="text"
-          >
-            {formattedValue}
-          </Text>
+          />
 
           <View style={styles.pillsRow}>
             <View
@@ -67,9 +62,12 @@ export const BalanceHero = React.memo(({
               ) : (
                 <TrendingDown size={14} color="#FFFFFF" />
               )}
-              <Text style={styles.pillText}>
-                {todayChangePercent >= 0 ? '+' : ''}{todayChangePercent.toFixed(2)}% Today
-              </Text>
+              <PercentageDisplay
+                value={todayChangePercent}
+                size="small"
+                style={styles.pillText}
+                suffix=" Today"
+              />
             </View>
 
             <View
@@ -82,9 +80,12 @@ export const BalanceHero = React.memo(({
               ) : (
                 <TrendingDown size={14} color="#FFFFFF" />
               )}
-              <Text style={styles.pillText}>
-                {totalReturnPercent >= 0 ? '+' : ''}{totalReturnPercent.toFixed(2)}% Total
-              </Text>
+              <PercentageDisplay
+                value={totalReturnPercent}
+                size="small"
+                style={styles.pillText}
+                suffix=" Total"
+              />
             </View>
           </View>
 

@@ -5,6 +5,7 @@ import { colors, radius, spacing, typography } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
 import { Sparkline } from '@/components/ui/Sparkline';
+import { CurrencyDisplay, PercentageDisplay } from '@/components/ui';
 
 const { width } = Dimensions.get('window');
 const CHART_WIDTH = width - 72;
@@ -96,15 +97,28 @@ export const PerformanceCard = React.memo(({
 
       <View style={styles.valueContainer}>
         <Text style={styles.valueLabel}>Current</Text>
-        <Text style={styles.value}>
-          ${lastValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </Text>
+        <CurrencyDisplay
+          value={lastValue}
+          size="large"
+          style={styles.value}
+        />
         <View style={styles.changeRow}>
-          <Text style={[styles.change, isPositive ? styles.changePositive : styles.changeNegative]}>
-            {isPositive ? '+' : ''}{change.toFixed(2)}%
-          </Text>
+          <PercentageDisplay
+            value={change}
+            colorize
+            style={styles.change}
+          />
           <Text style={[styles.changeAmount, isPositive ? styles.changePositive : styles.changeNegative]}>
-            {' '}({isPositive ? '+' : ''}${Math.abs(changeAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+            {' '}(
+          </Text>
+          <CurrencyDisplay
+            value={changeAmount}
+            showSign
+            color={isPositive ? colors.success : colors.danger}
+            style={styles.changeAmount}
+          />
+          <Text style={[styles.changeAmount, isPositive ? styles.changePositive : styles.changeNegative]}>
+            )
           </Text>
         </View>
       </View>

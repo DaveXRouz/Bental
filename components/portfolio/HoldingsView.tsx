@@ -10,6 +10,7 @@ import { formatCurrency, formatNumber, safeNumber, safePercentage } from '@/util
 import { sortHoldings, getSortPreference, setSortPreference, SortOption } from '@/utils/sorting';
 import PositionDetailModal from '@/components/modals/PositionDetailModal';
 import SortDropdown from './SortDropdown';
+import { CurrencyDisplay, PercentageDisplay, NumberText } from '@/components/ui';
 
 export default function HoldingsView() {
   const { user } = useAuth();
@@ -128,7 +129,11 @@ export default function HoldingsView() {
         >
           <View style={styles.summaryContent}>
             <Text style={styles.summaryLabel}>Total Holdings Value</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(totalValue, 2)}</Text>
+            <CurrencyDisplay
+              value={totalValue}
+              size="large"
+              style={styles.summaryValue}
+            />
 
             <View style={styles.gainLossContainer}>
               {isPositive ? (
@@ -136,8 +141,22 @@ export default function HoldingsView() {
               ) : (
                 <TrendingDown size={20} color="#EF4444" />
               )}
+              <CurrencyDisplay
+                value={totalGainLoss}
+                showSign
+                color={isPositive ? colors.success : colors.danger}
+                style={styles.gainLossText}
+              />
               <Text style={[styles.gainLossText, isPositive ? styles.positive : styles.negative]}>
-                {isPositive ? '+' : ''}{formatCurrency(totalGainLoss, 2)} ({isPositive ? '+' : ''}{safePercentage(totalGainLossPercent)}%)
+                {' '}(
+              </Text>
+              <PercentageDisplay
+                value={totalGainLossPercent}
+                colorize
+                style={styles.gainLossText}
+              />
+              <Text style={[styles.gainLossText, isPositive ? styles.positive : styles.negative]}>
+                )
               </Text>
             </View>
           </View>
@@ -187,30 +206,55 @@ export default function HoldingsView() {
                   </View>
                   <View style={styles.holdingInfo}>
                     <Text style={styles.holdingName}>{holding.symbol}</Text>
-                    <Text style={styles.holdingShares}>{formatNumber(quantity, 2)} shares</Text>
+                    <NumberText
+                      value={quantity.toFixed(2)}
+                      variant="quantity"
+                      suffix=" shares"
+                      style={styles.holdingShares}
+                      color={colors.textMuted}
+                    />
                   </View>
                   <View style={styles.holdingValue}>
-                    <Text style={styles.holdingAmount}>{formatCurrency(marketVal, 2)}</Text>
-                    <Text style={[styles.holdingGain, isPositive ? styles.positive : styles.negative]}>
-                      {isPositive ? '+' : ''}{safePercentage(gainLossPct)}%
-                    </Text>
+                    <CurrencyDisplay
+                      value={marketVal}
+                      size="medium"
+                      style={styles.holdingAmount}
+                    />
+                    <PercentageDisplay
+                      value={gainLossPct}
+                      colorize
+                      size="small"
+                      style={styles.holdingGain}
+                    />
                   </View>
                 </View>
 
                 <View style={styles.holdingDetails}>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailLabel}>Current Price</Text>
-                    <Text style={styles.detailValue}>{formatCurrency(currentPrice, 2)}</Text>
+                    <CurrencyDisplay
+                      value={currentPrice}
+                      size="small"
+                      style={styles.detailValue}
+                    />
                   </View>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailLabel}>Avg Cost</Text>
-                    <Text style={styles.detailValue}>{formatCurrency(avgCost, 2)}</Text>
+                    <CurrencyDisplay
+                      value={avgCost}
+                      size="small"
+                      style={styles.detailValue}
+                    />
                   </View>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailLabel}>Total Gain/Loss</Text>
-                    <Text style={[styles.detailValue, isPositive ? styles.positive : styles.negative]}>
-                      {isPositive ? '+' : ''}{formatCurrency(gainLoss, 2)}
-                    </Text>
+                    <CurrencyDisplay
+                      value={gainLoss}
+                      showSign
+                      size="small"
+                      color={isPositive ? colors.success : colors.danger}
+                      style={styles.detailValue}
+                    />
                   </View>
                 </View>
               </BlurView>
