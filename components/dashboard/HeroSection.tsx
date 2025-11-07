@@ -320,11 +320,15 @@ export const HeroSection = React.memo(({
 
               <View style={styles.quickStatsGrid}>
                 <View style={styles.quickStatItem}>
-                  <Text style={styles.quickStatValue}>${Math.abs(todayChange).toFixed(0)}</Text>
+                  <Text style={[styles.quickStatValue, todayPositive ? styles.statValuePositive : styles.statValueNegative]}>
+                    {todayPositive ? '+' : ''}${todayChange.toFixed(2)}
+                  </Text>
                   <Text style={styles.quickStatLabel}>Day Change</Text>
                 </View>
                 <View style={styles.quickStatItem}>
-                  <Text style={styles.quickStatValue}>${Math.abs(totalReturn).toFixed(0)}</Text>
+                  <Text style={[styles.quickStatValue, totalPositive ? styles.statValuePositive : styles.statValueNegative]}>
+                    {totalPositive ? '+' : ''}${totalReturn.toFixed(2)}
+                  </Text>
                   <Text style={styles.quickStatLabel}>Total Gain</Text>
                 </View>
               </View>
@@ -828,7 +832,7 @@ const styles = StyleSheet.create({
   },
   quickStatsGrid: {
     flexDirection: 'row',
-    gap: S * 2.5,
+    gap: S * 2,
     marginTop: S * 2.5,
     paddingTop: S * 2.5,
     borderTopWidth: 1,
@@ -838,11 +842,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickStatValue: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: typography.weight.bold,
     color: colors.white,
     marginBottom: S * 0.75,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
   quickStatLabel: {
     fontSize: 11,
