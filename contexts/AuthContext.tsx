@@ -27,6 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Mark AuthProvider as ready
+    if (typeof window !== 'undefined') {
+      window.__AUTH_PROVIDER_READY__ = true;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -263,6 +268,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    // During app initialization, return a temporary loading state
+    // instead of throwing an error immediately
+    if (typeof window !== 'undefined' && !window.__AUTH_PROVIDER_READY__) {
+      return {
+        session: null,
+        user: null,
+        loading: true,
+        signIn: async () => ({ error: null }),
+        signUp: async () => ({ error: null }),
+        signInWithGoogle: async () => ({ error: null }),
+        signInWithApple: async () => ({ error: null }),
+        signOut: async () => {},
+        changePassword: async () => ({ success: false }),
+        resetPassword: async () => ({ success: false }),
+        updatePassword: async () => ({ success: false }),
+      } as AuthContextType;
+    }
+
     throw new Error(
       'useAuth must be used within an AuthProvider. ' +
       'Make sure your component is wrapped with <AuthProvider> in app/_layout.tsx. ' +
@@ -270,4 +293,11 @@ export function useAuth() {
     );
   }
   return context;
+}
+
+// Mark AuthProvider as ready
+declare global {
+  interface Window {
+    __AUTH_PROVIDER_READY__?: boolean;
+  }
 }
