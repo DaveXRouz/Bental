@@ -6,7 +6,7 @@ import {
   type ApprovalRequest,
   type RejectionRequest,
 } from '@/services/portfolio/portfolio-operations-service';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 import { supabase } from '@/lib/supabase';
 
 interface PendingSellOrderWithDetails {
@@ -41,7 +41,7 @@ export function useAdminPortfolio() {
   const [pendingOrders, setPendingOrders] = useState<PendingSellOrderWithDetails[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
+  const { showSuccess, showError: showErrorToast } = useToast();
 
   /**
    * Fetch all pending sell orders for review
@@ -56,11 +56,11 @@ export function useAdminPortfolio() {
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to fetch pending orders';
       setError(errorMsg);
-      showToast(errorMsg, 'error');
+      showErrorToast('Failed to fetch pending orders', errorMsg);
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showErrorToast]);
 
   /**
    * Approve a pending sell order
@@ -74,25 +74,25 @@ export function useAdminPortfolio() {
         const result = await approveSellOrder(request);
 
         if (result.success) {
-          showToast('Sell order approved and executed successfully', 'success');
+          showSuccess('Order Approved', 'Sell order approved and executed successfully');
           // Refresh the list
           await fetchPendingOrders();
           return result;
         } else {
           setError(result.error || 'Failed to approve sell order');
-          showToast(result.error || 'Failed to approve sell order', 'error');
+          showErrorToast('Approval Failed', result.error || 'Failed to approve sell order');
           return null;
         }
       } catch (err: any) {
         const errorMsg = err.message || 'Failed to approve sell order';
         setError(errorMsg);
-        showToast(errorMsg, 'error');
+        showErrorToast('Approval Failed', errorMsg);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [showToast, fetchPendingOrders]
+    [showSuccess, showErrorToast, fetchPendingOrders]
   );
 
   /**
@@ -107,25 +107,25 @@ export function useAdminPortfolio() {
         const result = await rejectSellOrder(request);
 
         if (result.success) {
-          showToast('Sell order rejected successfully', 'success');
+          showSuccess('Order Rejected', 'Sell order rejected successfully');
           // Refresh the list
           await fetchPendingOrders();
           return result;
         } else {
           setError(result.error || 'Failed to reject sell order');
-          showToast(result.error || 'Failed to reject sell order', 'error');
+          showErrorToast('Rejection Failed', result.error || 'Failed to reject sell order');
           return null;
         }
       } catch (err: any) {
         const errorMsg = err.message || 'Failed to reject sell order';
         setError(errorMsg);
-        showToast(errorMsg, 'error');
+        showErrorToast('Rejection Failed', errorMsg);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [showToast, fetchPendingOrders]
+    [showSuccess, showErrorToast, fetchPendingOrders]
   );
 
   /**

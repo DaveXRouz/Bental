@@ -112,7 +112,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, maxToast
     });
 
     // Auto-dismiss
-    if (newToast.duration > 0) {
+    if (newToast.duration && newToast.duration > 0) {
       setTimeout(() => {
         hideToast(id);
       }, newToast.duration);

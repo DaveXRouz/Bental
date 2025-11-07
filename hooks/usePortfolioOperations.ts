@@ -12,7 +12,7 @@ import {
   type PortfolioState,
   type PendingSellOrder,
 } from '@/services/portfolio/portfolio-operations-service';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/ui/ToastManager';
 
 /**
  * Hook for portfolio operations (buy/sell/cancel)
@@ -21,7 +21,7 @@ import { useToast } from '@/contexts/ToastContext';
 export function usePortfolioOperations(accountId?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
+  const { showSuccess, showError: showErrorToast, showInfo } = useToast();
 
   /**
    * Execute an instant buy order
@@ -30,7 +30,7 @@ export function usePortfolioOperations(accountId?: string) {
     async (request: Omit<BuyOrderRequest, 'account_id'>) => {
       if (!accountId) {
         setError('No account selected');
-        showToast('Please select an account', 'error');
+        showErrorToast('No account selected');
         return null;
       }
 
@@ -47,7 +47,7 @@ export function usePortfolioOperations(accountId?: string) {
             2
           )}, Available: $${balanceCheck.available.toFixed(2)}`;
           setError(errorMsg);
-          showToast(errorMsg, 'error');
+          showErrorToast('Insufficient Balance', errorMsg);
           return null;
         }
 
@@ -58,26 +58,26 @@ export function usePortfolioOperations(accountId?: string) {
         });
 
         if (result.success) {
-          showToast(
-            `Successfully purchased ${request.quantity} ${request.symbol}`,
-            'success'
+          showSuccess(
+            'Purchase Successful',
+            `Successfully purchased ${request.quantity} ${request.symbol}`
           );
           return result;
         } else {
           setError(result.error || 'Failed to execute buy order');
-          showToast(result.error || 'Failed to execute buy order', 'error');
+          showErrorToast('Purchase Failed', result.error || 'Failed to execute buy order');
           return null;
         }
       } catch (err: any) {
         const errorMsg = err.message || 'Failed to execute buy order';
         setError(errorMsg);
-        showToast(errorMsg, 'error');
+        showErrorToast('Purchase Failed', errorMsg);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [accountId, showToast]
+    [accountId, showSuccess, showErrorToast]
   );
 
   /**
@@ -87,7 +87,7 @@ export function usePortfolioOperations(accountId?: string) {
     async (request: Omit<SellOrderRequest, 'account_id'>) => {
       if (!accountId) {
         setError('No account selected');
-        showToast('Please select an account', 'error');
+        showErrorToast('No account selected');
         return null;
       }
 
@@ -106,7 +106,7 @@ export function usePortfolioOperations(accountId?: string) {
         if (!holdingsCheck.sufficient) {
           const errorMsg = `Insufficient holdings. Required: ${request.quantity}, Available: ${holdingsCheck.available}`;
           setError(errorMsg);
-          showToast(errorMsg, 'error');
+          showErrorToast('Insufficient Holdings', errorMsg);
           return null;
         }
 
@@ -117,26 +117,26 @@ export function usePortfolioOperations(accountId?: string) {
         });
 
         if (result.success) {
-          showToast(
-            `Sell order submitted for ${request.quantity} ${request.symbol}. Awaiting admin approval.`,
-            'info'
+          showInfo(
+            'Sell Order Submitted',
+            `Sell order for ${request.quantity} ${request.symbol} submitted. Awaiting admin approval.`
           );
           return result;
         } else {
           setError(result.error || 'Failed to create sell order');
-          showToast(result.error || 'Failed to create sell order', 'error');
+          showErrorToast('Sell Order Failed', result.error || 'Failed to create sell order');
           return null;
         }
       } catch (err: any) {
         const errorMsg = err.message || 'Failed to create sell order';
         setError(errorMsg);
-        showToast(errorMsg, 'error');
+        showErrorToast('Sell Order Failed', errorMsg);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [accountId, showToast]
+    [accountId, showInfo, showErrorToast]
   );
 
   /**
@@ -151,23 +151,23 @@ export function usePortfolioOperations(accountId?: string) {
         const result = await cancelPendingSellOrder(orderId);
 
         if (result.success) {
-          showToast('Sell order cancelled successfully', 'success');
+          showSuccess('Sell order cancelled successfully');
           return result;
         } else {
           setError(result.error || 'Failed to cancel sell order');
-          showToast(result.error || 'Failed to cancel sell order', 'error');
+          showErrorToast('Cancellation Failed', result.error || 'Failed to cancel sell order');
           return null;
         }
       } catch (err: any) {
         const errorMsg = err.message || 'Failed to cancel sell order';
         setError(errorMsg);
-        showToast(errorMsg, 'error');
+        showErrorToast('Cancellation Failed', errorMsg);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [showToast]
+    [showSuccess, showErrorToast]
   );
 
   return {
