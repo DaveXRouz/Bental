@@ -150,10 +150,13 @@ export function DashboardAccountSelector() {
                   accessibilityLabel="Show all accounts"
                   accessibilityState={{ selected: isAllAccountsSelected }}
                 >
-                  <Wallet
-                    size={20}
-                    color={isAllAccountsSelected ? '#3B82F6' : colors.textSecondary}
-                  />
+                  <View style={styles.accountIconWrapper}>
+                    <Wallet
+                      size={22}
+                      color={isAllAccountsSelected ? '#3B82F6' : 'rgba(255, 255, 255, 0.6)'}
+                      strokeWidth={2.5}
+                    />
+                  </View>
                   <View style={styles.accountInfo}>
                     <Text
                       style={[
@@ -168,7 +171,7 @@ export function DashboardAccountSelector() {
                     </Text>
                   </View>
                   {isAllAccountsSelected && (
-                    <Check size={20} color="#3B82F6" />
+                    <Check size={22} color="#3B82F6" strokeWidth={2.5} />
                   )}
                 </TouchableOpacity>
 
@@ -195,10 +198,13 @@ export function DashboardAccountSelector() {
                       accessibilityLabel={`${account.name}, balance ${formatCurrency(account.balance)}`}
                       accessibilityState={{ selected: isSelected && !isAllAccountsSelected }}
                     >
-                      <Wallet
-                        size={20}
-                        color={isSelected && !isAllAccountsSelected ? '#3B82F6' : colors.textSecondary}
-                      />
+                      <View style={styles.accountIconWrapper}>
+                        <Wallet
+                          size={20}
+                          color={isSelected && !isAllAccountsSelected ? '#3B82F6' : 'rgba(255, 255, 255, 0.5)'}
+                          strokeWidth={2}
+                        />
+                      </View>
                       <View style={styles.accountInfo}>
                         <Text
                           style={[
@@ -219,7 +225,7 @@ export function DashboardAccountSelector() {
                         </View>
                       </View>
                       {isSelected && !isAllAccountsSelected && (
-                        <Check size={20} color="#3B82F6" />
+                        <Check size={22} color="#3B82F6" strokeWidth={2.5} />
                       )}
                     </TouchableOpacity>
                   );
@@ -295,11 +301,11 @@ const styles = StyleSheet.create({
   dropdown: {
     width: '100%',
     maxWidth: 420,
-    maxHeight: height * 0.7,
+    maxHeight: height * 0.75,
     borderRadius: radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: GLASS.border,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     ...shadows.glass,
   },
   dropdownBlur: {
@@ -309,15 +315,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg + 4,
+    paddingTop: spacing.lg + 4,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: GLASS.border,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
   dropdownTitle: {
-    fontSize: typography.size.lg,
+    fontSize: 18,
     fontWeight: typography.weight.bold,
     color: colors.text,
+    letterSpacing: -0.4,
   },
   closeButton: {
     paddingHorizontal: 12,
@@ -332,43 +340,55 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dropdownContent: {
-    padding: 12,
+    padding: spacing.lg,
   },
   allAccountsOption: {
-    borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(59, 130, 246, 0.4)',
+    backgroundColor: 'rgba(59, 130, 246, 0.06)',
+    paddingVertical: spacing.lg + 4,
+    marginBottom: spacing.md,
   },
   accountOption: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md + 4,
     borderRadius: radius.lg,
     marginBottom: spacing.sm,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: 'rgba(20, 20, 24, 0.6)',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: GLASS.border,
   },
   accountOptionActive: {
-    backgroundColor: 'rgba(59,130,246,0.12)',
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
     borderColor: '#3B82F6',
+    borderWidth: 1.5,
+  },
+  accountIconWrapper: {
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   accountInfo: {
     flex: 1,
   },
   accountName: {
-    fontSize: typography.size.md,
-    fontWeight: typography.weight.semibold,
+    fontSize: 16,
+    fontWeight: typography.weight.bold,
     color: colors.text,
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   accountNameActive: {
     color: colors.text,
   },
   accountDetails: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textMuted,
     fontWeight: typography.weight.regular,
+    lineHeight: 18,
   },
   accountDetailsRow: {
     flexDirection: 'row',
@@ -379,34 +399,37 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
     textTransform: 'uppercase',
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.semibold,
+    letterSpacing: 0.5,
   },
   accountDetailsDot: {
     fontSize: 11,
     color: colors.textMuted,
+    marginHorizontal: 2,
   },
   accountBalance: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
-    fontWeight: typography.weight.medium,
+    fontWeight: typography.weight.semibold,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    marginVertical: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: GLASS.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   dividerText: {
-    fontSize: 11,
-    color: colors.textMuted,
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.4)',
     textTransform: 'uppercase',
-    fontWeight: typography.weight.medium,
-    letterSpacing: 0.5,
+    fontWeight: typography.weight.semibold,
+    letterSpacing: 1,
   },
   emptyState: {
     alignItems: 'center',
