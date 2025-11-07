@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { ALLOCATION_TYPES, ALLOCATION_COLORS, ALLOCATION_LABELS } from '@/constants/allocations';
 
 export interface AssetBreakdown {
   cash: number;
@@ -162,42 +163,56 @@ export class PortfolioAggregationService {
   }
 
   /**
-   * Get asset allocation for donut chart
+   * Get asset allocation for allocation chart
+   * Returns consistent allocation data with proper types, labels, and colors
    */
   async getAssetAllocation(userId: string) {
     const metrics = await this.getDetailedPortfolioMetrics(userId);
     const { assetBreakdown, totalValue } = metrics;
 
-    return [
+    const allocations = [
       {
-        label: 'Cash',
+        label: ALLOCATION_LABELS.cash,
         value: assetBreakdown.cash,
         percent: totalValue > 0 ? (assetBreakdown.cash / totalValue) * 100 : 0,
-        color: '#9CA3AF',
-        type: 'cash' as const,
+        color: ALLOCATION_COLORS.cash,
+        type: ALLOCATION_TYPES.CASH as 'cash',
       },
       {
-        label: 'Stocks',
+        label: ALLOCATION_LABELS.stocks,
         value: assetBreakdown.stocks,
         percent: totalValue > 0 ? (assetBreakdown.stocks / totalValue) * 100 : 0,
-        color: '#3B82F6',
-        type: 'equities' as const,
+        color: ALLOCATION_COLORS.stocks,
+        type: ALLOCATION_TYPES.STOCKS as 'stocks',
       },
       {
-        label: 'Crypto',
+        label: ALLOCATION_LABELS.crypto,
         value: assetBreakdown.crypto,
         percent: totalValue > 0 ? (assetBreakdown.crypto / totalValue) * 100 : 0,
-        color: '#F59E0B',
-        type: 'crypto' as const,
+        color: ALLOCATION_COLORS.crypto,
+        type: ALLOCATION_TYPES.CRYPTO as 'crypto',
       },
       {
-        label: 'Bonds',
+        label: ALLOCATION_LABELS.bonds,
         value: assetBreakdown.bonds,
         percent: totalValue > 0 ? (assetBreakdown.bonds / totalValue) * 100 : 0,
-        color: '#10B981',
-        type: 'bonds' as const,
+        color: ALLOCATION_COLORS.bonds,
+        type: ALLOCATION_TYPES.BONDS as 'bonds',
       },
     ].filter(a => a.value > 0);
+
+    // Ensure percentages sum to exactly 100% by adjusting largest allocation if needed
+    if (allocations.length > 0) {
+      const totalPercent = allocations.reduce((sum, a) => sum + a.percent, 0);
+      if (Math.abs(totalPercent - 100) > 0.01 && totalValue > 0) {
+        const largest = allocations.reduce((prev, curr) =>
+          curr.value > prev.value ? curr : prev
+        );
+        largest.percent += (100 - totalPercent);
+      }
+    }
+
+    return allocations;
   }
 }
 

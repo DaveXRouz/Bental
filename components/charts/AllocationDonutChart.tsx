@@ -15,14 +15,6 @@ interface Props {
   size?: number;
 }
 
-const ALLOCATION_COLORS = {
-  cash: '#9CA3AF',
-  equities: '#60A5FA',
-  bonds: '#34D399',
-  crypto: '#F59E0B',
-  alternatives: '#A78BFA',
-};
-
 export default function AllocationDonutChart({ data, totalValue, size = 200 }: Props) {
   const radius = size / 2 - 20;
   const circumference = 2 * Math.PI * radius;

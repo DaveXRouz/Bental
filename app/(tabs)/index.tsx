@@ -7,7 +7,7 @@ import { TickerRibbon } from '@/components/ticker/TickerRibbon';
 import { HeroSection } from '@/components/dashboard/HeroSection';
 import { AccountSplit } from '@/components/dashboard/AccountSplit';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
-import { AllocationDonut } from '@/components/dashboard/AllocationDonut';
+import { AllocationChart } from '@/components/charts/AllocationChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { NotificationBadge } from '@/components/dashboard/NotificationBadge';
 import { BottomInsetSpacer, TAB_BAR_HEIGHT_CONSTANT } from '@/components/ui/BottomInsetSpacer';
@@ -259,7 +259,7 @@ export default function HomeScreen() {
                   loading={performanceLoading || snapshotsLoading}
                 />
                 {assetAllocations.length > 0 && (
-                  <AllocationDonut allocations={assetAllocations} totalValue={netWorth} />
+                  <AllocationChart allocations={assetAllocations} totalValue={netWorth} />
                 )}
               </View>
             </View>
@@ -279,7 +279,7 @@ export default function HomeScreen() {
               />
 
               {assetAllocations.length > 0 && (
-                <AllocationDonut allocations={assetAllocations} totalValue={netWorth} />
+                <AllocationChart allocations={assetAllocations} totalValue={netWorth} />
               )}
 
               <RecentActivity userId={user?.id} />
