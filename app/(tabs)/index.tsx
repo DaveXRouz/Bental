@@ -72,6 +72,7 @@ export default function HomeScreen() {
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
   const [performanceLoading, setPerformanceLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [userAccounts, setUserAccounts] = useState<any[]>([]);
 
   const { selectedAccountIds, isAllAccountsSelected } = useAccountContext();
   const { snapshots, createSnapshot, loading: snapshotsLoading, refreshSnapshots } = usePortfolioSnapshots(user?.id, timeRange);
@@ -147,7 +148,7 @@ export default function HomeScreen() {
 
       const { data: accounts, error: accountsError } = await supabase
         .from('accounts')
-        .select('*')
+        .select('id, user_id, account_type, name, display_name, balance, currency, is_active, is_default, status')
         .eq('user_id', user.id);
 
       if (accountsError) {
@@ -164,6 +165,13 @@ export default function HomeScreen() {
       if (accounts && accounts.length > 0) {
         console.log(`[Dashboard] Found ${accounts.length} accounts`);
         setTotalAccounts(accounts.length);
+
+        // Filter accounts based on selection
+        const filteredAccounts = selectedAccountIds.length > 0
+          ? accounts.filter(acc => selectedAccountIds.includes(acc.id))
+          : accounts;
+
+        setUserAccounts(filteredAccounts);
         const accountIds = accounts.map(a => a.id);
 
         const { data: holdings, error: holdingsError } = await supabase
@@ -451,8 +459,7 @@ export default function HomeScreen() {
             <View style={[styles.tabletGrid, { gap: S * 3 }]}>
               <View style={styles.tabletColumnLeft}>
                 <AccountSplit
-                  cashBalance={cashBalance}
-                  investmentBalance={investmentBalance}
+                  accounts={userAccounts}
                   totalValue={netWorth}
                 />
                 <RecentActivity userId={user?.id} />
@@ -473,8 +480,7 @@ export default function HomeScreen() {
           ) : (
             <>
               <AccountSplit
-                cashBalance={cashBalance}
-                investmentBalance={investmentBalance}
+                accounts={userAccounts}
                 totalValue={netWorth}
               />
 
