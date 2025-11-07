@@ -11,6 +11,7 @@ import { AllocationChart } from '@/components/charts/AllocationChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { NotificationBadge } from '@/components/dashboard/NotificationBadge';
 import { BottomInsetSpacer, TAB_BAR_HEIGHT_CONSTANT } from '@/components/ui/BottomInsetSpacer';
+import { GlassSkeleton } from '@/components/glass/GlassSkeleton';
 import TransferModal from '@/components/modals/TransferModal';
 import UnifiedDepositModal from '@/components/modals/UnifiedDepositModal';
 import UnifiedWithdrawModal from '@/components/modals/UnifiedWithdrawModal';
@@ -27,6 +28,21 @@ import { DataStreamBackground } from '@/components/backgrounds';
 const S = 8;
 
 type TimeRange = '1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL';
+const TIME_RANGES: TimeRange[] = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
+
+const formatTimeSince = (date: Date): string => {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+
+  if (diffSecs < 10) return 'just now';
+  if (diffSecs < 60) return `${diffSecs}s ago`;
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return 'today';
+};
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -50,6 +66,7 @@ export default function HomeScreen() {
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [assetAllocations, setAssetAllocations] = useState<any[]>([]);
   const [performanceLoading, setPerformanceLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const { snapshots, createSnapshot, loading: snapshotsLoading, refreshSnapshots } = usePortfolioSnapshots(user?.id, timeRange);
   const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
@@ -150,6 +167,7 @@ export default function HomeScreen() {
       setAssetAllocations(allocations);
 
       refetchMetrics();
+      setLastUpdated(new Date());
       console.log('[Dashboard] Data fetch complete');
     } catch (error) {
       console.error('[Dashboard] Error:', error);
@@ -203,15 +221,94 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <DataStreamBackground />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Dashboard</Text>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <DataStreamBackground />
+          <TickerRibbon />
+
+          <View style={[styles.header, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]}>
+            <View style={styles.headerLeft}>
+              <GlassSkeleton width={80} height={12} style={{ marginBottom: S * 0.5 }} />
+              <GlassSkeleton width={140} height={24} />
+            </View>
+            <GlassSkeleton width={40} height={40} borderRadius={20} />
+          </View>
+
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[styles.scrollContent, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.skeletonHero}>
+              <GlassSkeleton width={100} height={14} style={{ marginBottom: S }} />
+              <GlassSkeleton width="60%" height={36} style={{ marginBottom: S * 0.5 }} />
+              <GlassSkeleton width={120} height={16} style={{ marginBottom: S * 2 }} />
+              <View style={{ flexDirection: 'row', gap: S }}>
+                <GlassSkeleton width="30%" height={44} borderRadius={12} />
+                <GlassSkeleton width="30%" height={44} borderRadius={12} />
+                <GlassSkeleton width="30%" height={44} borderRadius={12} />
+              </View>
+            </View>
+
+            <View style={styles.skeletonCard}>
+              <GlassSkeleton width={120} height={18} style={{ marginBottom: S * 2 }} />
+              <GlassSkeleton width="100%" height={40} style={{ marginBottom: S }} />
+              <GlassSkeleton width="100%" height={4} borderRadius={2} style={{ marginBottom: S * 2 }} />
+              <GlassSkeleton width="100%" height={40} style={{ marginBottom: S }} />
+              <GlassSkeleton width="100%" height={4} borderRadius={2} />
+            </View>
+
+            <View style={styles.skeletonCard}>
+              <GlassSkeleton width={120} height={18} style={{ marginBottom: S * 2 }} />
+              <GlassSkeleton width={80} height={12} style={{ marginBottom: S * 0.5 }} />
+              <GlassSkeleton width="50%" height={28} style={{ marginBottom: S * 2 }} />
+              <View style={{ flexDirection: 'row', gap: S, marginBottom: S * 2 }}>
+                {TIME_RANGES.map((range, idx) => (
+                  <GlassSkeleton key={idx} width="15%" height={32} borderRadius={8} />
+                ))}
+              </View>
+              <GlassSkeleton width="100%" height={180} borderRadius={12} />
+            </View>
+
+            <View style={styles.skeletonCard}>
+              <GlassSkeleton width={140} height={18} style={{ marginBottom: S * 2 }} />
+              <View style={{ alignItems: 'center', marginBottom: S * 2 }}>
+                <GlassSkeleton width={160} height={160} borderRadius={80} />
+              </View>
+              <GlassSkeleton width="100%" height={40} style={{ marginBottom: S }} />
+              <GlassSkeleton width="100%" height={40} style={{ marginBottom: S }} />
+              <GlassSkeleton width="100%" height={40} />
+            </View>
+
+            <View style={styles.skeletonCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: S * 2 }}>
+                <View style={{ flexDirection: 'row', gap: S }}>
+                  <GlassSkeleton width={18} height={18} borderRadius={9} />
+                  <GlassSkeleton width={120} height={18} />
+                </View>
+                <GlassSkeleton width={60} height={18} />
+              </View>
+              {[1, 2, 3, 4, 5].map((idx) => (
+                <View key={idx} style={styles.skeletonActivity}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: S * 1.5 }}>
+                    <GlassSkeleton width={36} height={36} borderRadius={18} />
+                    <View style={{ flex: 1 }}>
+                      <GlassSkeleton width="60%" height={14} style={{ marginBottom: S * 0.5 }} />
+                      <GlassSkeleton width="80%" height={12} />
+                    </View>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <GlassSkeleton width={80} height={14} style={{ marginBottom: S * 0.5 }} />
+                    <GlassSkeleton width={50} height={11} />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <BottomInsetSpacer />
+          </ScrollView>
         </View>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading your portfolio...</Text>
-        </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -242,10 +339,17 @@ export default function HomeScreen() {
 
         <View style={[styles.header, { paddingHorizontal: isTablet ? S * 4 : S * 2 }]} accessible={true} accessibilityLabel="Page header">
           <View style={styles.headerLeft}>
-            <Text style={[styles.greeting, { fontSize: isTablet ? 15 : 13 }]}>Welcome back</Text>
-            <Text style={[styles.headerTitle, { fontSize: isTablet ? 28 : 24 }]} numberOfLines={1} ellipsizeMode="tail">
-              {user?.email?.split('@')[0] || 'User'}
-            </Text>
+            <View>
+              <Text style={[styles.greeting, { fontSize: isTablet ? 15 : 13 }]}>Welcome back</Text>
+              <Text style={[styles.headerTitle, { fontSize: isTablet ? 28 : 24 }]} numberOfLines={1} ellipsizeMode="tail">
+                {user?.email?.split('@')[0] || 'User'}
+              </Text>
+            </View>
+            {!loading && (
+              <Text style={[styles.lastUpdated, { fontSize: isTablet ? 12 : 11 }]}>
+                Updated {formatTimeSince(lastUpdated)}
+              </Text>
+            )}
           </View>
           <NotificationBadge count={notificationCount} onPress={handleNotifications} />
         </View>
@@ -372,6 +476,13 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    gap: S * 0.75,
+  },
+  lastUpdated: {
+    color: colors.textMuted,
+    fontWeight: '500',
+    opacity: 0.7,
+    marginTop: S * 0.5,
   },
   greeting: {
     color: colors.textMuted,
@@ -415,5 +526,31 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     minWidth: 0,
+  },
+  skeletonHero: {
+    padding: S * 2.5,
+    borderRadius: 16,
+    marginBottom: S * 3,
+    backgroundColor: 'rgba(26, 26, 28, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  skeletonCard: {
+    padding: S * 2,
+    borderRadius: 16,
+    marginBottom: S * 3,
+    backgroundColor: 'rgba(26, 26, 28, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  skeletonActivity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: S * 1.75,
+    borderRadius: 12,
+    marginBottom: S * 1.25,
+    backgroundColor: 'rgba(20, 20, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
 });

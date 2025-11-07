@@ -1,60 +1,131 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Clock, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react-native';
+import {
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ArrowRightLeft,
+  Coins,
+  DollarSign
+} from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
-import { colors, radius, spacing, shadows } from '@/constants/theme';
+import { colors, radius, spacing, shadows, typography } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
 import { formatCompactCurrency } from '@/utils/formatting';
 
 const S = 8;
 
-interface Trade {
+interface Transaction {
   id: string;
-  symbol: string;
-  trade_type: 'buy' | 'sell';
-  quantity: number;
-  price: number;
-  executed_at: string;
+  transaction_type: 'deposit' | 'withdrawal' | 'transfer' | 'trade' | 'fee' | 'dividend' | 'interest';
+  status: string;
+  amount: number;
+  currency: string;
+  symbol: string | null;
+  quantity: number | null;
+  price: number | null;
+  description: string | null;
+  created_at: string;
+  completed_at: string | null;
+  metadata: any;
 }
 
 interface RecentActivityProps {
   userId: string | undefined;
 }
 
+const TRANSACTION_CONFIG = {
+  deposit: {
+    icon: ArrowDownToLine,
+    color: '#10B981',
+    bgColor: 'rgba(16,185,129,0.2)',
+    gradientColors: ['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] as const,
+    label: 'Deposit',
+  },
+  withdrawal: {
+    icon: ArrowUpFromLine,
+    color: '#F59E0B',
+    bgColor: 'rgba(245,158,11,0.2)',
+    gradientColors: ['rgba(245,158,11,0.08)', 'rgba(245,158,11,0.04)'] as const,
+    label: 'Withdrawal',
+  },
+  transfer: {
+    icon: ArrowRightLeft,
+    color: '#3B82F6',
+    bgColor: 'rgba(59,130,246,0.2)',
+    gradientColors: ['rgba(59,130,246,0.08)', 'rgba(59,130,246,0.04)'] as const,
+    label: 'Transfer',
+  },
+  trade: {
+    icon: TrendingUp,
+    color: '#10B981',
+    bgColor: 'rgba(16,185,129,0.2)',
+    gradientColors: ['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] as const,
+    label: 'Trade',
+  },
+  fee: {
+    icon: DollarSign,
+    color: '#EF4444',
+    bgColor: 'rgba(239,68,68,0.2)',
+    gradientColors: ['rgba(239,68,68,0.08)', 'rgba(239,68,68,0.04)'] as const,
+    label: 'Fee',
+  },
+  dividend: {
+    icon: Coins,
+    color: '#10B981',
+    bgColor: 'rgba(16,185,129,0.2)',
+    gradientColors: ['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] as const,
+    label: 'Dividend',
+  },
+  interest: {
+    icon: Coins,
+    color: '#10B981',
+    bgColor: 'rgba(16,185,129,0.2)',
+    gradientColors: ['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] as const,
+    label: 'Interest',
+  },
+};
+
 export function RecentActivity({ userId }: RecentActivityProps) {
-  const [trades, setTrades] = useState<Trade[]>([]);
+  const router = useRouter();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) return;
-    fetchRecentTrades();
+    fetchRecentTransactions();
   }, [userId]);
 
-  const fetchRecentTrades = async () => {
+  const fetchRecentTransactions = async () => {
     if (!userId) return;
 
     try {
-      const { data: accounts } = await supabase
-        .from('accounts')
-        .select('id')
-        .eq('user_id', userId);
+      setError(null);
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .in('status', ['completed', 'executed'])
+        .order('created_at', { ascending: false })
+        .limit(10);
 
-      if (accounts && accounts.length > 0) {
-        const accountIds = accounts.map(a => a.id);
-
-        const { data: tradesData } = await supabase
-          .from('trades')
-          .select('id, symbol, trade_type, quantity, price, executed_at')
-          .in('account_id', accountIds)
-          .order('executed_at', { ascending: false })
-          .limit(5);
-
-        setTrades(tradesData || []);
+      if (error) {
+        console.error('[RecentActivity] Error:', error);
+        setError('Failed to load recent activity');
+        return;
       }
+
+      setTransactions(data || []);
     } catch (error) {
       console.error('[RecentActivity] Error:', error);
+      setError('Failed to load recent activity');
     } finally {
       setLoading(false);
     }
@@ -68,7 +139,9 @@ export function RecentActivity({ userId }: RecentActivityProps) {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 60) {
+    if (diffMins < 1) {
+      return 'Just now';
+    } else if (diffMins < 60) {
       return `${diffMins}m ago`;
     } else if (diffHours < 24) {
       return `${diffHours}h ago`;
@@ -81,7 +154,90 @@ export function RecentActivity({ userId }: RecentActivityProps) {
     }
   };
 
-  if (loading || trades.length === 0) {
+  const getTransactionDetails = (tx: Transaction) => {
+    const config = TRANSACTION_CONFIG[tx.transaction_type] || TRANSACTION_CONFIG.trade;
+
+    // For trades, check if buy or sell
+    if (tx.transaction_type === 'trade' && tx.metadata?.trade_type) {
+      const isSell = tx.metadata.trade_type === 'sell';
+      return {
+        ...config,
+        icon: isSell ? TrendingDown : TrendingUp,
+        color: isSell ? '#EF4444' : '#10B981',
+        bgColor: isSell ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)',
+        gradientColors: isSell
+          ? (['rgba(239,68,68,0.08)', 'rgba(239,68,68,0.04)'] as const)
+          : (['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] as const),
+      };
+    }
+
+    return config;
+  };
+
+  const getTransactionTitle = (tx: Transaction) => {
+    if (tx.transaction_type === 'trade' && tx.symbol) {
+      return tx.symbol;
+    }
+    if (tx.transaction_type === 'transfer') {
+      const direction = tx.metadata?.direction || 'out';
+      return direction === 'out' ? 'Transfer Out' : 'Transfer In';
+    }
+    return TRANSACTION_CONFIG[tx.transaction_type]?.label || tx.transaction_type;
+  };
+
+  const getTransactionSubtitle = (tx: Transaction) => {
+    if (tx.description) {
+      return tx.description;
+    }
+
+    if (tx.transaction_type === 'trade' && tx.quantity && tx.symbol) {
+      const tradeType = tx.metadata?.trade_type?.toUpperCase() || 'TRADE';
+      return `${tradeType} • ${tx.quantity} shares`;
+    }
+
+    if (tx.transaction_type === 'deposit') {
+      const method = tx.metadata?.method || 'bank transfer';
+      return `via ${method.replace('_', ' ')}`;
+    }
+
+    if (tx.transaction_type === 'withdrawal') {
+      const method = tx.metadata?.method || 'bank transfer';
+      return `via ${method.replace('_', ' ')}`;
+    }
+
+    return tx.status;
+  };
+
+  if (loading) {
+    return null;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Clock size={18} color="#3B82F6" strokeWidth={2.5} />
+            <Text style={styles.title}>Recent Activity</Text>
+          </View>
+        </View>
+        <BlurView intensity={60} tint="dark" style={styles.errorCard}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchRecentTransactions}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading recent activity"
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </BlurView>
+      </View>
+    );
+  }
+
+  if (transactions.length === 0) {
     return null;
   }
 
@@ -89,48 +245,66 @@ export function RecentActivity({ userId }: RecentActivityProps) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Clock size={18} color="#3B82F6" />
+          <Clock size={18} color="#3B82F6" strokeWidth={2.5} />
           <Text style={styles.title}>Recent Activity</Text>
         </View>
-        <TouchableOpacity style={styles.seeAllButton}>
+        <TouchableOpacity
+          style={styles.seeAllButton}
+          activeOpacity={0.7}
+          onPress={() => router.push('/(tabs)/history')}
+          accessibilityRole="button"
+          accessibilityLabel="See all transactions"
+          accessibilityHint="Navigate to transaction history page"
+        >
           <Text style={styles.seeAllText}>See All</Text>
-          <ArrowRight size={14} color="#3B82F6" />
+          <ArrowRight size={14} color="#3B82F6" strokeWidth={2.5} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.activities}>
-        {trades.map((trade) => {
-          const isBuy = trade.trade_type === 'buy';
-          const totalAmount = trade.quantity * trade.price;
+        {transactions.map((tx) => {
+          const config = getTransactionDetails(tx);
+          const Icon = config.icon;
+          const isPositive = tx.amount > 0;
 
           return (
-            <TouchableOpacity key={trade.id} activeOpacity={0.8}>
+            <TouchableOpacity
+              key={tx.id}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`Transaction: ${getTransactionTitle(tx)}, ${formatCompactCurrency(Math.abs(tx.amount))}`}
+            >
               <BlurView intensity={60} tint="dark" style={styles.activityCard}>
                 <LinearGradient
-                  colors={isBuy ? ['rgba(16,185,129,0.08)', 'rgba(16,185,129,0.04)'] : ['rgba(239,68,68,0.08)', 'rgba(239,68,68,0.04)']}
+                  colors={config.gradientColors}
                   style={StyleSheet.absoluteFill}
                 />
                 <View style={styles.activityContent}>
                   <View style={styles.activityLeft}>
-                    <View style={[styles.activityIcon, isBuy ? styles.buyIcon : styles.sellIcon]}>
-                      {isBuy ? (
-                        <TrendingUp size={16} color="#10B981" />
-                      ) : (
-                        <TrendingDown size={16} color="#EF4444" />
-                      )}
+                    <View style={[styles.activityIcon, { backgroundColor: config.bgColor }]}>
+                      <Icon size={16} color={config.color} strokeWidth={2.5} />
                     </View>
                     <View style={styles.activityInfo}>
-                      <Text style={styles.activitySymbol}>{trade.symbol}</Text>
-                      <Text style={styles.activityDetails}>
-                        {trade.trade_type.toUpperCase()} • {trade.quantity} shares
+                      <Text style={styles.activitySymbol} numberOfLines={1}>
+                        {getTransactionTitle(tx)}
+                      </Text>
+                      <Text style={styles.activityDetails} numberOfLines={1}>
+                        {getTransactionSubtitle(tx)}
                       </Text>
                     </View>
                   </View>
                   <View style={styles.activityRight}>
-                    <Text style={styles.activityAmount}>
-                      {isBuy ? '-' : '+'}{formatCompactCurrency(totalAmount)}
+                    <Text
+                      style={[
+                        styles.activityAmount,
+                        isPositive ? styles.positiveAmount : styles.negativeAmount
+                      ]}
+                    >
+                      {isPositive ? '+' : ''}{formatCompactCurrency(tx.amount)}
                     </Text>
-                    <Text style={styles.activityTime}>{formatTime(trade.executed_at)}</Text>
+                    <Text style={styles.activityTime}>
+                      {formatTime(tx.created_at)}
+                    </Text>
                   </View>
                 </View>
               </BlurView>
@@ -150,30 +324,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: S * 1.5,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: S,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.bold,
+    color: colors.white,
   },
   seeAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: S * 0.5,
+    paddingVertical: S * 0.75,
+    paddingHorizontal: S,
+    minHeight: 44,
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: typography.size.sm,
     color: '#3B82F6',
-    fontWeight: '600',
+    fontWeight: typography.weight.semibold,
   },
   activities: {
-    gap: 10,
+    gap: S * 1.25,
   },
   activityCard: {
     borderRadius: radius.lg,
@@ -185,13 +362,14 @@ const styles = StyleSheet.create({
   activityContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: S * 1.75,
   },
   activityLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,
+    gap: S * 1.5,
+    minWidth: 0,
   },
   activityIcon: {
     width: 36,
@@ -200,36 +378,66 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buyIcon: {
-    backgroundColor: 'rgba(16,185,129,0.2)',
-  },
-  sellIcon: {
-    backgroundColor: 'rgba(239,68,68,0.2)',
-  },
   activityInfo: {
     flex: 1,
+    minWidth: 0,
   },
   activitySymbol: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.text,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
+    color: colors.white,
     marginBottom: 2,
   },
   activityDetails: {
-    fontSize: 12,
+    fontSize: typography.size.xs,
     color: colors.textSecondary,
+    fontWeight: typography.weight.medium,
   },
   activityRight: {
     alignItems: 'flex-end',
+    marginLeft: S,
   },
   activityAmount: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.text,
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.bold,
     marginBottom: 2,
+  },
+  positiveAmount: {
+    color: '#10B981',
+  },
+  negativeAmount: {
+    color: colors.white,
   },
   activityTime: {
     fontSize: 11,
     color: colors.textMuted,
+    fontWeight: typography.weight.medium,
+  },
+  errorCard: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: GLASS.border,
+    overflow: 'hidden',
+    padding: S * 3,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: typography.size.md,
+    color: colors.textSecondary,
+    marginBottom: S * 2,
+    textAlign: 'center',
+  },
+  retryButton: {
+    paddingHorizontal: S * 3,
+    paddingVertical: S * 1.5,
+    backgroundColor: '#3B82F6',
+    borderRadius: radius.md,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  retryButtonText: {
+    fontSize: typography.size.md,
+    fontWeight: typography.weight.semibold,
+    color: colors.white,
   },
 });
