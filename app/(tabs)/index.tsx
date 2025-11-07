@@ -19,6 +19,7 @@ import { usePortfolioSnapshots } from '@/hooks/usePortfolioSnapshots';
 import { usePortfolioMetrics } from '@/hooks/usePortfolioMetrics';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useMarketPriceUpdater } from '@/hooks/useMarketPriceUpdater';
+import { useBot } from '@/hooks/useBot';
 import { portfolioAggregationService } from '@/services/portfolio/portfolio-aggregation-service';
 import { colors, zIndex, breakpoints } from '@/constants/theme';
 import { DataStreamBackground } from '@/components/backgrounds';
@@ -43,9 +44,6 @@ export default function HomeScreen() {
   const [todayChange, setTodayChange] = useState(0);
   const [todayChangePercent, setTodayChangePercent] = useState(0);
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
-  const [botStatus, setBotStatus] = useState<'active' | 'paused' | 'inactive'>('active');
-  const [botTodayPnL, setBotTodayPnL] = useState(0);
-  const [botWinRate, setBotWinRate] = useState(0);
   const [transferModalVisible, setTransferModalVisible] = useState(false);
   const [depositModalVisible, setDepositModalVisible] = useState(false);
   const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
@@ -57,6 +55,15 @@ export default function HomeScreen() {
   const { metrics: portfolioMetrics, loading: metricsLoading, refetch: refetchMetrics } = usePortfolioMetrics();
   const { unreadCount: notificationCount } = useNotifications(user?.id);
   const { lastUpdate: priceLastUpdate, isRunning: priceUpdaterRunning } = useMarketPriceUpdater(true, 30000);
+  const {
+    hasBot,
+    allocation: botAllocation,
+    todayPnL: botTodayPnL,
+    isMarginCall,
+    marginCallDetails,
+    updateStatus: updateBotStatus,
+    loading: botLoading
+  } = useBot(user?.id);
 
   useFocusEffect(
     useCallback(() => {
@@ -142,9 +149,15 @@ export default function HomeScreen() {
   const handleDeposit = useCallback(() => setDepositModalVisible(true), []);
   const handleWithdraw = useCallback(() => setWithdrawModalVisible(true), []);
   const handleNotifications = useCallback(() => setNotificationModalVisible(true), []);
-  const handleBotToggle = useCallback((active: boolean) => {
-    setBotStatus(active ? 'active' : 'paused');
-  }, []);
+  const handleBotToggle = useCallback(async (active: boolean) => {
+    if (botAllocation) {
+      try {
+        await updateBotStatus(active ? 'active' : 'paused');
+      } catch (error) {
+        console.error('Failed to toggle bot status:', error);
+      }
+    }
+  }, [botAllocation, updateBotStatus]);
 
   const handleTimeRangeChange = useCallback(async (range: TimeRange) => {
     setPerformanceLoading(true);
@@ -231,9 +244,13 @@ export default function HomeScreen() {
             totalReturn={portfolioReturn}
             totalReturnPercent={portfolioReturn}
             sparklineData={sparklineData}
-            botStatus={botStatus}
+            hasBot={hasBot}
+            botStatus={botAllocation?.status as 'active' | 'paused' | 'margin_call' | undefined}
             botTodayPnL={botTodayPnL}
-            botWinRate={botWinRate}
+            botWinRate={botAllocation?.win_rate || 0}
+            botTotalTrades={botAllocation?.total_trades || 0}
+            isMarginCall={isMarginCall}
+            marginCallDetails={marginCallDetails}
             onBotToggle={handleBotToggle}
             onDeposit={handleDeposit}
             onTransfer={handleTransfer}

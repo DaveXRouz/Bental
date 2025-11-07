@@ -2,10 +2,17 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Switch, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, TrendingDown, Bot, ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, Bot, ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, AlertTriangle } from 'lucide-react-native';
 import { Sparkline } from '@/components/ui/Sparkline';
 import { colors, radius, spacing, typography, breakpoints } from '@/constants/theme';
 import { GLASS } from '@/constants/glass';
+
+interface MarginCallDetails {
+  shortfall_amount: number;
+  triggered_value: number;
+  threshold_value: number;
+  triggered_at: string;
+}
 
 interface HeroSectionProps {
   totalValue: number;
@@ -14,9 +21,13 @@ interface HeroSectionProps {
   totalReturn: number;
   totalReturnPercent: number;
   sparklineData?: number[];
-  botStatus: 'active' | 'paused' | 'inactive';
-  botTodayPnL: number;
-  botWinRate: number;
+  hasBot: boolean;
+  botStatus?: 'active' | 'paused' | 'margin_call';
+  botTodayPnL?: number;
+  botWinRate?: number;
+  botTotalTrades?: number;
+  isMarginCall?: boolean;
+  marginCallDetails?: MarginCallDetails | null;
   onBotToggle?: (active: boolean) => void;
   onDeposit?: () => void;
   onTransfer?: () => void;
@@ -32,9 +43,13 @@ export const HeroSection = React.memo(({
   totalReturn,
   totalReturnPercent,
   sparklineData = [],
+  hasBot,
   botStatus,
-  botTodayPnL,
-  botWinRate,
+  botTodayPnL = 0,
+  botWinRate = 0,
+  botTotalTrades = 0,
+  isMarginCall = false,
+  marginCallDetails,
   onBotToggle,
   onDeposit = () => {},
   onTransfer = () => {},
@@ -65,8 +80,8 @@ export const HeroSection = React.memo(({
 
   if (isTablet) {
     return (
-      <View style={styles.tabletContainer}>
-        <BlurView intensity={20} tint="dark" style={styles.portfolioCard}>
+      <View style={[styles.tabletContainer, !hasBot && styles.tabletContainerNoBot]}>
+        <BlurView intensity={20} tint="dark" style={[styles.portfolioCard, !hasBot && styles.portfolioCardFullWidth]}>
           <LinearGradient
             colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.06)']}
             start={{ x: 0, y: 0 }}
@@ -178,6 +193,7 @@ export const HeroSection = React.memo(({
           </LinearGradient>
         </BlurView>
 
+        {hasBot && (
         <BlurView intensity={15} tint="dark" style={styles.botCard}>
           <View style={styles.botHeader}>
             <View style={styles.botHeaderLeft}>
@@ -200,12 +216,24 @@ export const HeroSection = React.memo(({
             />
           </View>
 
-          <View style={[styles.statusBanner, { backgroundColor: `${botStatusColor}15` }]}>
-            <View style={[styles.statusDot, { backgroundColor: botStatusColor }]} />
-            <Text style={[styles.statusBannerText, { color: botStatusColor }]}>
-              {botStatusLabel} {isBotActive ? '• Trading' : '• Standby'}
-            </Text>
-          </View>
+          {isMarginCall && marginCallDetails ? (
+            <View style={styles.marginCallBanner}>
+              <AlertTriangle size={20} color="#EF4444" strokeWidth={2.5} />
+              <View style={styles.marginCallTextContainer}>
+                <Text style={styles.marginCallTitle}>Margin Call - Bot Paused</Text>
+                <Text style={styles.marginCallText}>
+                  Add ${marginCallDetails.shortfall_amount.toFixed(2)} to resume trading
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View style={[styles.statusBanner, { backgroundColor: `${botStatusColor}15` }]}>
+              <View style={[styles.statusDot, { backgroundColor: botStatusColor }]} />
+              <Text style={[styles.statusBannerText, { color: botStatusColor }]}>
+                {botStatusLabel} {isBotActive ? '• Trading' : '• Standby'}
+              </Text>
+            </View>
+          )}
 
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
@@ -237,14 +265,17 @@ export const HeroSection = React.memo(({
           <View style={styles.botMetrics}>
             <View style={styles.metricRow}>
               <Text style={styles.metricLabel}>Total Trades</Text>
-              <Text style={styles.metricValue}>127</Text>
+              <Text style={styles.metricValue}>{botTotalTrades}</Text>
             </View>
             <View style={styles.metricRow}>
-              <Text style={styles.metricLabel}>Active Since</Text>
-              <Text style={styles.metricValue}>Jan 2025</Text>
+              <Text style={styles.metricLabel}>Status</Text>
+              <Text style={[styles.metricValue, isMarginCall && { color: '#EF4444' }]}>
+                {isMarginCall ? 'Margin Call' : 'Active'}
+              </Text>
             </View>
           </View>
         </BlurView>
+        )}
       </View>
     );
   }
@@ -343,6 +374,7 @@ export const HeroSection = React.memo(({
         </LinearGradient>
       </BlurView>
 
+      {hasBot && (
       <BlurView intensity={15} tint="dark" style={styles.botCardMobile}>
         <View style={styles.botHeaderMobile}>
           <View style={styles.botHeaderLeftMobile}>
@@ -396,10 +428,11 @@ export const HeroSection = React.memo(({
 
           <View style={styles.statItemMobile}>
             <Text style={styles.statLabelMobile}>Trades</Text>
-            <Text style={styles.statValueMobile}>127</Text>
+            <Text style={styles.statValueMobile}>{botTotalTrades}</Text>
           </View>
         </View>
       </BlurView>
+      )}
     </View>
   );
 });
@@ -413,6 +446,9 @@ const styles = StyleSheet.create({
     marginBottom: S * 3,
     minWidth: 0,
   },
+  tabletContainerNoBot: {
+    flexDirection: 'column',
+  },
   portfolioCard: {
     flex: 2,
     flexShrink: 1,
@@ -422,6 +458,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: GLASS.border,
+  },
+  portfolioCardFullWidth: {
+    flex: 1,
   },
   botCard: {
     flex: 1,
@@ -622,6 +661,33 @@ const styles = StyleSheet.create({
     width: S * 1.25,
     height: S * 1.25,
     borderRadius: S * 0.625,
+  },
+  marginCallBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: S * 1.5,
+    paddingHorizontal: S * 2,
+    paddingVertical: S * 2,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    marginTop: S * 2,
+    marginBottom: S * 2.5,
+  },
+  marginCallTextContainer: {
+    flex: 1,
+  },
+  marginCallTitle: {
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: '#EF4444',
+    marginBottom: S * 0.5,
+  },
+  marginCallText: {
+    fontSize: typography.size.xs,
+    color: colors.textMuted,
+    fontWeight: typography.weight.medium,
   },
   statsGrid: {
     flexDirection: 'row',
