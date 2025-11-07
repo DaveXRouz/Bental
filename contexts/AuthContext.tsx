@@ -272,7 +272,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error(
+      'useAuth must be used within an AuthProvider. ' +
+      'Make sure your component is wrapped with <AuthProvider> in app/_layout.tsx. ' +
+      'If you are seeing this error during app initialization, ensure providers are mounted before routes are evaluated.'
+    );
   }
   return context;
 }

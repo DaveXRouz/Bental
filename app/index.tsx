@@ -8,10 +8,17 @@ import { supabase } from '@/lib/supabase';
 import { useAppConfig } from '@/hooks/useAppConfig';
 
 export default function Index() {
-  const { session, loading } = useAuth();
+  const auth = useAuth();
   const { maintenance_mode, loading: configLoading } = useAppConfig();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
+
+  // Guard against undefined context during initialization
+  if (!auth) {
+    return <SplashGlass />;
+  }
+
+  const { session, loading } = auth;
 
   useEffect(() => {
     async function fetchUserRole() {

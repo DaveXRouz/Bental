@@ -82,28 +82,28 @@ export default function RootLayout() {
     };
   }, []);
 
-  if (!fontsLoaded && !fontError) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#0B6E4F" />
-      </View>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <LoadingProvider>
         <ToastProvider>
           <AuthProvider>
             <AccountProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="index" />
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="admin-panel" />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-              <StatusBar style="auto" />
+              {!fontsLoaded && !fontError ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator size="large" color="#0B6E4F" />
+                </View>
+              ) : (
+                <>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" />
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="admin-panel" />
+                    <Stack.Screen name="+not-found" />
+                  </Stack>
+                  <StatusBar style="auto" />
+                </>
+              )}
             </AccountProvider>
           </AuthProvider>
         </ToastProvider>
