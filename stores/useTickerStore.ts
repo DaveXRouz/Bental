@@ -50,23 +50,35 @@ export const useTickerStore = create<TickerState>((set, get) => ({
 
     get().loadFromCache();
 
-    binanceService.connect(
-      (tickers) => {
-        get().updateFromService(tickers);
-        get().setConnected(true);
-      },
-      (error) => {
-        console.log('[TickerStore] Binance error (expected):', error.message);
-        get().setError(error.message);
-      }
-    );
+    try {
+      binanceService.connect(
+        (tickers) => {
+          try {
+            get().updateFromService(tickers);
+            get().setConnected(true);
+          } catch (error) {
+            console.error('[TickerStore] Error updating from Binance:', error);
+          }
+        },
+        (error) => {
+          console.log('[TickerStore] Binance error (expected):', error.message);
+        }
+      );
+    } catch (error) {
+      console.error('[TickerStore] Failed to connect to Binance:', error);
+    }
 
     const fetchFXData = async () => {
       try {
+        console.log('[TickerStore] Fetching FX rates...');
         const rates = await fxService.fetchRates();
-        get().updateFromService(rates);
+        if (rates && rates.length > 0) {
+          get().updateFromService(rates);
+          console.log('[TickerStore] Updated FX rates:', rates.length);
+        }
       } catch (error) {
         console.error('[TickerStore] FX error:', error);
+        get().clearError();
       }
     };
 
@@ -75,8 +87,12 @@ export const useTickerStore = create<TickerState>((set, get) => ({
     const fxInterval = setInterval(fetchFXData, 300000);
 
     return () => {
-      clearInterval(fxInterval);
-      get().cleanup();
+      try {
+        clearInterval(fxInterval);
+        get().cleanup();
+      } catch (error) {
+        console.error('[TickerStore] Cleanup error:', error);
+      }
     };
   },
 

@@ -1,5 +1,8 @@
 import { ENV, isDemoMode } from '@/config/env';
 
+const REQUEST_TIMEOUT = 10000;
+const MAX_RETRIES = 2;
+
 interface ExchangeRate {
   rate: number;
   timestamp: number;
@@ -47,32 +50,61 @@ class FXService {
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached.rate;
 
-    try {
-      const targetUrl = `${ENV.fx.exchangeRateBase}/convert?from=${from}&to=${to}&amount=1`;
-      const proxyUrl = getProxyUrl(targetUrl);
-      const response = await fetch(proxyUrl);
+    let lastError: Error | null = null;
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch exchange rate ${from}/${to}`);
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        if (!ENV.fx?.exchangeRateBase) {
+          console.warn('[FX] Exchange rate API not configured, using demo rates');
+          return this.getDemoRate(from, to);
+        }
+
+        const targetUrl = `${ENV.fx.exchangeRateBase}/convert?from=${from}&to=${to}&amount=1`;
+        const proxyUrl = getProxyUrl(targetUrl);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+        const response = await fetch(proxyUrl, {
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch exchange rate ${from}/${to}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.result) {
+          throw new Error(`Invalid API response for ${from}/${to}`);
+        }
+
+        const exchangeRate: ExchangeRate = {
+          rate: data.result,
+          timestamp: Date.now(),
+        };
+
+        this.setCache(cacheKey, exchangeRate);
+        return exchangeRate.rate;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.warn(`[FX] Request timeout on attempt ${attempt + 1}/${MAX_RETRIES}`);
+        } else {
+          console.warn(`[FX] Error on attempt ${attempt + 1}/${MAX_RETRIES}:`, error);
+        }
+
+        if (attempt < MAX_RETRIES - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
       }
-
-      const data = await response.json();
-
-      if (!data.success || !data.result) {
-        throw new Error(`Invalid response for ${from}/${to}`);
-      }
-
-      const exchangeRate: ExchangeRate = {
-        rate: data.result,
-        timestamp: Date.now(),
-      };
-
-      this.setCache(cacheKey, exchangeRate);
-      return exchangeRate.rate;
-    } catch (error) {
-      console.error(`[FX] Error fetching rate ${from}/${to}:`, error);
-      return this.getDemoRate(from, to);
     }
+
+    console.error(`[FX] All ${MAX_RETRIES} attempts failed for ${from}/${to}, using demo rate`);
+    return this.getDemoRate(from, to);
   }
 
   async convertAmount(amount: number, from: string, to: string): Promise<number> {

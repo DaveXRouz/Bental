@@ -67,7 +67,7 @@ export default function RootLayout() {
     try {
       validateEnvironment();
     } catch (error) {
-      console.warn('Environment validation failed', error);
+      console.error('[App] Environment validation failed:', error);
     }
 
     if (fontsLoaded || fontError) {
@@ -76,11 +76,27 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   useEffect(() => {
-    const cleanup = useTickerStore.getState().initialize();
-    return () => {
-      if (cleanup) cleanup();
-    };
-  }, []);
+    if (!fontsLoaded && !fontError) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      try {
+        console.log('[App] Initializing ticker store...');
+        const cleanup = useTickerStore.getState().initialize();
+        return () => {
+          if (cleanup) {
+            console.log('[App] Cleaning up ticker store...');
+            cleanup();
+          }
+        };
+      } catch (error) {
+        console.error('[App] Failed to initialize ticker store:', error);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [fontsLoaded, fontError]);
 
   return (
     <ErrorBoundary>

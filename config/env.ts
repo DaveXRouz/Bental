@@ -27,6 +27,11 @@ export const ENV = {
     finnhubKey: process.env.FINNHUB_API_KEY,
     coinStatsKey: process.env.COINSTATS_API_KEY,
   },
+
+  fx: {
+    exchangeRateBase: process.env.EXPO_PUBLIC_FX_API_URL || 'https://api.exchangerate-api.com/v4/latest',
+    fallbackProvider: 'https://api.exchangerate.host/latest',
+  },
 };
 
 export const isLocal = ENV.env === 'local';
@@ -40,6 +45,34 @@ export const useMockData = isLocal || !FEATURES.liveMarket;
 export const isDemoMode = useMockData;
 
 export function validateEnvironment() {
-  // Environment validation complete - credentials are hardcoded
+  const requiredVars = [
+    { key: 'EXPO_PUBLIC_SUPABASE_URL', value: ENV.supabase.url },
+    { key: 'EXPO_PUBLIC_SUPABASE_ANON_KEY', value: ENV.supabase.anonKey },
+  ];
+
+  const missing: string[] = [];
+  const warnings: string[] = [];
+
+  requiredVars.forEach(({ key, value }) => {
+    if (!value) {
+      missing.push(key);
+    }
+  });
+
+  // Optional but recommended
+  if (!ENV.fx.exchangeRateBase) {
+    warnings.push('FX_API_URL not set - using default exchange rate API');
+  }
+
+  if (missing.length > 0) {
+    console.error('[ENV] Missing required environment variables:', missing);
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  if (warnings.length > 0) {
+    console.warn('[ENV] Configuration warnings:', warnings);
+  }
+
+  console.log('[ENV] Environment validation passed');
   return true;
 }

@@ -2,6 +2,8 @@ const ALLOWED_ORIGINS = [
   'https://stooq.com',
   'https://api.exchangerate.host',
   'https://api.exchangerate-api.com',
+  'https://api.coingecko.com',
+  'https://api.coinbase.com',
 ];
 
 const CACHE_DURATION = 120;
@@ -56,8 +58,12 @@ export async function GET(request: Request): Promise<Response> {
     const targetUrl = url.searchParams.get('url');
 
     if (!targetUrl) {
+      console.error('[Proxy] Missing url parameter');
       return new Response(
-        JSON.stringify({ error: 'Missing url parameter' }),
+        JSON.stringify({
+          error: 'Missing url parameter',
+          code: 'MISSING_URL'
+        }),
         {
           status: 400,
           headers: {
@@ -69,8 +75,13 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     if (!isAllowedUrl(targetUrl)) {
+      console.error('[Proxy] URL not allowed:', targetUrl);
       return new Response(
-        JSON.stringify({ error: 'URL not allowed' }),
+        JSON.stringify({
+          error: 'URL not allowed',
+          code: 'URL_NOT_ALLOWED',
+          allowedOrigins: ALLOWED_ORIGINS
+        }),
         {
           status: 403,
           headers: {
@@ -81,19 +92,35 @@ export async function GET(request: Request): Promise<Response> {
       );
     }
 
+    console.log('[Proxy] Fetching:', targetUrl);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(targetUrl, {
       method: 'GET',
       headers: {
         'User-Agent': 'FinancialAdvisorApp/1.0',
         'Accept': 'text/csv, application/json, text/plain, */*',
       },
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
+      console.error('[Proxy] External API error:', {
+        url: targetUrl,
+        status: response.status,
+        statusText: response.statusText
+      });
+
       return new Response(
         JSON.stringify({
           error: 'External API request failed',
-          status: response.status
+          code: 'EXTERNAL_API_ERROR',
+          status: response.status,
+          statusText: response.statusText
         }),
         {
           status: response.status,
@@ -118,6 +145,8 @@ export async function GET(request: Request): Promise<Response> {
     const contentType = response.headers.get('content-type') || 'text/plain';
     const data = await response.text();
 
+    console.log('[Proxy] Success:', targetUrl);
+
     return new Response(data, {
       status: 200,
       headers: {
@@ -126,13 +155,23 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorName = error instanceof Error ? error.name : 'Error';
+
+    console.error('[Proxy] Internal error:', {
+      name: errorName,
+      message: errorMessage,
+      url: request.url
+    });
+
     return new Response(
       JSON.stringify({
         error: 'Internal proxy error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        code: errorName === 'AbortError' ? 'TIMEOUT' : 'INTERNAL_ERROR',
+        message: errorName === 'AbortError' ? 'Request timeout' : errorMessage
       }),
       {
-        status: 500,
+        status: errorName === 'AbortError' ? 504 : 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',

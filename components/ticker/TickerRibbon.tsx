@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, Animated, useWindowDimensions } from 'react-native';
 import { TrendingUp, TrendingDown } from 'lucide-react-native';
 import { useTickerStore } from '@/stores/useTickerStore';
@@ -7,7 +7,42 @@ import { safePercentage, formatCurrency, safeNumber } from '@/utils/formatting';
 
 const SCROLL_SPEED = 50;
 
-export function TickerRibbon() {
+interface TickerErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface TickerErrorBoundaryState {
+  hasError: boolean;
+}
+
+class TickerErrorBoundary extends Component<TickerErrorBoundaryProps, TickerErrorBoundaryState> {
+  constructor(props: TickerErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_: Error): TickerErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('[TickerRibbon] Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.loadingText}>Market data temporarily unavailable</Text>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function TickerRibbonContent() {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const tickersObject = useTickerStore((state) => state.tickers);
   const tickers = useMemo(
@@ -36,12 +71,16 @@ export function TickerRibbon() {
     };
   }, [tickers.length, SCREEN_WIDTH]);
 
-  if (tickers.length === 0) {
+  if (!tickersObject || Object.keys(tickersObject).length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Loading market data...</Text>
       </View>
     );
+  }
+
+  if (tickers.length === 0) {
+    return null;
   }
 
   const displayTickers = [...tickers, ...tickers, ...tickers];
@@ -73,25 +112,38 @@ interface TickerItemProps {
 }
 
 function TickerItem({ ticker }: TickerItemProps) {
-  const isPositive = ticker.changePercent >= 0;
-  const Icon = isPositive ? TrendingUp : TrendingDown;
+  try {
+    const isPositive = ticker.changePercent >= 0;
+    const Icon = isPositive ? TrendingUp : TrendingDown;
 
+    return (
+      <View style={styles.tickerItem}>
+        <Text style={styles.symbol}>{ticker.symbol || 'N/A'}</Text>
+        <Icon
+          size={14}
+          color={isPositive ? colors.success : colors.danger}
+          style={styles.icon}
+        />
+        <Text style={styles.price}>
+          {formatCurrency(ticker.price || 0, 2)}
+        </Text>
+        <Text style={[styles.change, isPositive ? styles.positive : styles.negative]}>
+          {isPositive ? '+' : ''}
+          {safePercentage(ticker.changePercent || 0, 2)}%
+        </Text>
+      </View>
+    );
+  } catch (error) {
+    console.error('[TickerItem] Render error:', error);
+    return null;
+  }
+}
+
+export function TickerRibbon() {
   return (
-    <View style={styles.tickerItem}>
-      <Text style={styles.symbol}>{ticker.symbol}</Text>
-      <Icon
-        size={14}
-        color={isPositive ? colors.success : colors.danger}
-        style={styles.icon}
-      />
-      <Text style={styles.price}>
-        {formatCurrency(ticker.price, 2)}
-      </Text>
-      <Text style={[styles.change, isPositive ? styles.positive : styles.negative]}>
-        {isPositive ? '+' : ''}
-        {safePercentage(ticker.changePercent, 2)}%
-      </Text>
-    </View>
+    <TickerErrorBoundary>
+      <TickerRibbonContent />
+    </TickerErrorBoundary>
   );
 }
 
