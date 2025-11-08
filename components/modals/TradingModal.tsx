@@ -26,6 +26,8 @@ interface TradingModalProps {
   currentPrice: number;
   mode: 'buy' | 'sell';
   availableQuantity?: number;
+  totalQuantity?: number;
+  lockedQuantity?: number;
 }
 
 export default function TradingModal({
@@ -36,6 +38,8 @@ export default function TradingModal({
   currentPrice,
   mode,
   availableQuantity = 0,
+  totalQuantity,
+  lockedQuantity,
 }: TradingModalProps) {
   const { selectedAccounts } = useAccountContext();
   const { cashBalance, refreshPortfolio } = usePortfolio();
@@ -68,7 +72,9 @@ export default function TradingModal({
   const hasEnteredQuantity = quantity.trim() !== '' && quantityValue > 0;
 
   const canAfford = isBuy ? totalCost <= cashBalance : true;
-  const hasEnoughShares = !isBuy ? quantityValue <= availableQuantity : true;
+  // Use small epsilon for floating point comparison
+  const hasEnoughShares = !isBuy ? quantityValue <= availableQuantity + 0.00000001 : true;
+  const hasLockedQty = !isBuy && lockedQuantity && lockedQuantity > 0;
 
   const isValid = useMemo(() => {
     const qty = parseFloat(quantity);
@@ -184,8 +190,18 @@ export default function TradingModal({
               {/* Available Shares Info */}
               {!isBuy && (
                 <View style={styles.infoCard}>
-                  <Text style={styles.infoLabel}>Available to Sell</Text>
-                  <Text style={styles.infoValue}>{availableQuantity.toFixed(4)} {symbol}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.infoLabel}>Available to Sell</Text>
+                    <Text style={styles.infoValue}>{availableQuantity.toFixed(4)} {symbol}</Text>
+                    {hasLockedQty && (
+                      <View style={styles.lockedInfo}>
+                        <AlertCircle size={12} color={colors.warning} />
+                        <Text style={styles.lockedText}>
+                          {lockedQuantity?.toFixed(4)} locked in pending orders
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
               )}
 
@@ -204,7 +220,13 @@ export default function TradingModal({
                   />
                 </View>
                 {!hasEnoughShares && !isBuy && hasEnteredQuantity && (
-                  <Text style={styles.errorText}>Insufficient shares. You have {availableQuantity.toFixed(4)} available</Text>
+                  <View style={styles.inlineError}>
+                    <AlertCircle size={14} color={colors.danger} />
+                    <Text style={styles.errorText}>
+                      Insufficient available shares. You have {availableQuantity.toFixed(4)} available
+                      {hasLockedQty && ` (${lockedQuantity?.toFixed(4)} locked in pending orders)`}
+                    </Text>
+                  </View>
                 )}
               </View>
 
@@ -384,6 +406,17 @@ const styles = StyleSheet.create({
     fontWeight: Typography.weight.bold,
     color: colors.white,
   },
+  lockedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 6,
+  },
+  lockedText: {
+    fontSize: Typography.size.xs,
+    color: colors.warning,
+    fontWeight: Typography.weight.medium,
+  },
   inputGroup: {
     marginBottom: Spacing.lg,
   },
@@ -479,10 +512,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.2)',
   },
+  inlineError: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginTop: 6,
+  },
   errorText: {
+    flex: 1,
     fontSize: Typography.size.sm,
     color: colors.danger,
-    marginTop: 4,
+    lineHeight: 18,
   },
   errorMessage: {
     flex: 1,

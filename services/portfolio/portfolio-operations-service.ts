@@ -242,6 +242,24 @@ export async function getPortfolioState(accountId: string): Promise<PortfolioSta
 }
 
 /**
+ * Get holdings with availability information
+ * Returns holdings with total, locked, and available quantities
+ */
+export async function getHoldingsWithAvailability(accountId: string) {
+  try {
+    const { data, error } = await supabase.rpc('get_holdings_with_availability', {
+      p_account_id: accountId,
+    });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error: any) {
+    console.error('Get holdings with availability error:', error);
+    throw new Error(error.message || 'Failed to fetch holdings');
+  }
+}
+
+/**
  * Get all pending sell orders for a user
  */
 export async function getUserPendingSellOrders(userId: string) {
@@ -350,15 +368,28 @@ export async function checkSufficientBalance(
 
 /**
  * Check if user has sufficient holdings for a sell order
+ * Accounts for quantities locked in pending sell orders
  */
 export async function checkSufficientHoldings(
   accountId: string,
   symbol: string,
   assetType: string,
   requiredQuantity: number
-): Promise<{ sufficient: boolean; available: number }> {
+): Promise<{ sufficient: boolean; available: number; total?: number; locked?: number }> {
   try {
-    const { data, error } = await supabase
+    // Use RPC to get available quantity (accounts for pending orders)
+    const { data, error } = await supabase.rpc('get_available_quantity', {
+      p_account_id: accountId,
+      p_symbol: symbol,
+      p_asset_type: assetType,
+    });
+
+    if (error) throw error;
+
+    const available = data ? Number(data) : 0;
+
+    // Also get total holdings for informational purposes
+    const { data: holdingData } = await supabase
       .from('holdings')
       .select('quantity')
       .eq('account_id', accountId)
@@ -366,12 +397,14 @@ export async function checkSufficientHoldings(
       .eq('asset_type', assetType)
       .maybeSingle();
 
-    if (error) throw error;
+    const total = holdingData ? Number(holdingData.quantity) : 0;
+    const locked = total - available;
 
-    const available = data ? Number(data.quantity) : 0;
     return {
       sufficient: available >= requiredQuantity,
       available,
+      total,
+      locked,
     };
   } catch (error: any) {
     console.error('Check sufficient holdings error:', error);

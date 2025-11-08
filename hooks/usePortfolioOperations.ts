@@ -104,9 +104,12 @@ export function usePortfolioOperations(accountId?: string) {
         );
 
         if (!holdingsCheck.sufficient) {
-          const errorMsg = `Insufficient holdings. Required: ${request.quantity}, Available: ${holdingsCheck.available}`;
+          let errorMsg = `Insufficient available holdings. Required: ${request.quantity}, Available: ${holdingsCheck.available}`;
+          if (holdingsCheck.locked && holdingsCheck.locked > 0) {
+            errorMsg += `\n${holdingsCheck.locked} locked in pending orders`;
+          }
           setError(errorMsg);
-          showErrorToast('Insufficient Holdings', errorMsg);
+          showErrorToast('Insufficient Available Holdings', errorMsg);
           return null;
         }
 

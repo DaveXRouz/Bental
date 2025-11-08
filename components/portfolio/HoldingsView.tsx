@@ -15,6 +15,7 @@ import { CurrencyDisplay, PercentageDisplay, NumberText } from '@/components/ui'
 import { useAccountContext } from '@/contexts/AccountContext';
 import { usePendingSellOrders } from '@/hooks/usePortfolioOperations';
 import { formatDistance } from 'date-fns';
+import { getHoldingsWithAvailability } from '@/services/portfolio/portfolio-operations-service';
 
 export default function HoldingsView() {
   const { user } = useAuth();
@@ -53,12 +54,12 @@ export default function HoldingsView() {
         .eq('user_id', user.id);
 
       if (accounts && accounts.length > 0) {
-        const accountIds = accounts.map(a => a.id);
-
-        const { data: holdingsData } = await supabase
-          .from('holdings')
-          .select('*')
-          .in('account_id', accountIds);
+        // Fetch holdings with availability info for all accounts
+        const holdingsPromises = accounts.map(account =>
+          getHoldingsWithAvailability(account.id)
+        );
+        const holdingsArrays = await Promise.all(holdingsPromises);
+        const holdingsData = holdingsArrays.flat();
 
         if (holdingsData) {
           const sorted = sortHoldings(holdingsData, sortBy);
@@ -131,29 +132,31 @@ export default function HoldingsView() {
 
   const handleSellAssets = (holding?: any) => {
     if (holding) {
-      // Selling a specific holding
-      const quantity = safeNumber(holding.quantity);
+      // Selling a specific holding - use available quantity
+      const availableQty = safeNumber(holding.available_quantity);
+      const totalQty = safeNumber(holding.quantity);
       const marketVal = safeNumber(holding.market_value);
-      const currentPrice = quantity > 0 ? marketVal / quantity : 0;
+      const currentPrice = totalQty > 0 ? marketVal / totalQty : 0;
 
       setTradingMode('sell');
       setTradingSymbol(holding.symbol);
       setTradingAssetType(holding.asset_type || 'stock');
       setTradingPrice(currentPrice);
-      setTradingAvailableQty(quantity);
+      setTradingAvailableQty(availableQty); // Use available, not total
       setTradingModalVisible(true);
     } else if (holdings.length > 0) {
       // No specific holding selected, use the first one as default
       const firstHolding = holdings[0];
-      const quantity = safeNumber(firstHolding.quantity);
+      const availableQty = safeNumber(firstHolding.available_quantity);
+      const totalQty = safeNumber(firstHolding.quantity);
       const marketVal = safeNumber(firstHolding.market_value);
-      const currentPrice = quantity > 0 ? marketVal / quantity : 0;
+      const currentPrice = totalQty > 0 ? marketVal / totalQty : 0;
 
       setTradingMode('sell');
       setTradingSymbol(firstHolding.symbol);
       setTradingAssetType(firstHolding.asset_type || 'stock');
       setTradingPrice(currentPrice);
-      setTradingAvailableQty(quantity);
+      setTradingAvailableQty(availableQty); // Use available, not total
       setTradingModalVisible(true);
     }
   };
@@ -357,12 +360,15 @@ export default function HoldingsView() {
         holdings.map((holding) => {
           const marketVal = safeNumber(holding.market_value);
           const quantity = safeNumber(holding.quantity);
+          const availableQty = safeNumber(holding.available_quantity);
+          const lockedQty = safeNumber(holding.locked_quantity);
           const avgCost = safeNumber(holding.average_cost);
           const costBasis = quantity * avgCost;
           const gainLoss = marketVal - costBasis;
           const gainLossPct = costBasis > 0 ? ((marketVal / costBasis) - 1) * 100 : 0;
           const isPositive = gainLoss >= 0;
           const currentPrice = quantity > 0 ? marketVal / quantity : 0;
+          const hasLockedQty = lockedQty > 0;
 
           return (
             <TouchableOpacity key={holding.id} activeOpacity={0.7} onPress={() => handleHoldingPress(holding)}>
@@ -373,13 +379,20 @@ export default function HoldingsView() {
                   </View>
                   <View style={styles.holdingInfo}>
                     <Text style={styles.holdingName}>{holding.symbol}</Text>
-                    <NumberText
-                      value={quantity.toFixed(2)}
-                      variant="quantity"
-                      suffix=" shares"
-                      style={styles.holdingShares}
-                      color={colors.textMuted}
-                    />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <NumberText
+                        value={quantity.toFixed(2)}
+                        variant="quantity"
+                        suffix=" shares"
+                        style={styles.holdingShares}
+                        color={colors.textMuted}
+                      />
+                      {hasLockedQty && (
+                        <Text style={styles.lockedBadge}>
+                          ({availableQty.toFixed(2)} available)
+                        </Text>
+                      )}
+                    </View>
                   </View>
                   <View style={styles.holdingValue}>
                     <CurrencyDisplay
@@ -577,6 +590,11 @@ const styles = StyleSheet.create({
   holdingShares: {
     fontSize: 13,
     color: colors.textMuted,
+  },
+  lockedBadge: {
+    fontSize: 11,
+    color: colors.warning,
+    fontWeight: '600',
   },
   holdingValue: {
     alignItems: 'flex-end',
