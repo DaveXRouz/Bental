@@ -3,7 +3,7 @@ import { BlurView } from 'expo-blur';
 import { ExternalLink } from 'lucide-react-native';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
-import { NewsArticle } from '@/services/news/types';
+import { NewsArticle } from '@/hooks/useNews';
 
 interface NewsItemProps {
   article: NewsArticle;
@@ -37,9 +37,9 @@ export function NewsItem({ article, onPress }: NewsItemProps) {
     >
       <BlurView intensity={16} tint="dark" style={[styles.blur, { borderColor: colors.border }]}>
         <View style={styles.content}>
-          {article.imageUrl && (
+          {article.image_url && (
             <Image
-              source={{ uri: article.imageUrl }}
+              source={{ uri: article.image_url }}
               style={styles.image}
               resizeMode="cover"
             />
@@ -53,11 +53,11 @@ export function NewsItem({ article, onPress }: NewsItemProps) {
             </Text>
             <View style={styles.meta}>
               <Text style={[styles.source, { color: colors.textSecondary }]}>
-                {article.source}
+                {article.source || 'Unknown Source'}
               </Text>
               <Text style={[styles.dot, { color: colors.textMuted }]}>•</Text>
               <Text style={[styles.time, { color: colors.textMuted }]}>
-                {timeAgo(article.publishedAt)}
+                {article.published_at ? timeAgo(article.published_at) : 'Recently'}
               </Text>
             </View>
           </View>

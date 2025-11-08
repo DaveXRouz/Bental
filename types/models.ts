@@ -2,7 +2,7 @@ export interface Profile {
   id: string;
   full_name: string;
   email: string;
-  phone?: string;
+  phone?: string | null;
   avatar_url?: string;
   preferred_language: 'en' | 'fr';
   preferred_currency: string;

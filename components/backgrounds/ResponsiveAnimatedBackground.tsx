@@ -263,10 +263,10 @@ function AnimatedShape({
   }));
 
   const shapeColors = {
-    x: ['rgba(180, 180, 190, 0.25)', 'rgba(160, 160, 170, 0.2)'],
-    cube: ['rgba(170, 170, 180, 0.22)', 'rgba(150, 150, 160, 0.18)'],
-    sphere: ['rgba(160, 160, 170, 0.2)', 'rgba(130, 130, 140, 0.15)'],
-    pyramid: ['rgba(170, 170, 180, 0.2)', 'rgba(150, 150, 160, 0.15)'],
+    x: ['rgba(180, 180, 190, 0.25)', 'rgba(160, 160, 170, 0.2)'] as const,
+    cube: ['rgba(170, 170, 180, 0.22)', 'rgba(150, 150, 160, 0.18)'] as const,
+    sphere: ['rgba(160, 160, 170, 0.2)', 'rgba(130, 130, 140, 0.15)'] as const,
+    pyramid: ['rgba(170, 170, 180, 0.2)', 'rgba(150, 150, 160, 0.15)'] as const,
   };
 
   const getShapeComponent = () => {

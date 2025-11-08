@@ -5,3 +5,4 @@ export { GlassSection } from './GlassSection';
 export { GlassHero } from './GlassHero';
 export { TabBadge } from './TabBadge';
 export { DynamicGlassTabBar } from './DynamicGlassTabBar';
+export { Glass3DButton as GlassButton } from '../login/Glass3DButton';

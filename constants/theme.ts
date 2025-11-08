@@ -21,6 +21,9 @@ export const colors = {
   danger: '#EF4444',
   warning: '#F59E0B',
   info: '#3B82F6',
+  error: '#EF4444',
+  blue: '#3B82F6',
+  purple: '#8B5CF6',
 
   primary: '#FFFFFF',
   primaryLight: '#F8F8F8',
@@ -60,6 +63,7 @@ export const radius = {
   xl: 24,
   xxl: 32,
   full: 9999,
+  pill: 28,
 };
 
 export const spacing = {
@@ -110,6 +114,29 @@ export const typography = {
       normal: 0,
       relaxed: 0.5,
     },
+  },
+  body: {
+    fontSize: 15,
+    lineHeight: 1.5,
+  },
+  caption: {
+    fontSize: 11,
+    lineHeight: 1.4,
+  },
+  h2: {
+    fontSize: 28,
+    lineHeight: 1.3,
+    fontWeight: '700' as const,
+  },
+  h3: {
+    fontSize: 24,
+    lineHeight: 1.3,
+    fontWeight: '700' as const,
+  },
+  h4: {
+    fontSize: 20,
+    lineHeight: 1.3,
+    fontWeight: '600' as const,
   },
 };
 

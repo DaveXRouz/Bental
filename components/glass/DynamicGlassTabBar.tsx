@@ -203,6 +203,7 @@ export function DynamicGlassTabBar({
     const routeMap: Record<DockItemId, string> = {
       home: 'index',
       portfolio: 'portfolio',
+      accounts: 'accounts',
       markets: 'markets',
       history: 'history',
       ai: 'ai-assistant',
@@ -214,6 +215,14 @@ export function DynamicGlassTabBar({
       notifications: 'more',
       profile: 'profile',
       settings: 'more',
+      more: 'more',
+      alerts: 'alerts',
+      news: 'news',
+      leaderboard: 'leaderboard',
+      bots: 'bot-marketplace',
+      screener: 'screener',
+      tax: 'tax-reports',
+      analytics: 'analytics',
     };
 
     return routeMap[itemId] || null;

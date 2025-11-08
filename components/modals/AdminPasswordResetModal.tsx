@@ -140,8 +140,11 @@ export default function AdminPasswordResetModal({
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
 
+            let currentUser: any = null;
+
             try {
-              const { data: { user: currentUser } } = await supabase.auth.getUser();
+              const { data: { user } } = await supabase.auth.getUser();
+              currentUser = user;
 
               if (!currentUser) {
                 throw new Error('Not authenticated');
