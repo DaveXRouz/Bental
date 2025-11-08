@@ -64,8 +64,11 @@ export default function TradingModal({
     return qty * currentPrice;
   }, [quantity, currentPrice]);
 
+  const quantityValue = parseFloat(quantity) || 0;
+  const hasEnteredQuantity = quantity.trim() !== '' && quantityValue > 0;
+
   const canAfford = isBuy ? totalCost <= cashBalance : true;
-  const hasEnoughShares = !isBuy ? parseFloat(quantity) <= availableQuantity : true;
+  const hasEnoughShares = !isBuy ? quantityValue <= availableQuantity : true;
 
   const isValid = useMemo(() => {
     const qty = parseFloat(quantity);
@@ -181,18 +184,18 @@ export default function TradingModal({
               {/* Available Shares Info */}
               {!isBuy && (
                 <View style={styles.infoCard}>
-                  <Text style={styles.infoLabel}>Available Shares</Text>
-                  <Text style={styles.infoValue}>{availableQuantity.toFixed(4)}</Text>
+                  <Text style={styles.infoLabel}>Available to Sell</Text>
+                  <Text style={styles.infoValue}>{availableQuantity.toFixed(4)} {symbol}</Text>
                 </View>
               )}
 
               {/* Quantity Input */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Quantity</Text>
+                <Text style={styles.label}>Quantity{!isBuy && ` (max: ${availableQuantity.toFixed(4)})`}</Text>
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
-                    placeholder="0.00"
+                    placeholder={!isBuy ? `Enter amount (up to ${availableQuantity.toFixed(4)})` : "0.00"}
                     placeholderTextColor={colors.textMuted}
                     value={quantity}
                     onChangeText={setQuantity}
@@ -200,8 +203,8 @@ export default function TradingModal({
                     editable={!loading}
                   />
                 </View>
-                {!hasEnoughShares && !isBuy && (
-                  <Text style={styles.errorText}>Insufficient shares available</Text>
+                {!hasEnoughShares && !isBuy && hasEnteredQuantity && (
+                  <Text style={styles.errorText}>Insufficient shares. You have {availableQuantity.toFixed(4)} available</Text>
                 )}
               </View>
 

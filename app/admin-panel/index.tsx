@@ -18,6 +18,7 @@ import {
   Shield,
   Activity,
   DollarSign,
+  Clock,
 } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,6 +33,7 @@ export default function AdminPanelDashboard() {
     totalValue: 0,
     totalTrades: 0,
     activeBots: 0,
+    pendingOrders: 0,
   });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -43,12 +45,13 @@ export default function AdminPanelDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [usersRes, accountsRes, holdingsRes, tradesRes, botsRes] = await Promise.all([
+      const [usersRes, accountsRes, holdingsRes, tradesRes, botsRes, pendingRes] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('holdings').select('market_value'),
         supabase.from('trades').select('*', { count: 'exact', head: true }),
         supabase.from('bots').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('pending_sell_orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
       ]);
 
       const totalValue = holdingsRes.data?.reduce((sum, h) => sum + Number(h.market_value || 0), 0) || 0;
@@ -60,6 +63,7 @@ export default function AdminPanelDashboard() {
         totalValue,
         totalTrades: tradesRes.count || 0,
         activeBots: botsRes.count || 0,
+        pendingOrders: pendingRes.count || 0,
       });
     } catch (error) {
       console.error('Error:', error);
@@ -92,6 +96,20 @@ export default function AdminPanelDashboard() {
           >
             <Users size={20} color="#94a3b8" />
             <Text style={styles.navText}>Users</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => router.push('/admin-panel/pending-orders')}
+          >
+            <Clock size={20} color="#94a3b8" />
+            <View style={styles.navTextContainer}>
+              <Text style={styles.navText}>Pending Orders</Text>
+              {stats.pendingOrders > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{stats.pendingOrders}</Text>
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}
@@ -186,6 +204,20 @@ export default function AdminPanelDashboard() {
             <Text style={styles.sectionTitle}>Quick Actions</Text>
             <TouchableOpacity
               style={styles.actionCard}
+              onPress={() => router.push('/admin-panel/pending-orders')}
+            >
+              <Clock size={24} color="#f59e0b" />
+              <View style={styles.actionTextContainer}>
+                <Text style={styles.actionText}>Review Pending Orders</Text>
+                {stats.pendingOrders > 0 && (
+                  <View style={styles.actionBadge}>
+                    <Text style={styles.actionBadgeText}>{stats.pendingOrders} pending</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionCard}
               onPress={() => router.push('/admin-panel/users')}
             >
               <Users size={24} color="#3b82f6" />
@@ -213,8 +245,11 @@ const styles = StyleSheet.create({
   nav: { flex: 1, gap: 8 },
   navItem: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 8, gap: 12 },
   navItemActive: { backgroundColor: '#1e40af20' },
+  navTextContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   navText: { fontSize: 15, color: '#94a3b8' },
   navTextActive: { color: '#3b82f6', fontWeight: '600' },
+  badge: { backgroundColor: '#f59e0b', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, minWidth: 24, alignItems: 'center' },
+  badgeText: { fontSize: 12, fontWeight: 'bold', color: '#000' },
   logoutButton: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 8, gap: 12, borderWidth: 1, borderColor: '#ef4444', marginTop: 16 },
   logoutText: { fontSize: 15, color: '#ef4444', fontWeight: '600' },
   mainContent: { flex: 1 },
@@ -233,5 +268,8 @@ const styles = StyleSheet.create({
   healthDot: { width: 12, height: 12, borderRadius: 6 },
   healthText: { fontSize: 16, color: '#fff' },
   actionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1e293b', padding: 20, borderRadius: 12, marginBottom: 12, gap: 16 },
+  actionTextContainer: { flex: 1, gap: 8 },
   actionText: { fontSize: 16, color: '#fff', fontWeight: '500' },
+  actionBadge: { backgroundColor: '#f59e0b', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' },
+  actionBadgeText: { fontSize: 13, fontWeight: '600', color: '#000' },
 });
