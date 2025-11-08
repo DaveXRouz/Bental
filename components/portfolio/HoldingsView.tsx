@@ -48,36 +48,43 @@ export default function HoldingsView() {
     }
 
     try {
-      const { data: accounts } = await supabase
-        .from('accounts')
-        .select('id')
-        .eq('user_id', user.id);
+      // Use selected accounts from context instead of fetching all accounts
+      const accountsToFetch = selectedAccounts.length > 0 ? selectedAccounts : [];
 
-      if (accounts && accounts.length > 0) {
-        // Fetch holdings with availability info for all accounts
-        const holdingsPromises = accounts.map(account =>
-          getHoldingsWithAvailability(account.id)
+      if (accountsToFetch.length === 0) {
+        // No accounts selected, show empty state
+        setHoldings([]);
+        setTotalValue(0);
+        setTotalGainLoss(0);
+        setTotalGainLossPercent(0);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      // Fetch holdings with availability info for selected accounts
+      const holdingsPromises = accountsToFetch.map(account =>
+        getHoldingsWithAvailability(account.id)
+      );
+      const holdingsArrays = await Promise.all(holdingsPromises);
+      const holdingsData = holdingsArrays.flat();
+
+      if (holdingsData) {
+        const sorted = sortHoldings(holdingsData, sortBy);
+
+        setHoldings(sorted);
+
+        const total = sorted.reduce((sum, h) => sum + Number(h.market_value), 0);
+        setTotalValue(total);
+
+        const totalCost = sorted.reduce((sum, h) =>
+          sum + (Number(h.quantity) * Number(h.average_cost)), 0
         );
-        const holdingsArrays = await Promise.all(holdingsPromises);
-        const holdingsData = holdingsArrays.flat();
+        const gainLoss = total - totalCost;
+        const gainLossPercent = totalCost > 0 ? ((gainLoss / totalCost) * 100) : 0;
 
-        if (holdingsData) {
-          const sorted = sortHoldings(holdingsData, sortBy);
-
-          setHoldings(sorted);
-
-          const total = sorted.reduce((sum, h) => sum + Number(h.market_value), 0);
-          setTotalValue(total);
-
-          const totalCost = sorted.reduce((sum, h) =>
-            sum + (Number(h.quantity) * Number(h.average_cost)), 0
-          );
-          const gainLoss = total - totalCost;
-          const gainLossPercent = totalCost > 0 ? ((gainLoss / totalCost) * 100) : 0;
-
-          setTotalGainLoss(gainLoss);
-          setTotalGainLossPercent(gainLossPercent);
-        }
+        setTotalGainLoss(gainLoss);
+        setTotalGainLossPercent(gainLossPercent);
       }
     } catch (error) {
       console.error('[Holdings] Error:', error);
@@ -85,7 +92,7 @@ export default function HoldingsView() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id, sortBy]);
+  }, [user?.id, selectedAccounts, sortBy]);
 
   useEffect(() => {
     const loadSortPreference = async () => {
