@@ -82,7 +82,6 @@ RETURNS TABLE (
   market_value numeric,
   unrealized_pnl numeric,
   unrealized_pnl_percent numeric,
-  created_at timestamptz,
   updated_at timestamptz
 )
 LANGUAGE plpgsql
@@ -119,14 +118,13 @@ BEGIN
     h.market_value,
     h.unrealized_pnl,
     h.unrealized_pnl_percent,
-    h.created_at,
     h.updated_at
   FROM holdings h
   WHERE h.account_id = p_account_id;
 END;
 $$;
 
-COMMENT ON FUNCTION get_holdings_with_availability IS 'Returns all holdings for an account with calculated locked and available quantities';
+COMMENT ON FUNCTION get_holdings_with_availability IS 'Returns all holdings for an account with calculated locked and available quantities (fixed: removed non-existent created_at column)';
 
 -- =====================================================
 -- UPDATE: create_pending_sell_order
