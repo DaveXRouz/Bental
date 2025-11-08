@@ -640,6 +640,196 @@ class DepositWithdrawalService {
       return null;
     }
   }
+
+  /**
+   * Get all deposits for admin review
+   */
+  async getAdminDeposits(status?: TransactionStatus, limit: number = 100): Promise<Deposit[]> {
+    try {
+      let query = supabase
+        .from('deposits')
+        .select(`
+          *,
+          profiles!deposits_user_id_fkey(email, full_name),
+          accounts!deposits_account_id_fkey(name, balance)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (status) {
+        query = query.eq('status', status);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching admin deposits:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get deposit statistics for admin dashboard
+   */
+  async getDepositStats(): Promise<{
+    pending: number;
+    pendingAmount: number;
+    completedToday: number;
+    failedToday: number;
+  }> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [pendingResult, completedResult, failedResult] = await Promise.all([
+        supabase.from('deposits').select('amount').eq('status', 'pending'),
+        supabase
+          .from('deposits')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'completed')
+          .gte('processed_at', today.toISOString()),
+        supabase
+          .from('deposits')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'failed')
+          .gte('updated_at', today.toISOString()),
+      ]);
+
+      const pendingDeposits = pendingResult.data || [];
+      const pendingAmount = pendingDeposits.reduce((sum, d) => sum + Number(d.amount), 0);
+
+      return {
+        pending: pendingDeposits.length,
+        pendingAmount,
+        completedToday: completedResult.count || 0,
+        failedToday: failedResult.count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching deposit stats:', error);
+      return {
+        pending: 0,
+        pendingAmount: 0,
+        completedToday: 0,
+        failedToday: 0,
+      };
+    }
+  }
+
+  /**
+   * Approve a deposit (admin only)
+   */
+  async approveDeposit(
+    depositId: string,
+    adminId: string,
+    adminNotes?: string
+  ): Promise<TransactionResult> {
+    try {
+      // Get deposit details
+      const { data: deposit, error: fetchError } = await supabase
+        .from('deposits')
+        .select('*')
+        .eq('id', depositId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!deposit) throw new Error('Deposit not found');
+
+      if (deposit.status !== 'pending' && deposit.status !== 'processing') {
+        return {
+          success: false,
+          message: `Deposit cannot be approved in current status: ${deposit.status}`,
+        };
+      }
+
+      // Update account balance
+      const { error: balanceError } = await supabase.rpc('increment_account_balance', {
+        account_id: deposit.account_id,
+        amount: deposit.amount,
+      });
+
+      if (balanceError) throw balanceError;
+
+      // Update deposit status
+      const { error: updateError } = await supabase
+        .from('deposits')
+        .update({
+          status: 'completed',
+          processed_at: new Date().toISOString(),
+          admin_notes: adminNotes,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', depositId);
+
+      if (updateError) throw updateError;
+
+      return {
+        success: true,
+        transactionId: depositId,
+        message: `Deposit approved successfully. $${deposit.amount} credited to account.`,
+      };
+    } catch (error: any) {
+      console.error('Approve deposit error:', error);
+      return {
+        success: false,
+        message: 'Failed to approve deposit',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Reject a deposit (admin only)
+   */
+  async rejectDeposit(
+    depositId: string,
+    adminId: string,
+    rejectionReason: string
+  ): Promise<TransactionResult> {
+    try {
+      const { data: deposit, error: fetchError } = await supabase
+        .from('deposits')
+        .select('*')
+        .eq('id', depositId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!deposit) throw new Error('Deposit not found');
+
+      if (deposit.status !== 'pending' && deposit.status !== 'processing') {
+        return {
+          success: false,
+          message: `Deposit cannot be rejected in current status: ${deposit.status}`,
+        };
+      }
+
+      const { error: updateError } = await supabase
+        .from('deposits')
+        .update({
+          status: 'failed',
+          admin_notes: rejectionReason,
+          processed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', depositId);
+
+      if (updateError) throw updateError;
+
+      return {
+        success: true,
+        transactionId: depositId,
+        message: 'Deposit rejected successfully',
+      };
+    } catch (error: any) {
+      console.error('Reject deposit error:', error);
+      return {
+        success: false,
+        message: 'Failed to reject deposit',
+        error: error.message,
+      };
+    }
+  }
 }
 
 export const depositWithdrawalService = new DepositWithdrawalService();

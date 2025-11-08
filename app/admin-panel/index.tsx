@@ -113,6 +113,13 @@ export default function AdminPanelDashboard() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}
+            onPress={() => router.push('/admin-panel/deposits')}
+          >
+            <TrendingUp size={20} color="#94a3b8" />
+            <Text style={styles.navText}>Deposits</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navItem}
             onPress={() => router.push('/admin-panel/withdrawals')}
           >
             <DollarSign size={20} color="#94a3b8" />
