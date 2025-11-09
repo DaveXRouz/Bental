@@ -32,6 +32,10 @@ cp .env.local.example .env
 
 # Run the app
 npm run dev
+
+# Optional: Run React DevTools (standalone)
+# In a separate terminal, to avoid Chrome extension errors with React 19
+npm run devtools
 ```
 
 ### Database Setup (Optional)
@@ -114,7 +118,24 @@ npm run lint
 
 # Build for web
 npm run build:web
+
+# React DevTools (standalone - avoids Chrome extension errors)
+npm run devtools
 ```
+
+### Known Development Issues
+
+**React DevTools Chrome Extension Error**
+
+If you see "Invalid argument not valid semver" errors in the browser console, this is a harmless compatibility issue between the React DevTools Chrome extension and React 19.x.
+
+**Solutions:**
+1. Use the standalone React DevTools: `npm run devtools` (recommended)
+2. Disable the Chrome extension at `chrome://extensions/`
+3. Filter console errors to hide `chrome-extension://` messages
+4. Ignore the error (already suppressed in code, no impact on functionality)
+
+See `REACT-DEVTOOLS-WORKAROUND.md` for full details.
 
 ## Mock Services
 
