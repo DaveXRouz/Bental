@@ -11,15 +11,17 @@ export const FEATURES = {
 };
 
 export const ENV = {
-  env: (process.env.APP_ENV || 'local') as 'local' | 'dev' | 'prod',
+  env: (process.env.APP_ENV || 'local') as 'local' | 'dev' | 'staging' | 'prod',
   localeDefault: (process.env.EXPO_PUBLIC_LOCALE_DEFAULT || 'en') as 'en' | 'fr',
 
-  // SECURITY: In production apps, load these from environment variables
-  // These are hardcoded for demo purposes only
-  // Use process.env.EXPO_PUBLIC_SUPABASE_URL and process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+  // SECURITY: Load from environment variables - NO FALLBACKS
+  // These MUST be set in your .env file for the application to work
+  // Available projects:
+  // - Staging: tnjgqdpxvkciiqdrdkyz.supabase.co
+  // - Production: urkokrimzciotxhykics.supabase.co
   supabase: {
-    url: process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://oanohrjkniduqkkahmel.supabase.co',
-    anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm9ocmprbmlkdXFra2FobWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDIyOTEsImV4cCI6MjA3NzQxODI5MX0.Soav_sSh5Ww_BJ7AJywhToZhDIXemEb9X7hSj9xNmdo',
+    url: process.env.EXPO_PUBLIC_SUPABASE_URL || '',
+    anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
   },
 
   market: {
@@ -52,6 +54,7 @@ export function validateEnvironment() {
 
   const missing: string[] = [];
   const warnings: string[] = [];
+  const errors: string[] = [];
 
   requiredVars.forEach(({ key, value }) => {
     if (!value) {
@@ -59,9 +62,37 @@ export function validateEnvironment() {
     }
   });
 
+  // Check for old/invalid project
+  if (ENV.supabase.url.includes('oanohrjkniduqkkahmel')) {
+    errors.push(
+      '⚠️ INVALID SUPABASE PROJECT: The project "oanohrjkniduqkkahmel" does not exist. ' +
+      'Please update your .env file to use either:\n' +
+      '  - Staging: tnjgqdpxvkciiqdrdkyz.supabase.co\n' +
+      '  - Production: urkokrimzciotxhykics.supabase.co'
+    );
+  }
+
+  // Validate environment configuration matches project
+  if (ENV.env === 'prod' && !ENV.supabase.url.includes('urkokrimzciotxhykics')) {
+    warnings.push(
+      '⚠️ Environment mismatch: APP_ENV is set to "prod" but not using production Supabase project'
+    );
+  }
+
+  if (ENV.env === 'staging' && !ENV.supabase.url.includes('tnjgqdpxvkciiqdrdkyz')) {
+    warnings.push(
+      '⚠️ Environment mismatch: APP_ENV is set to "staging" but not using staging Supabase project'
+    );
+  }
+
   // Optional but recommended
   if (!ENV.fx.exchangeRateBase) {
     warnings.push('FX_API_URL not set - using default exchange rate API');
+  }
+
+  if (errors.length > 0) {
+    console.error('[ENV] Critical configuration errors:', errors);
+    throw new Error(`Configuration errors:\n${errors.join('\n')}`);
   }
 
   if (missing.length > 0) {
@@ -73,6 +104,7 @@ export function validateEnvironment() {
     console.warn('[ENV] Configuration warnings:', warnings);
   }
 
-  console.log('[ENV] Environment validation passed');
+  console.log(`[ENV] Environment validation passed - Using ${ENV.env} environment`);
+  console.log(`[ENV] Supabase project: ${ENV.supabase.url.replace('https://', '').replace('.supabase.co', '')}`);
   return true;
 }

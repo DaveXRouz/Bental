@@ -1,9 +1,34 @@
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-const supabaseUrl = 'https://oanohrjkniduqkkahmel.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm9ocmprbmlkdXFra2FobWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDIyOTEsImV4cCI6MjA3NzQxODI5MX0.Soav_sSh5Ww_BJ7AJywhToZhDIXemEb9X7hSj9xNmdo';
+// Multi-environment support
+// Use command line argument to specify environment: node test-query.js [staging|production]
+// Or set SUPABASE_ENV environment variable
+const targetEnv = process.argv[2] || process.env.SUPABASE_ENV || 'staging';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const environments = {
+  staging: {
+    url: 'https://tnjgqdpxvkciiqdrdkyz.supabase.co',
+    key: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuamdxZHB4dmtjaWlxZHJka3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMTY1NzIsImV4cCI6MjA3NzY5MjU3Mn0.fzuasx1yM-PkjO-d4OowSPNfMMeLmtAeci2skmCZS5k'
+  },
+  production: {
+    url: 'https://urkokrimzciotxhykics.supabase.co',
+    key: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY_PROD || 'YOUR_PRODUCTION_ANON_KEY_HERE'
+  }
+};
+
+const config = environments[targetEnv];
+
+if (!config) {
+  console.error(`❌ Invalid environment: ${targetEnv}`);
+  console.error('Valid options: staging, production');
+  process.exit(1);
+}
+
+console.log(`🔍 Testing ${targetEnv.toUpperCase()} environment`);
+console.log(`   URL: ${config.url}\n`);
+
+const supabase = createClient(config.url, config.key);
 
 async function testQuery() {
   console.log('Testing pending_sell_orders → profiles join...\n');

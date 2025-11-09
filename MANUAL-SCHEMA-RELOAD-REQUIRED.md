@@ -1,5 +1,13 @@
 # ⚠️ Manual Schema Reload Required
 
+> ⚠️ **ARCHIVED DOCUMENT**: This guide references the old Supabase project (`oanohrjkniduqkkahmel`). For current schema reload instructions:
+> - Staging: https://supabase.com/dashboard/project/tnjgqdpxvkciiqdrdkyz
+> - Production: https://supabase.com/dashboard/project/urkokrimzciotxhykics
+>
+> See [docs/DEPLOYMENT-ENVIRONMENTS.md](docs/DEPLOYMENT-ENVIRONMENTS.md) for environment details.
+
+---
+
 ## Current Status
 
 The programmatic schema reload via `NOTIFY pgrst, 'reload schema'` was attempted but **did not resolve the issue**.

@@ -1,0 +1,69 @@
+{
+  "cli": {
+    "version": ">= 13.2.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "dev"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "channel": "staging",
+      "env": {
+        "APP_ENV": "staging",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://tnjgqdpxvkciiqdrdkyz.supabase.co"
+      },
+      "ios": {
+        "bundleIdentifier": "com.financialadvisor.staging"
+      },
+      "android": {
+        "package": "com.financialadvisor.staging"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "channel": "production",
+      "env": {
+        "APP_ENV": "prod",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://urkokrimzciotxhykics.supabase.co"
+      },
+      "ios": {
+        "bundleIdentifier": "com.financialadvisor.app"
+      },
+      "android": {
+        "package": "com.financialadvisor.app"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_ENV": "staging"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@example.com",
+        "ascAppId": "your-asc-app-id",
+        "appleTeamId": "your-apple-team-id"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./path/to/api-key.json",
+        "track": "production"
+      }
+    },
+    "staging": {
+      "android": {
+        "serviceAccountKeyPath": "./path/to/api-key.json",
+        "track": "internal"
+      }
+    }
+  }
+}

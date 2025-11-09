@@ -1,5 +1,13 @@
 # Database Deployment Audit and Cleanup Report
 
+> ⚠️ **ARCHIVED DOCUMENT**: This audit report references the old Supabase project (`oanohrjkniduqkkahmel`) which no longer exists. For current deployment information, see [DEPLOYMENT-ENVIRONMENTS.md](../DEPLOYMENT-ENVIRONMENTS.md).
+>
+> **Current Projects**:
+> - Staging: `tnjgqdpxvkciiqdrdkyz.supabase.co`
+> - Production: `urkokrimzciotxhykics.supabase.co`
+
+---
+
 **Audit Date:** November 3, 2025
 **Project:** Minimal Trading App
 **Database Platform:** Supabase (PostgreSQL)

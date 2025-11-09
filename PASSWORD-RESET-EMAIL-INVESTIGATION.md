@@ -1,5 +1,13 @@
 # Password Reset Email Investigation
 
+> ⚠️ **UPDATE REQUIRED**: This investigation references the old Supabase project (`oanohrjkniduqkkahmel`). For current email configuration:
+> - Staging: https://supabase.com/dashboard/project/tnjgqdpxvkciiqdrdkyz
+> - Production: https://supabase.com/dashboard/project/urkokrimzciotxhykics
+>
+> See [docs/DEPLOYMENT-ENVIRONMENTS.md](docs/DEPLOYMENT-ENVIRONMENTS.md) for environment details.
+
+---
+
 ## Issue Report
 **Problem**: When users try to reset their password using the "Forgot Password" flow, they do not receive a password reset email.
 

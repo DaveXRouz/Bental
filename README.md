@@ -52,6 +52,13 @@ If you want to persist data:
 
 See `.env.local.example` for all available options.
 
+**Multi-Environment Support**: This project supports multiple environments (local, development, staging, production). See the comprehensive [Deployment Environments Guide](docs/DEPLOYMENT-ENVIRONMENTS.md) for detailed configuration instructions.
+
+**Quick Start**:
+- Local development: `.env` (uses staging project by default)
+- Staging: `.env.staging`
+- Production: `.env.production`
+
 ### Mock vs Live Data
 
 By default, the app uses mock data for all market information. To enable live market data:

@@ -1,4 +1,14 @@
-# Project Status - Security Remediation Complete
+# Project Status
+
+> ⚠️ **ARCHIVED DOCUMENT**: This document references the old Supabase project (`oanohrjkniduqkkahmel`) which no longer exists. For current deployment information, see [DEPLOYMENT-ENVIRONMENTS.md](../DEPLOYMENT-ENVIRONMENTS.md).
+>
+> **Current Projects**:
+> - Staging: `tnjgqdpxvkciiqdrdkyz.supabase.co`
+> - Production: `urkokrimzciotxhykics.supabase.co`
+
+---
+
+# Project Status (Historical) - Security Remediation Complete
 
 **Date**: November 3, 2025  
 **Status**: ✅ **Production Ready**  

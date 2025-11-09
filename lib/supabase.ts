@@ -2,12 +2,27 @@ import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { ENV } from '@/config/env';
 
-// SECURITY: Credentials are hardcoded for this demo app
-// In production, these should be environment variables loaded at build time
+// SECURITY: Load credentials from environment variables
 // NEVER expose service role keys in client code - they grant full database access
-const supabaseUrl = 'https://oanohrjkniduqkkahmel.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm9ocmprbmlkdXFra2FobWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDIyOTEsImV4cCI6MjA3NzQxODI5MX0.Soav_sSh5Ww_BJ7AJywhToZhDIXemEb9X7hSj9xNmdo';
+// These values MUST be set in environment files (.env, .env.staging, .env.production)
+const supabaseUrl = ENV.supabase.url;
+const supabaseAnonKey = ENV.supabase.anonKey;
+
+// Validate that credentials are properly configured
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase credentials. Please ensure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY are set in your .env file.'
+  );
+}
+
+// Prevent using the old/invalid project
+if (supabaseUrl.includes('oanohrjkniduqkkahmel')) {
+  throw new Error(
+    '⚠️ INVALID SUPABASE PROJECT: You are trying to use a non-existent project. Please update your .env file to use either staging (tnjgqdpxvkciiqdrdkyz) or production (urkokrimzciotxhykics) project.'
+  );
+}
 
 // Use localStorage for web, AsyncStorage for native
 const storage = Platform.OS === 'web' ? {

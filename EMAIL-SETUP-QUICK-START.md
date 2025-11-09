@@ -1,5 +1,13 @@
 # Email Setup Quick Start Guide
 
+> ⚠️ **UPDATE REQUIRED**: This document references the old Supabase project (`oanohrjkniduqkkahmel`). Please use the correct project for your environment:
+> - Staging: https://supabase.com/dashboard/project/tnjgqdpxvkciiqdrdkyz
+> - Production: https://supabase.com/dashboard/project/urkokrimzciotxhykics
+>
+> See [docs/DEPLOYMENT-ENVIRONMENTS.md](docs/DEPLOYMENT-ENVIRONMENTS.md) for more details.
+
+---
+
 ## The Problem
 Password reset emails are not being sent because Supabase doesn't have an email provider configured.
 

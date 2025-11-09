@@ -1,5 +1,13 @@
 # Schema Relationship Error - Complete Resolution Guide
 
+> ⚠️ **ARCHIVED DOCUMENT**: This troubleshooting guide references the old Supabase project (`oanohrjkniduqkkahmel`). For current schema issues:
+> - Staging: https://supabase.com/dashboard/project/tnjgqdpxvkciiqdrdkyz
+> - Production: https://supabase.com/dashboard/project/urkokrimzciotxhykics
+>
+> See [docs/DEPLOYMENT-ENVIRONMENTS.md](docs/DEPLOYMENT-ENVIRONMENTS.md) for environment details.
+
+---
+
 ## Error Message
 ```
 Could not find a relationship between 'pending_sell_orders' and 'profiles' in the schema cache
