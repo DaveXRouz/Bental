@@ -23,15 +23,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Mark AuthProvider as ready immediately when component is created
+  if (typeof window !== 'undefined') {
+    window.__AUTH_PROVIDER_READY__ = true;
+  }
+
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mark AuthProvider as ready
-    if (typeof window !== 'undefined') {
-      window.__AUTH_PROVIDER_READY__ = true;
-    }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);

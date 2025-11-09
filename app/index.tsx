@@ -13,11 +13,6 @@ export default function Index() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
-  // Guard against undefined context during initialization
-  if (!auth) {
-    return <SplashGlass />;
-  }
-
   const { session, loading } = auth;
 
   useEffect(() => {
