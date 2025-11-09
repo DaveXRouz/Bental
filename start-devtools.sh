@@ -16,4 +16,4 @@ echo ""
 echo "Press Ctrl+C to stop React DevTools"
 echo ""
 
-/tmp/.npm-global/bin/react-devtools
+npx react-devtools

@@ -2,41 +2,41 @@
 
 ## Installation Summary
 
-The standalone React DevTools has been successfully installed and configured to avoid the Chrome extension semver error with React 19.x.
+Standalone React DevTools has been configured to avoid the Chrome extension semver error with React 19.x.
 
 ---
 
-## What Was Installed
+## What Was Configured
 
-- **Package:** react-devtools v7.0.1
-- **Location:** /tmp/.npm-global/lib/node_modules/react-devtools
-- **Binary:** /tmp/.npm-global/bin/react-devtools
+- **Method:** Using `npx react-devtools` (on-demand execution)
+- **Version:** react-devtools@7.0.1 (downloads automatically when run)
+- **Benefit:** No global installation needed, always uses latest version
 
 ---
 
 ## How to Use
 
-### Option 1: Using npm script (Recommended)
+### Method 1: Using npm script (Recommended)
 
 ```bash
 # In a separate terminal window
 npm run devtools
 ```
 
-This will open a standalone React DevTools window that automatically connects to your running app.
+This will download react-devtools if needed and open the standalone window.
 
-### Option 2: Using the shell script
+### Method 2: Using the shell script
 
 ```bash
 # In a separate terminal window
 ./start-devtools.sh
 ```
 
-### Option 3: Direct command
+### Method 3: Direct npx command
 
 ```bash
 # In a separate terminal window
-/tmp/.npm-global/bin/react-devtools
+npx react-devtools
 ```
 
 ---
@@ -47,7 +47,7 @@ This will open a standalone React DevTools window that automatically connects to
    ```bash
    npm run devtools
    ```
-   A new window will open showing "Waiting for React to connect..."
+   Wait for the window to open showing "Waiting for React to connect..."
 
 2. **Then start your app:**
    ```bash
@@ -69,6 +69,7 @@ This will open a standalone React DevTools window that automatically connects to
 3. **Works across browsers** - Not tied to Chrome
 4. **More stable** - Direct connection to React without browser middleware
 5. **Cleaner console** - No extension-related errors cluttering your console
+6. **Always up-to-date** - npx downloads latest version automatically
 
 ---
 
@@ -86,12 +87,16 @@ This will open a standalone React DevTools window that automatically connects to
 If you see port errors, the DevTools uses port 8097 by default. You can change it:
 
 ```bash
-/tmp/.npm-global/bin/react-devtools --port=8098
+npx react-devtools --port=8098
 ```
 
 ### Window not appearing
 
 Make sure your display settings allow new windows. On some systems, the window might open in the background.
+
+### Slow first launch
+
+The first time you run `npm run devtools`, npx will download the package. Subsequent runs will be faster.
 
 ---
 
@@ -109,25 +114,35 @@ If you prefer to use the Chrome extension, you can:
 
 ## Files Modified
 
-1. **package.json** - Added `"devtools"` script
+1. **package.json** - Added `"devtools": "npx react-devtools"` script
 2. **README.md** - Added usage instructions and known issues section
-3. **start-devtools.sh** - Created convenience script
-4. **This file** - Setup documentation
+3. **start-devtools.sh** - Updated to use npx
+4. **This file** - Complete setup documentation
 
 ---
 
 ## Quick Reference
 
 ```bash
-# Start DevTools (standalone)
+# Start DevTools (standalone) - Terminal 1
 npm run devtools
 
-# Start app
+# Start app - Terminal 2
 npm run dev
 
-# Use DevTools
-# (window opens automatically, connects to running app)
+# DevTools window opens automatically and connects
 ```
+
+---
+
+## Why npx Instead of Global Install?
+
+Using `npx` provides several advantages:
+- No need for global installation
+- Always uses the latest version
+- Works in any environment without setup
+- No path or permission issues
+- Downloads automatically on first use
 
 ---
 
@@ -139,7 +154,7 @@ npm run dev
 
 ---
 
-**Status:** Setup Complete
+**Status:** Ready to Use
 **Date:** November 9, 2025
 **React Version:** 19.1.0
-**DevTools Version:** 7.0.1
+**Method:** npx (on-demand)
