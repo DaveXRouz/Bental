@@ -10,6 +10,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { colors, spacing, typography } from '@/constants/theme';
+import { handleGlobalError, shouldSuppressError } from '@/utils/error-manager';
 
 interface Props {
   children: ReactNode;
@@ -40,16 +41,26 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to error reporting service
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Check if this error should be suppressed
+    if (shouldSuppressError(error)) {
+      // Reset error boundary without showing error UI
+      this.resetError();
+      return;
+    }
+
+    // Categorize and log error using error manager
+    const categorized = handleGlobalError(error, errorInfo);
 
     this.setState({
       error,
       errorInfo,
     });
 
-    // TODO: Send to Sentry or other error tracking service
-    // Sentry.captureException(error, { extra: errorInfo });
+    // Send to Sentry or other error tracking service
+    if (categorized.category === 'critical' || categorized.category === 'warning') {
+      // TODO: Integrate with actual error tracking
+      // Sentry.captureException(error, { extra: errorInfo });
+    }
   }
 
   resetError = () => {

@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
   Keyboard,
 } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
+import { safeReplace, safeNavigate } from '@/utils/safe-navigation';
 import NetInfo from '@react-native-community/netinfo';
 import { Mail, Lock, CreditCard, Fingerprint, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -42,7 +43,6 @@ import { MagicLinkModal } from '@/components/auth/MagicLinkModal';
 type LoginMode = 'email' | 'passport';
 
 export default function LoginScreen() {
-  const router = useRouter();
   const { signIn } = useAuth();
   const { width, isMobile, spacing: responsiveSpacing, fontSize: responsiveFontSize } = useResponsive();
   const [loginMode, setLoginMode] = useState<LoginMode>('email');
@@ -400,9 +400,15 @@ export default function LoginScreen() {
         }
 
         if (profile?.role === 'admin') {
-          router.replace('/admin-panel');
+          safeReplace('/admin-panel', {
+            fallbackRoute: '/(tabs)',
+            beforeNavigate: () => console.clear(),
+          });
         } else {
-          router.replace('/(tabs)');
+          safeReplace('/(tabs)', {
+            fallbackRoute: '/(auth)/login',
+            beforeNavigate: () => console.clear(),
+          });
         }
       }
     } catch (err) {
@@ -435,9 +441,15 @@ export default function LoginScreen() {
         }
 
         if (profile?.role === 'admin') {
-          router.replace('/admin-panel');
+          safeReplace('/admin-panel', {
+            fallbackRoute: '/(tabs)',
+            beforeNavigate: () => console.clear(),
+          });
         } else {
-          router.replace('/(tabs)');
+          safeReplace('/(tabs)', {
+            fallbackRoute: '/(auth)/login',
+            beforeNavigate: () => console.clear(),
+          });
         }
       }
     }
@@ -500,8 +512,9 @@ export default function LoginScreen() {
                   <Text style={styles.helpBannerText}>Having trouble signing in?</Text>
                   <View style={styles.helpLinks}>
                     <TouchableOpacity onPress={() => {
-                      console.clear();
-                      router.push('/(auth)/forgot-password');
+                      safeNavigate('/(auth)/forgot-password', {
+                        beforeNavigate: () => console.clear(),
+                      });
                     }}>
                       <Text style={styles.helpLink}>Reset Password</Text>
                     </TouchableOpacity>
@@ -675,8 +688,9 @@ export default function LoginScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    console.clear();
-                    router.push('/(auth)/forgot-password');
+                    safeNavigate('/(auth)/forgot-password', {
+                      beforeNavigate: () => console.clear(),
+                    });
                   }}
                   accessibilityLabel="Forgot password"
                   accessibilityRole="button"
@@ -727,8 +741,9 @@ export default function LoginScreen() {
               <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>Don't have an account?</Text>
                 <TouchableOpacity onPress={() => {
-                  console.clear();
-                  router.push('/(auth)/signup');
+                  safeNavigate('/(auth)/signup', {
+                    beforeNavigate: () => console.clear(),
+                  });
                 }}>
                   <Text style={styles.signupLink}>Sign Up</Text>
                 </TouchableOpacity>

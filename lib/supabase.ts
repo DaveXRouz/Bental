@@ -51,4 +51,75 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: Platform.OS === 'web',
   },
+  global: {
+    headers: {
+      'X-Client-Info': 'trading-app-mobile',
+    },
+  },
+  db: {
+    schema: 'public',
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
 });
+
+// Connection health monitoring
+let lastHealthCheck = 0;
+const HEALTH_CHECK_INTERVAL = 60000; // 1 minute
+
+export async function ensureConnection(): Promise<boolean> {
+  const now = Date.now();
+
+  // Throttle health checks
+  if (now - lastHealthCheck < HEALTH_CHECK_INTERVAL) {
+    return true;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+
+    lastHealthCheck = now;
+    return !error;
+  } catch (error) {
+    console.warn('[Supabase] Health check failed:', error);
+    return false;
+  }
+}
+
+// Retry decorator for Supabase operations
+export async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries = 2,
+  delayMs = 1000
+): Promise<T> {
+  let lastError: any;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+
+      // Don't retry on certain errors
+      if (
+        error?.message?.includes('Invalid login credentials') ||
+        error?.message?.includes('not found')
+      ) {
+        throw error;
+      }
+
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * (attempt + 1)));
+        continue;
+      }
+    }
+  }
+
+  throw lastError;
+}
