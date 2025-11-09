@@ -4,6 +4,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { setUser as setSentryUser, clearUser as clearSentryUser } from '@/utils/sentry';
 import { clearConsole } from '@/utils/console-manager';
+import { safeRpcCall, safeQuery, fireAndForget } from '@/utils/safe-supabase';
 
 interface AuthContextType {
   session: Session | null;
@@ -71,18 +72,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let emailToUse = identifier;
 
       if (loginMode === 'passport') {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('trading_passport_number', identifier.toUpperCase())
-          .maybeSingle();
+        const { data: profile, error: profileError } = await safeQuery(
+          () =>
+            supabase
+              .from('profiles')
+              .select('email')
+              .eq('trading_passport_number', identifier.toUpperCase())
+              .maybeSingle(),
+          { fallbackValue: null, logErrors: true }
+        );
 
         if (profileError || !profile) {
-          await supabase.rpc('record_login_attempt', {
-            p_email: identifier,
-            p_success: false,
-            p_failure_reason: 'Invalid trading passport',
-          });
+          // Fire-and-forget: record failed attempt
+          fireAndForget(
+            () =>
+              supabase.rpc('record_login_attempt', {
+                p_email: identifier,
+                p_success: false,
+                p_failure_reason: 'Invalid trading passport',
+              }),
+            'recordFailedPassportAttempt'
+          );
           return { error: { message: 'Invalid trading passport number' } };
         }
         emailToUse = profile.email;
@@ -93,17 +103,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
 
-      await supabase.rpc('record_login_attempt', {
-        p_email: emailToUse,
-        p_success: !error,
-        p_failure_reason: error?.message,
-      });
+      // Fire-and-forget: record login attempt (don't block authentication)
+      fireAndForget(
+        () =>
+          supabase.rpc('record_login_attempt', {
+            p_email: emailToUse,
+            p_success: !error,
+            p_failure_reason: error?.message,
+          }),
+        'recordLoginAttempt'
+      );
 
       if (!error && data.user) {
-        await supabase.rpc('record_login_history', {
-          p_user_id: data.user.id,
-          p_device_type: Platform.OS,
-        });
+        // Fire-and-forget: record login history
+        fireAndForget(
+          () =>
+            supabase.rpc('record_login_history', {
+              p_user_id: data.user.id,
+              p_device_type: Platform.OS,
+            }),
+          'recordLoginHistory'
+        );
       }
 
       return { error };

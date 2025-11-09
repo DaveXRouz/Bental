@@ -17,6 +17,7 @@ import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { checkSupabaseHealth } from '@/utils/safe-supabase';
 import { colors, spacing, typography, radius } from '@/constants/theme';
 import { useResponsive } from '@/hooks/useResponsive';
 import { Futuristic3DBackground } from '@/components/backgrounds/Futuristic3DBackground';
@@ -245,10 +246,20 @@ export default function LoginScreen() {
       return;
     }
 
-    // Check rate limiting
+    // Check rate limiting (but don't block if check fails)
     if (rateLimit.isLocked) {
       setPasswordError(`Too many attempts. Try again in ${rateLimit.formatCountdown()}`);
       return;
+    }
+
+    // Quick health check for Supabase connection
+    setLoading(true);
+    setLoadingMessage('Connecting to server...');
+    const isHealthy = await checkSupabaseHealth();
+
+    if (!isHealthy) {
+      console.warn('[Login] Supabase health check failed, but proceeding with login attempt');
+      // Don't block - server might still accept the login
     }
 
     setLoading(true);
@@ -313,18 +324,32 @@ export default function LoginScreen() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
 
-        if (error.message.includes('Invalid login credentials')) {
-          // Show single, clear error message
+        // Categorize and display user-friendly error messages
+        const errorMessage = error.message || '';
+
+        if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('Invalid')) {
+          // Authentication failure
           setPasswordError('Incorrect password. Please try again.');
-        } else if (error.message.includes('Email not confirmed')) {
+        } else if (errorMessage.includes('Email not confirmed')) {
           setEmailError('Please verify your email address first');
-        } else if (error.message.includes('User not found')) {
+        } else if (errorMessage.includes('User not found') || errorMessage.includes('not found')) {
           if (loginMode === 'email') {
             setEmailError('No account found with this email');
           } else {
             setPassportError('Invalid Trading Passport');
           }
+        } else if (
+          errorMessage.includes('network') ||
+          errorMessage.includes('fetch') ||
+          errorMessage.includes('timeout')
+        ) {
+          // Network error
+          setPasswordError('Connection error. Please check your internet and try again.');
+        } else if (errorMessage.includes('database') || errorMessage.includes('schema')) {
+          // Database error
+          setPasswordError('Server error. Please try again in a moment.');
         } else {
+          // Generic error
           setPasswordError('Login failed. Please try again.');
         }
         setLoading(false);

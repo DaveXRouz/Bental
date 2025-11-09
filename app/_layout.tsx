@@ -36,18 +36,61 @@ if (Platform.OS === 'web') {
   `;
   document.head.appendChild(style);
 
-  // Suppress the React Native Web text node warnings
+  // Suppress React DevTools backend errors and React Native Web warnings
   const originalError = console.error;
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('text node cannot be a child') ||
-       args[0].includes('Unexpected text node'))
-    ) {
+    const errorMessage = typeof args[0] === 'string' ? args[0] : '';
+
+    // Filter out non-critical errors that don't affect functionality
+    const suppressedErrors = [
+      'text node cannot be a child',
+      'Unexpected text node',
+      'Invalid argument not valid semver',
+      'Cannot navigate to URL',
+      'chrome-extension://',
+    ];
+
+    if (suppressedErrors.some(pattern => errorMessage.includes(pattern))) {
       return;
     }
+
     originalError.apply(console, args);
   };
+
+  // Suppress uncaught errors from React DevTools extension
+  const originalUncaughtHandler = window.onerror;
+  window.onerror = (message, source, lineno, colno, error) => {
+    const errorStr = String(message);
+
+    // Suppress React DevTools Chrome extension errors
+    if (
+      errorStr.includes('Invalid argument not valid semver') ||
+      errorStr.includes('chrome-extension://') ||
+      (source && source.includes('chrome-extension://'))
+    ) {
+      return true; // Prevent error from being logged
+    }
+
+    // Call original handler for other errors
+    if (originalUncaughtHandler) {
+      return originalUncaughtHandler(message, source, lineno, colno, error);
+    }
+    return false;
+  };
+
+  // Add unhandledrejection handler for Promise errors
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason?.message || String(event.reason);
+
+    // Suppress React DevTools related promise rejections
+    if (
+      reason.includes('Invalid argument not valid semver') ||
+      reason.includes('chrome-extension://')
+    ) {
+      event.preventDefault();
+      return;
+    }
+  });
 }
 
 SplashScreen.preventAutoHideAsync();

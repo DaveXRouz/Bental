@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { safeRpcCall, fireAndForget } from '@/utils/safe-supabase';
 
 interface RateLimitStatus {
   allowed: boolean;
@@ -42,45 +43,52 @@ export function useRateLimit(email: string | null) {
   const checkRateLimit = async () => {
     if (!email) return;
 
-    try {
-      const { data, error } = await supabase.rpc('check_rate_limit', {
+    const { data, error, success } = await safeRpcCall<RateLimitStatus>(
+      'check_rate_limit',
+      {
         p_email: email,
         p_window_minutes: 15,
         p_max_attempts: 5,
-      });
-
-      if (error) {
-        console.error('Rate limit check error:', error);
-        return;
+      },
+      {
+        fallbackValue: { allowed: true, attempts: 0 },
+        logErrors: true,
+        maxRetries: 1,
       }
+    );
 
-      setStatus(data as RateLimitStatus);
+    if (!success || error) {
+      // Graceful degradation: allow login if rate limit check fails
+      console.warn('[RateLimit] Check failed, allowing login to proceed');
+      setStatus({ allowed: true, attempts: 0 });
+      return;
+    }
+
+    if (data) {
+      setStatus(data);
 
       if (data.retry_after_seconds) {
         setCountdown(data.retry_after_seconds);
       }
-    } catch (error) {
-      console.error('Error checking rate limit:', error);
     }
   };
 
   const recordAttempt = async (success: boolean, failureReason?: string) => {
     if (!email) return;
 
-    try {
+    // Fire-and-forget: don't block on recording login attempts
+    fireAndForget(async () => {
       await supabase.from('login_attempts').insert({
         email,
         success,
         failure_reason: failureReason,
         ip_address: null, // Would be filled by backend
-        user_agent: navigator.userAgent,
+        user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
       });
 
       // Recheck rate limit after recording attempt
       await checkRateLimit();
-    } catch (error) {
-      console.error('Error recording login attempt:', error);
-    }
+    }, 'recordLoginAttempt');
   };
 
   const formatCountdown = (): string => {
