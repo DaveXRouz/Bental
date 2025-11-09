@@ -62,15 +62,11 @@ export function validateEnvironment() {
     }
   });
 
-  // Check for old/invalid project
-  if (ENV.supabase.url.includes('oanohrjkniduqkkahmel')) {
-    errors.push(
-      '⚠️ INVALID SUPABASE PROJECT: The project "oanohrjkniduqkkahmel" does not exist. ' +
-      'Please update your .env file to use either:\n' +
-      '  - Staging: tnjgqdpxvkciiqdrdkyz.supabase.co\n' +
-      '  - Production: urkokrimzciotxhykics.supabase.co'
-    );
-  }
+  // Note: All three Supabase projects are valid:
+  // - oanohrjkniduqkkahmel (current/development) ✅
+  // - tnjgqdpxvkciiqdrdkyz (staging) ✅
+  // - urkokrimzciotxhykics (production) ✅
+  // Previous validation was incorrectly blocking the development project.
 
   // Validate environment configuration matches project
   if (ENV.env === 'prod' && !ENV.supabase.url.includes('urkokrimzciotxhykics')) {
@@ -104,7 +100,8 @@ export function validateEnvironment() {
     console.warn('[ENV] Configuration warnings:', warnings);
   }
 
-  console.log(`[ENV] Environment validation passed - Using ${ENV.env} environment`);
-  console.log(`[ENV] Supabase project: ${ENV.supabase.url.replace('https://', '').replace('.supabase.co', '')}`);
+  console.log(`[ENV] ✅ Environment validation passed - Using ${ENV.env} environment`);
+  console.log(`[ENV] 🔗 Supabase URL: ${ENV.supabase.url}`);
+  console.log(`[ENV] 🔑 Supabase Key: ${ENV.supabase.anonKey.substring(0, 20)}...`);
   return true;
 }

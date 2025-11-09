@@ -39,6 +39,8 @@ import { useRateLimit } from '@/hooks/useRateLimit';
 import { useLoginHistory } from '@/hooks/useLoginHistory';
 import { useSessionManagement } from '@/hooks/useSessionManagement';
 import { MagicLinkModal } from '@/components/auth/MagicLinkModal';
+import { EnvironmentDebug } from '@/components/debug/EnvironmentDebug';
+import { ENV } from '@/config/env';
 
 type LoginMode = 'email' | 'passport';
 
@@ -202,17 +204,28 @@ export default function LoginScreen() {
     setTouched({ email: true, passport: true, password: true });
 
     // 🔍 DEBUG: Log authentication attempt details
-    console.log('=== LOGIN ATTEMPT DEBUG ===');
-    console.log('Login Mode:', loginMode);
-    console.log('Email:', loginMode === 'email' ? email : 'N/A');
-    console.log('Trading Passport:', loginMode === 'passport' ? tradingPassport : 'N/A');
-    console.log('Password Length:', password.length);
-    console.log('Password First Char:', password.charAt(0));
-    console.log('Password Last Char:', password.charAt(password.length - 1));
-    console.log('Password Trimmed Length:', password.trim().length);
-    console.log('Has Leading/Trailing Spaces:', password !== password.trim());
-    console.log('Password Char Codes:', Array.from(password).map(c => c.charCodeAt(0)).join(','));
-    console.log('=========================');
+    console.log('\n' + '='.repeat(70));
+    console.log('🔐 LOGIN ATTEMPT DEBUG');
+    console.log('='.repeat(70));
+    console.log('📋 Input Details:');
+    console.log('  Login Mode:', loginMode);
+    console.log('  Email:', loginMode === 'email' ? email : 'N/A');
+    console.log('  Trading Passport:', loginMode === 'passport' ? tradingPassport : 'N/A');
+    console.log('\n🔑 Password Analysis:');
+    console.log('  Raw Password:', `"${password}"`);
+    console.log('  Length:', password.length);
+    console.log('  First Char:', `'${password.charAt(0)}' (code: ${password.charCodeAt(0)})`);
+    console.log('  Last Char:', `'${password.charAt(password.length - 1)}' (code: ${password.charCodeAt(password.length - 1)})`);
+    console.log('  Trimmed Length:', password.trim().length);
+    console.log('  Has Leading Space:', password !== password.trimStart());
+    console.log('  Has Trailing Space:', password !== password.trimEnd());
+    console.log('  Character Codes:', `[${Array.from(password).map(c => c.charCodeAt(0)).join(', ')}]`);
+    console.log('  Matches Expected:', password === 'Welcome2025!' ? '✅ YES' : '❌ NO');
+    console.log('\n🌐 Environment:');
+    console.log('  Supabase URL:', ENV.supabase.url);
+    console.log('  Supabase Key:', ENV.supabase.anonKey.substring(0, 20) + '...');
+    console.log('  Key Length:', ENV.supabase.anonKey.length);
+    console.log('='.repeat(70) + '\n');
 
     let hasErrors = false;
 
@@ -316,10 +329,16 @@ export default function LoginScreen() {
       }
 
       // 🔍 DEBUG: Log the exact credentials being sent to Supabase
-      console.log('📤 Sending to Supabase Auth:');
+      console.log('\n' + '─'.repeat(70));
+      console.log('📤 SENDING TO SUPABASE AUTH:');
+      console.log('─'.repeat(70));
       console.log('  Email:', loginEmail);
+      console.log('  Password:', `"${password}"`);
       console.log('  Password Length:', password.length);
-      console.log('  Password:', '***' + password.slice(-1)); // Show only last char for security
+      console.log('  Password Chars:', `[${Array.from(password).map(c => c.charCodeAt(0)).join(', ')}]`);
+      console.log('  Expected:', 'Welcome2025!');
+      console.log('  Match:', password === 'Welcome2025!' ? '✅ EXACT MATCH' : '❌ MISMATCH');
+      console.log('─'.repeat(70));
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
@@ -327,16 +346,23 @@ export default function LoginScreen() {
       });
 
       // 🔍 DEBUG: Log authentication response
-      console.log('📥 Supabase Auth Response:');
-      console.log('  Success:', !error);
+      console.log('\n' + '─'.repeat(70));
+      console.log('📥 SUPABASE AUTH RESPONSE:');
+      console.log('─'.repeat(70));
       if (error) {
+        console.log('  ❌ AUTHENTICATION FAILED');
         console.log('  Error Message:', error.message);
-        console.log('  Error Code:', error.status);
-        console.log('  Error Details:', JSON.stringify(error, null, 2));
+        console.log('  Error Status:', error.status);
+        console.log('  Error Name:', error.name || 'N/A');
+        console.log('\n  Full Error Details:');
+        console.log(JSON.stringify(error, null, 2));
       } else {
+        console.log('  ✅ AUTHENTICATION SUCCESS');
         console.log('  User ID:', data.user?.id);
         console.log('  User Email:', data.user?.email);
+        console.log('  Email Confirmed:', data.user?.email_confirmed_at ? 'Yes' : 'No');
       }
+      console.log('─'.repeat(70) + '\n');
 
       // Record login attempt
       await rateLimit.recordAttempt(!error, error?.message);
@@ -508,6 +534,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <EnvironmentDebug />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
