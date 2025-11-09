@@ -7,3 +7,4 @@ export { ConnectionStatusBanner } from './ConnectionStatusBanner';
 export { NumberText } from './NumberText';
 export { CurrencyDisplay } from './CurrencyDisplay';
 export { PercentageDisplay } from './PercentageDisplay';
+export { EnvironmentIndicator } from './EnvironmentIndicator';

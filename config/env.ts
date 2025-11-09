@@ -39,6 +39,20 @@ export const ENV = {
 export const isLocal = ENV.env === 'local';
 export const isDev = ENV.env === 'dev';
 export const isProd = ENV.env === 'prod';
+export const isStaging = ENV.env === 'staging';
+
+// Determine environment from Supabase URL
+export function getEnvironmentFromUrl(): 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'LOCAL' {
+  const url = ENV.supabase.url;
+
+  if (!url) return 'LOCAL';
+
+  if (url.includes('tnjgqdpxvkciiqdrdkyz')) return 'STAGING';
+  if (url.includes('urkokrimzciotxhykics')) return 'PRODUCTION';
+  if (url.includes('oanohrjkniduqkkahmel')) return 'DEVELOPMENT';
+
+  return 'LOCAL';
+}
 
 // Use mock data by default in local mode
 export const useMockData = isLocal || !FEATURES.liveMarket;
