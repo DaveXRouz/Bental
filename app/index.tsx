@@ -24,12 +24,24 @@ export default function Index() {
   useEffect(() => {
     async function fetchUserRole() {
       if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setUserRole(data?.role || 'user');
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (error) {
+            console.warn('[Index] Failed to fetch user role:', error.message);
+            // Default to 'user' if there's an error (including schema cache errors)
+            setUserRole('user');
+          } else {
+            setUserRole(data?.role || 'user');
+          }
+        } catch (err) {
+          console.error('[Index] Exception fetching user role:', err);
+          setUserRole('user');
+        }
       }
       setRoleLoading(false);
     }

@@ -36,7 +36,11 @@ export function useAppConfig(): AppConfig & { loading: boolean } {
           ]);
 
         if (error) {
-          console.error('Error fetching app configuration:', error);
+          console.warn('[AppConfig] Error fetching configuration:', error.message);
+          // Use default values if there's a schema cache error
+          if (error.message.includes('schema cache') || error.message.includes('Could not find')) {
+            console.warn('[AppConfig] Using default configuration due to schema cache error');
+          }
         } else if (data) {
           const configMap = data.reduce((acc, item) => {
             acc[item.key as keyof AppConfig] = item.value;
@@ -46,7 +50,7 @@ export function useAppConfig(): AppConfig & { loading: boolean } {
           setConfig((prev) => ({ ...prev, ...configMap }));
         }
       } catch (err) {
-        console.error('Error fetching app configuration:', err);
+        console.error('[AppConfig] Exception fetching configuration:', err);
       } finally {
         setLoading(false);
       }
@@ -103,13 +107,13 @@ export function useConfigValue<T = any>(key: string, defaultValue: T): T {
           .single();
 
         if (error) {
-          console.error(`Error fetching config ${key}:`, error);
+          console.warn(`[ConfigValue] Error fetching ${key}:`, error.message);
           setValue(defaultValue);
         } else {
           setValue(data?.value || defaultValue);
         }
       } catch (err) {
-        console.error(`Error fetching config ${key}:`, err);
+        console.error(`[ConfigValue] Exception fetching ${key}:`, err);
         setValue(defaultValue);
       } finally {
         setLoading(false);

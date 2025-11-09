@@ -40,8 +40,25 @@ export async function ensureSchemaReady(): Promise<boolean> {
     if (error) {
       console.error('❌ Schema verification failed:', error.message);
 
-      // If it's a "relation does not exist" error, this is critical
-      if (error.message.includes('relation') || error.message.includes('not found')) {
+      // Check if this is a PostgREST schema cache issue
+      if (error.message.includes('schema cache') ||
+          error.message.includes('Could not find') ||
+          error.message.includes('relationship')) {
+        console.error('');
+        console.error('⚠️  SCHEMA CACHE ERROR DETECTED');
+        console.error('');
+        console.error('The database tables exist, but Supabase PostgREST has a stale cache.');
+        console.error('');
+        console.error('RESOLUTION STEPS:');
+        console.error('1. Open Supabase Dashboard: https://supabase.com/dashboard');
+        console.error('2. Navigate to: Settings → Database → Schema');
+        console.error('3. Click: "Reload Schema" button');
+        console.error('4. Wait: 60 seconds for cache propagation');
+        console.error('5. Reload this page');
+        console.error('');
+        console.error('Alternative: Clear browser cache and try incognito mode');
+        console.error('');
+      } else if (error.message.includes('relation') || error.message.includes('not found')) {
         console.error('🚨 CRITICAL: profiles table not accessible');
         console.error('💡 Try:');
         console.error('   1. Clear browser cache (Ctrl+Shift+Del)');
@@ -61,11 +78,20 @@ export async function ensureSchemaReady(): Promise<boolean> {
 
     if (accountsError) {
       console.error('❌ Accounts table not accessible:', accountsError.message);
+
+      // Check for schema cache issues on accounts table too
+      if (accountsError.message.includes('schema cache') ||
+          accountsError.message.includes('Could not find')) {
+        console.error('⚠️  This appears to be a PostgREST schema cache issue.');
+        console.error('Please reload schema in Supabase Dashboard.');
+      }
+
       return false;
     }
 
     schemaVerified = true;
     console.log('✅ Schema verified successfully');
+    console.log('✅ All critical tables accessible');
     return true;
 
   } catch (error) {
