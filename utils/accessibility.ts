@@ -149,7 +149,6 @@ export const A11yHelpers = {
   decorative(): A11yProps {
     return {
       accessible: false,
-      accessibilityElementsHidden: true,
       importantForAccessibility: 'no',
     };
   },

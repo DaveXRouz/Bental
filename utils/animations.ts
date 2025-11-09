@@ -5,7 +5,7 @@
  * Provides consistent animation patterns, timings, and easing functions.
  */
 
-import { withRepeat, withSequence, withTiming, withSpring, Easing } from 'react-native-reanimated';
+import { withRepeat, withSequence, withTiming, withSpring, withDelay, Easing } from 'react-native-reanimated';
 
 /**
  * Standard animation configurations
@@ -141,13 +141,10 @@ export const createEntranceAnimation = (
   duration: number = 600
 ) => {
   return {
-    opacity: withTiming(1, { duration, delay }),
+    opacity: withDelay(delay, withTiming(1, { duration })),
     transform: [
       {
-        scale: withSpring(1, {
-          ...AnimationConfig.spring.snappy,
-          delay,
-        }),
+        scale: withDelay(delay, withSpring(1, AnimationConfig.spring.snappy)),
       },
     ],
   };

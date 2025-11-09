@@ -10,7 +10,7 @@ export const amountSchema = z
 export const depositSchema = z.object({
   amount: amountSchema,
   method: z.enum(['bank', 'card'], {
-    errorMap: () => ({ message: 'Please select a deposit method' }),
+    message: 'Please select a deposit method',
   }),
 });
 
@@ -48,10 +48,10 @@ export const tradeSchema = z.object({
     .refine((val) => Number(val) > 0, 'Quantity must be greater than 0')
     .refine((val) => Number.isInteger(Number(val)), 'Quantity must be a whole number'),
   orderType: z.enum(['market', 'limit'], {
-    errorMap: () => ({ message: 'Please select order type' }),
+    message: 'Please select order type',
   }),
   side: z.enum(['buy', 'sell'], {
-    errorMap: () => ({ message: 'Please select buy or sell' }),
+    message: 'Please select buy or sell',
   }),
   limitPrice: z.string().optional(),
   buyingPower: z.number().optional(),

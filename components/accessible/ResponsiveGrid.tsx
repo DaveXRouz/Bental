@@ -64,7 +64,7 @@ export function ResponsiveGrid({
                 },
               ]}
               accessible={true}
-              accessibilityRole="listitem"
+              accessibilityRole="none"
             >
               {child}
             </View>
@@ -122,7 +122,7 @@ export function MasonryGrid({
             <View
               key={childIndex}
               accessible={true}
-              accessibilityRole="listitem"
+              accessibilityRole="none"
             >
               {child}
             </View>

@@ -1,5 +1,39 @@
-import type { AdminUser, AdminDeposit } from '@/services/admin';
-import type { Lead } from '@/services/crm/lead-management';
+// Type definitions for data export
+export interface AdminUser {
+  email: string;
+  full_name?: string;
+  kyc_status?: string;
+  risk_tier?: string;
+  phone?: string;
+  country?: string;
+  created_at?: string;
+  last_login?: string;
+}
+
+export interface AdminDeposit {
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+  scheduled_at?: string;
+  created_at: string;
+  address_json?: { city?: string; state?: string };
+  profiles?: { email?: string; full_name?: string };
+}
+
+export interface Lead {
+  email: string;
+  full_name?: string;
+  phone?: string;
+  lead_score?: number;
+  current_stage?: string;
+  lead_source?: string;
+  conversion_probability?: number;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  created_at: string;
+}
 
 export interface ExportOptions {
   filename: string;

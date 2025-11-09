@@ -53,7 +53,7 @@ export class EnhancedWebSocket extends EventEmitter {
 
     this.config = {
       url: config.url,
-      protocols: config.protocols,
+      protocols: config.protocols || [],
       reconnect: config.reconnect !== false,
       reconnectInterval: config.reconnectInterval || 1000,
       reconnectDecay: config.reconnectDecay || 1.5,

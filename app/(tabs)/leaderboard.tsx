@@ -101,7 +101,7 @@ export default function LeaderboardScreen() {
             </GlassCard>
           ) : (
             entries.map((entry, index) => (
-              <GlassCard key={entry.id} style={[styles.leaderCard, index < 3 ? styles.topCard : undefined]}>
+              <GlassCard key={entry.id} style={[styles.leaderCard, ...(index < 3 ? [styles.topCard] : [])]}>
                 <View style={styles.leaderHeader}>
                   <View style={styles.rankSection}>
                     {getRankIcon(entry.rank) || (

@@ -179,15 +179,18 @@ export function Watchlist({ items, onAdd, onRemove, onItemPress }: Props) {
                 />
 
                 <TouchableOpacity
-                  title={loading ? 'Adding...' : 'Add Symbol'}
                   onPress={handleAdd}
-                  loading={loading}
                   disabled={loading || !newSymbol.trim()}
+                  style={styles.addButton}
+                  activeOpacity={0.7}
                   accessibilityLabel="Add symbol to watchlist"
                   accessibilityHint="Adds the entered stock symbol to your watchlist"
-                  fullWidth={true}
-                  hapticFeedback={true}
-                />
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.addButtonText}>
+                    {loading ? 'Adding...' : 'Add Symbol'}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </TouchableOpacity>
           </BlurView>

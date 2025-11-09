@@ -272,7 +272,6 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
           domainPadding={{ top: 20, bottom: 20, left: 20, right: 20 }}
           axisOptions={{
             font: {
-              color: '#64748b',
               size: 10,
             },
             lineColor: '#334155',
@@ -284,8 +283,7 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
               {chartType === 'area' ? (
                 <Area
                   points={points.y}
-                  color="#3b82f6"
-                  opacity={0.2}
+                  y0={0}
                   curveType="natural"
                   animate={{ type: 'timing', duration: 300 }}
                 />
@@ -363,7 +361,7 @@ export function AdvancedStockChart({ data, symbol, showIndicators = true }: Adva
               yKeys={["y"]}
               domainPadding={{ top: 10, bottom: 10, left: 20, right: 20 }}
               axisOptions={{
-                font: { color: '#64748b', size: 9 },
+                font: { size: 9 },
                 lineColor: '#334155',
                 lineWidth: 0.5,
               }}

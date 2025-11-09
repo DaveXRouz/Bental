@@ -82,7 +82,7 @@ export class RealtimeConnectionManager {
         table: options.table,
         filter: options.filter,
       },
-      (payload) => {
+      (payload: any) => {
         try {
           options.onData(payload);
         } catch (error) {
@@ -238,7 +238,7 @@ export class RealtimeConnectionManager {
     const subs = this.subscriptions.get(channelName) || [];
     subs.forEach(sub => {
       newChannel.on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event: sub.event || '*',
           schema: sub.schema || 'public',

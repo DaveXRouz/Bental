@@ -56,7 +56,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Welcome to Your Trading Platform',
     description: 'A premium platform designed for modern traders. Track markets, automate strategies, and grow your portfolio.',
     icon: Sparkles,
-    color: colors.accent.blue,
+    color: colors.blue,
     features: [
       'Real-time market data',
       'AI-powered trading bots',
@@ -82,7 +82,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Automated Trading Bots',
     description: 'Subscribe to professional trading strategies. Let AI handle the trades while you focus on strategy.',
     icon: Bot,
-    color: colors.accent.purple,
+    color: colors.purple,
     features: [
       '8+ proven strategies',
       'Backtested results',
@@ -108,7 +108,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: 'Monitor Your Performance',
     description: 'Comprehensive portfolio analytics with real-time tracking and historical performance data.',
     icon: BarChart3,
-    color: colors.accent.blue,
+    color: colors.blue,
     features: [
       'Real-time tracking',
       'Performance charts',
@@ -267,7 +267,7 @@ export default function OnboardingModal({ visible, onComplete, onSkip }: Onboard
                   accessibilityLabel="Previous step"
                   accessibilityRole="button"
                 >
-                  <ChevronLeft size={24} color={colors.text.primary} />
+                  <ChevronLeft size={24} color={colors.text} />
                   <Text style={styles.navButtonText}>Back</Text>
                 </TouchableOpacity>
               ) : (
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     ...typography.caption,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.sm,
   },
@@ -364,13 +364,13 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.h2,
-    color: colors.text.primary,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
   description: {
     ...typography.body,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: spacing.xl,
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...typography.body,
-    color: colors.text.primary,
+    color: colors.text,
     flex: 1,
   },
   navigation: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   navButtonText: {
     ...typography.body,
-    color: colors.text.primary,
+    color: colors.text,
     fontWeight: '500',
   },
   primaryButton: {

@@ -193,7 +193,7 @@ export function InteractiveTooltip({
               {/* Header */}
               <View style={styles.header}>
                 <View style={styles.iconContainer}>
-                  <IconComponent size={20} color={colors.accent.blue} />
+                  <IconComponent size={20} color={colors.blue} />
                 </View>
                 <Text style={styles.title}>{title}</Text>
                 <TouchableOpacity
@@ -203,7 +203,7 @@ export function InteractiveTooltip({
                   accessibilityLabel="Dismiss tooltip"
                   accessibilityRole="button"
                 >
-                  <X size={20} color={colors.text.secondary} />
+                  <X size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -235,7 +235,7 @@ export function InteractiveTooltip({
                     accessibilityRole="button"
                   >
                     <Text style={styles.nextButtonText}>Next</Text>
-                    <ChevronRight size={16} color={colors.accent.blue} />
+                    <ChevronRight size={16} color={colors.blue} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: radius.lg,
     borderWidth: 3,
-    borderColor: colors.accent.blue,
+    borderColor: colors.blue,
     backgroundColor: 'rgba(59, 130, 246, 0.1)',
   },
   tooltipContainer: {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.h4,
-    color: colors.text.primary,
+    color: colors.text,
     flex: 1,
   },
   closeButton: {
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   description: {
     ...typography.body,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: spacing.md,
   },
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   primaryActionButton: {
-    backgroundColor: colors.accent.blue,
+    backgroundColor: colors.blue,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
@@ -327,11 +327,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.accent.blue,
+    borderColor: colors.blue,
   },
   nextButtonText: {
     ...typography.body,
-    color: colors.accent.blue,
+    color: colors.blue,
     fontWeight: '500',
   },
 });

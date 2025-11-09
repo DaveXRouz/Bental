@@ -62,7 +62,6 @@ export const getFormFieldAccessibilityProps = (
   accessible: true,
   accessibilityLabel: label,
   accessibilityHint: hint || `Enter ${label.toLowerCase()}`,
-  accessibilityRequired: required,
 });
 
 /**
@@ -90,7 +89,7 @@ export const getWarningAccessibilityProps = (warningMessage: string): Accessibil
  */
 export const getSuccessAccessibilityProps = (successMessage: string): AccessibilityProps => ({
   accessible: true,
-  accessibilityRole: 'status',
+  accessibilityRole: 'text',
   accessibilityLiveRegion: 'polite',
   accessibilityLabel: successMessage,
 });

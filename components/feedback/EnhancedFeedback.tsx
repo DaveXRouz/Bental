@@ -47,7 +47,7 @@ const FEEDBACK_CONFIG = {
   },
   info: {
     icon: Info,
-    color: colors.accent.blue,
+    color: colors.blue,
     backgroundColor: 'rgba(59, 130, 246, 0.15)',
   },
 };
@@ -124,7 +124,7 @@ export function EnhancedFeedback({
           accessibilityLabel="Dismiss"
           accessibilityRole="button"
         >
-          <XCircle size={20} color={colors.text.secondary} />
+          <XCircle size={20} color={colors.textSecondary} />
         </TouchableOpacity>
       )}
     </Animated.View>
@@ -157,7 +157,7 @@ export function EmptyState({
   return (
     <View style={styles.emptyState}>
       <View style={styles.emptyIconContainer}>
-        <Icon size={48} color={colors.text.secondary} />
+        <Icon size={48} color={colors.textSecondary} />
       </View>
 
       <Text style={styles.emptyTitle}>{title}</Text>
@@ -234,7 +234,7 @@ export function LoadingFeedback({ message, progress, visible }: LoadingFeedbackP
     >
       <View style={styles.loadingContent}>
         <View style={styles.spinner}>
-          <RefreshCw size={20} color={colors.accent.blue} />
+          <RefreshCw size={20} color={colors.blue} />
         </View>
         <Text style={styles.loadingMessage}>{message}</Text>
       </View>
@@ -268,11 +268,11 @@ const styles = StyleSheet.create({
   title: {
     ...typography.body,
     fontWeight: '600',
-    color: colors.text.primary,
+    color: colors.text,
   },
   message: {
     ...typography.caption,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     marginTop: spacing.xs,
   },
   actionButton: {
@@ -310,13 +310,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     ...typography.h3,
-    color: colors.text.primary,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
   emptyDescription: {
     ...typography.body,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     maxWidth: 300,
     lineHeight: 22,
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: colors.accent.blue,
+    backgroundColor: colors.blue,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     borderRadius: radius.lg,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   },
   emptySecondaryText: {
     ...typography.body,
-    color: colors.accent.blue,
+    color: colors.blue,
     fontWeight: '500',
   },
   inlineFeedback: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   loadingMessage: {
     ...typography.body,
-    color: colors.text.primary,
+    color: colors.text,
     flex: 1,
   },
   progressBar: {
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.accent.blue,
+    backgroundColor: colors.blue,
     borderRadius: radius.full,
   },
 });
