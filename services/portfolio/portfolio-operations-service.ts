@@ -288,11 +288,11 @@ export async function getAllPendingSellOrders() {
       .from('pending_sell_orders')
       .select(`
         *,
-        profiles!pending_sell_orders_user_id_fkey (
+        profiles!user_id (
           full_name,
           email
         ),
-        accounts!pending_sell_orders_account_id_fkey (
+        accounts!account_id (
           name,
           account_type
         )
