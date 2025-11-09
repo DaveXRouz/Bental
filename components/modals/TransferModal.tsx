@@ -417,7 +417,7 @@ export default function TransferModal({ visible, onClose, onSuccess }: TransferM
                   end={{ x: 1, y: 0 }}
                 >
                   {isSubmitting ? (
-                    <ButtonSpinner size="small" />
+                    <ButtonSpinner />
                   ) : (
                     <>
                       <ArrowRightLeft size={18} color="#FFFFFF" />

@@ -247,19 +247,15 @@ export function BotDetailModal({ bot, visible, onClose, onAllocate }: BotDetailM
           <GlassButton
             title="Cancel"
             onPress={onClose}
-            variant="secondary"
-            style={styles.footerButton}
           />
           <GlassButton
             title="Allocate"
             onPress={handleAllocate}
-            variant="primary"
             disabled={
               loading ||
               !allocateAmount ||
               parseFloat(allocateAmount) < bot.min_capital
             }
-            style={styles.footerButton}
           />
         </View>
       </View>

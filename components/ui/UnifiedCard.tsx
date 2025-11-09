@@ -22,7 +22,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export function UnifiedCard({
   children,
   variant = 'default',
-  padding = 4,
+  padding = 'lg' as keyof typeof spacing,
   onPress,
   style,
 }: UnifiedCardProps) {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
-    backgroundColor: colors.surface.card,
+    backgroundColor: colors.surface,
     ...shadows.sm,
   },
   elevatedCard: {
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.border,
     overflow: 'hidden',
-    backgroundColor: colors.surface.cardElevated,
+    backgroundColor: colors.surfaceAlt,
     ...shadows.md,
   },
   outlinedCard: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   filledCard: {
     borderRadius: radius.lg,
-    backgroundColor: colors.surface.cardElevated,
+    backgroundColor: colors.surfaceAlt,
     ...shadows.sm,
   },
   gradient: {

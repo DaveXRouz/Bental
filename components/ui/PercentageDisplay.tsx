@@ -47,7 +47,7 @@ export const PercentageDisplay: React.FC<PercentageDisplayProps> = ({
   }, [value, colorize]);
 
   const baseStyle = size === 'small' ? numberStyles.percentageSmall : numberStyles.percentage;
-  const combinedStyle = withNumberStyle(baseStyle, [{ color }, ...(Array.isArray(style) ? style : [style])]);
+  const combinedStyle = withNumberStyle(baseStyle, [{ color }, ...(Array.isArray(style) ? style : style ? [style] : [])]);
 
   return (
     <Text style={combinedStyle} {...textProps}>

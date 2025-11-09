@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { performanceTracker } from '@/services/analytics/performance-tracker';
+// import { performanceTracker } from '@/services/analytics/performance-tracker';
 
 export interface PerformanceTrendPoint {
   recorded_at: string;

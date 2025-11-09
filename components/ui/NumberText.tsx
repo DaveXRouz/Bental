@@ -51,7 +51,7 @@ export const NumberText: React.FC<NumberTextProps> = ({
   };
 
   const baseStyle = getBaseStyle();
-  const combinedStyle = withNumberStyle(baseStyle, [{ color }, ...(Array.isArray(style) ? style : [style])]);
+  const combinedStyle = withNumberStyle(baseStyle, [{ color }, ...(Array.isArray(style) ? style : style ? [style] : [])]);
 
   return (
     <Text style={combinedStyle} {...textProps}>

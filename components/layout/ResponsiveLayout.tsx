@@ -11,8 +11,8 @@ interface ResponsiveLayoutProps {
 
 export function ResponsiveLayout({
   children,
-  maxWidth = 'xl',
-  padding = 4,
+  maxWidth = 'desktop' as keyof typeof breakpoints | 'full',
+  padding = 'lg' as keyof typeof spacing,
   style,
 }: ResponsiveLayoutProps) {
   const { width } = useWindowDimensions();

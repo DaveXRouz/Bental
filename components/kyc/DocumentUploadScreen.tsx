@@ -199,12 +199,13 @@ export default function DocumentUploadScreen() {
         copyToCacheDirectory: true,
       });
 
-      if (result.type === 'success') {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
         await uploadDocument(
           documentType,
-          result.uri,
-          result.name,
-          result.mimeType || 'application/octet-stream'
+          asset.uri,
+          asset.name,
+          asset.mimeType || 'application/octet-stream'
         );
       }
     } catch (error) {
@@ -393,22 +394,22 @@ export default function DocumentUploadScreen() {
               </View>
             ) : status !== 'approved' ? (
               <View style={styles.actions}>
-                <KeyboardButton
-                  title="Take Photo"
+                <TouchableOpacity
                   onPress={() => pickImage(docType.id, true)}
-                  variant="secondary"
-                  size="sm"
-                  icon={<Camera size={18} color={colors.textInverse} />}
                   style={styles.actionButton}
-                />
-                <KeyboardButton
-                  title="Choose File"
+                  activeOpacity={0.7}
+                >
+                  <Camera size={18} color={colors.white} />
+                  <Text style={styles.actionButtonText}>Take Photo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={() => pickDocument(docType.id)}
-                  variant="secondary"
-                  size="sm"
-                  icon={<Upload size={18} color={colors.textInverse} />}
                   style={styles.actionButton}
-                />
+                  activeOpacity={0.7}
+                >
+                  <Upload size={18} color={colors.white} />
+                  <Text style={styles.actionButtonText}>Choose File</Text>
+                </TouchableOpacity>
                 {status && (
                   <TouchableOpacity
                     onPress={() => doc && deleteDocument(doc.id)}

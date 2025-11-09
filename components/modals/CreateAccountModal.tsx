@@ -643,7 +643,7 @@ export default function CreateAccountModal({ visible, onClose, onSuccess }: Crea
                     end={{ x: 1, y: 0 }}
                   >
                     {isSubmitting ? (
-                      <ButtonSpinner size="small" />
+                      <ButtonSpinner />
                     ) : (
                       <>
                         <Check size={20} color="#FFFFFF" />

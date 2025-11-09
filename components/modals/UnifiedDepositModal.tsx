@@ -664,7 +664,7 @@ export default function UnifiedDepositModal({ visible, onClose, onSuccess }: Uni
                   end={{ x: 1, y: 0 }}
                 >
                   {isSubmitting ? (
-                    <ButtonSpinner size="small" />
+                    <ButtonSpinner />
                   ) : (
                     <>
                       <Download size={18} color="#FFFFFF" />

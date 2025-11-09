@@ -312,8 +312,6 @@ export function KYCModal({ visible, onClose, onComplete }: KYCModalProps) {
             <GlassButton
               title="Back"
               onPress={() => setStep(step - 1)}
-              variant="secondary"
-              style={styles.footerButton}
             />
           )}
           <GlassButton
@@ -325,10 +323,7 @@ export function KYCModal({ visible, onClose, onComplete }: KYCModalProps) {
                 setStep(step + 1);
               }
             }}
-            variant="primary"
             disabled={loading}
-            style={styles.footerButton}
-            fullWidth={step === 1}
           />
         </View>
       </View>

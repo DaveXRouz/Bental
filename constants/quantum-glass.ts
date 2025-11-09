@@ -84,4 +84,40 @@ export const QUANTUM_EFFECTS = {
   },
 };
 
+// Additional exports for component compatibility
+export const QuantumColors = PLASMA_COLORS;
+export const QuantumAnimation = {
+  ...QUANTUM_GLASS.animation,
+  curve: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
+  timing: {
+    cta: 600,
+    hover: 200,
+    press: 100,
+  },
+};
+export const QuantumTypography = {
+  sizes: {
+    xs: 11,
+    sm: 13,
+    md: 15,
+    lg: 17,
+    xl: 20,
+    xxl: 24,
+  },
+  weights: {
+    regular: '400' as const,
+    medium: '500' as const,
+    semibold: '600' as const,
+    bold: '700' as const,
+  },
+};
+export const QuantumRadius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  full: 9999,
+};
+export const QuantumElevation = QUANTUM_EFFECTS;
+
 export default QUANTUM_GLASS;

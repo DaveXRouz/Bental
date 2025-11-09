@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   chevron: {
-    transition: 'transform 0.2s',
+    // Transition handled by reanimated
   },
   chevronOpen: {
     transform: [{ rotate: '180deg' }],

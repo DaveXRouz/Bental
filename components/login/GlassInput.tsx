@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     minHeight: 52,
-    transition: 'all 0.2s ease',
   },
   containerFocused: {
     borderColor: 'rgba(200, 200, 200, 0.4)',

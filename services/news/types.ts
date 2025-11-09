@@ -1,15 +1,21 @@
 export interface NewsArticle {
   id: string;
   title: string;
-  summary: string;
+  summary?: string;
   content?: string;
-  url: string;
+  author?: string;
+  source?: string;
+  source_url?: string;
+  url?: string;
   image_url?: string;
-  source: string;
-  published_at: string;
-  category: string;
-  sentiment?: 'positive' | 'negative' | 'neutral';
+  category?: string;
+  category_id?: string;
   symbols?: string[];
+  sentiment?: 'positive' | 'negative' | 'neutral';
+  published?: boolean;
+  featured?: boolean;
+  published_at?: string;
+  created_at?: string;
 }
 
 export interface NewsSource {

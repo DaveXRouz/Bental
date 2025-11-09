@@ -1,23 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-
-export interface NewsArticle {
-  id: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  author?: string;
-  source?: string;
-  source_url?: string;
-  image_url?: string;
-  category_id?: string;
-  symbols?: string[];
-  sentiment?: 'positive' | 'negative' | 'neutral';
-  published: boolean;
-  featured: boolean;
-  published_at?: string;
-  created_at: string;
-}
+import type { NewsArticle } from '@/services/news/types';
 
 export interface NewsCategory {
   id: string;

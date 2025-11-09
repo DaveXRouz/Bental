@@ -11,10 +11,11 @@ interface SegmentedProps {
 
 export function Segmented({ options, selected, onSelect }: SegmentedProps) {
   const indicatorStyle = useAnimatedStyle(() => {
+    const percentage = selected * 50;
     return {
       transform: [
         {
-          translateX: withTiming(selected * 50 + '%', {
+          translateX: withTiming(percentage as number, {
             duration: 120,
           }),
         },
