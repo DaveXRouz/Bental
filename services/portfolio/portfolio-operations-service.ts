@@ -288,6 +288,8 @@ export async function getUserPendingSellOrders(userId: string) {
  */
 export async function getAllPendingSellOrders() {
   try {
+    const startTime = Date.now();
+
     const { data, error } = await supabase
       .from('pending_sell_orders')
       .select(`
@@ -304,18 +306,40 @@ export async function getAllPendingSellOrders() {
       .eq('status', 'pending')
       .order('submitted_at', { ascending: false });
 
+    const duration = Date.now() - startTime;
+
     if (error) {
-      console.error('Failed to fetch pending sell orders:', {
+      console.error('❌ Failed to fetch pending sell orders:', {
         error,
         message: error.message,
         details: error.details,
         hint: error.hint,
-        code: error.code
+        code: error.code,
+        duration: `${duration}ms`,
+        timestamp: new Date().toISOString()
       });
+
+      // Detect schema cache issues
+      if (error.message?.includes('schema cache') ||
+          error.message?.includes('relationship') ||
+          error.message?.includes('Could not find')) {
+        console.error('\n⚠️  SCHEMA CACHE ERROR DETECTED\n');
+        console.error('This error indicates Supabase PostgREST schema cache is stale.');
+        console.error('\nRESOLUTION STEPS:');
+        console.error('1. Login to Supabase Dashboard: https://supabase.com/dashboard');
+        console.error('2. Navigate to: Settings → Database → Schema');
+        console.error('3. Click: "Reload Schema" button');
+        console.error('4. Wait: 60 seconds for cache propagation');
+        console.error('5. Retry: This query should then succeed');
+        console.error('\nAlternatively, restart PostgREST service from API settings.\n');
+      }
+
       throw error;
     }
 
+    console.log(`✅ Pending orders fetched successfully: ${data.length} orders in ${duration}ms`);
     return data;
+
   } catch (error: any) {
     console.error('Get all pending sell orders error:', error);
     throw new Error(error.message || 'Failed to fetch pending orders');
