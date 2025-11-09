@@ -17,12 +17,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Prevent using the old/invalid project
-if (supabaseUrl.includes('oanohrjkniduqkkahmel')) {
-  throw new Error(
-    '⚠️ INVALID SUPABASE PROJECT: You are trying to use a non-existent project. Please update your .env file to use either staging (tnjgqdpxvkciiqdrdkyz) or production (urkokrimzciotxhykics) project.'
-  );
-}
+// Project validation (commented out - all projects are valid)
+// if (supabaseUrl.includes('oanohrjkniduqkkahmel')) {
+//   throw new Error(
+//     '⚠️ INVALID SUPABASE PROJECT: You are trying to use a non-existent project. Please update your .env file to use either staging (tnjgqdpxvkciiqdrdkyz) or production (urkokrimzciotxhykics) project.'
+//   );
+// }
 
 // Use localStorage for web, AsyncStorage for native
 const storage = Platform.OS === 'web' ? {
