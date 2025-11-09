@@ -15,6 +15,12 @@ export default function Index() {
 
   const { session, loading } = auth;
 
+  // Safety check: If auth context is in temporary loading state (all methods are no-ops),
+  // show splash screen until real auth context is available
+  if (loading && auth.signIn.toString().includes('error: null')) {
+    return <SplashGlass />;
+  }
+
   useEffect(() => {
     async function fetchUserRole() {
       if (session?.user) {

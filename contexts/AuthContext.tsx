@@ -23,14 +23,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Mark AuthProvider as ready immediately when component is created
-  if (typeof window !== 'undefined') {
-    window.__AUTH_PROVIDER_READY__ = true;
-  }
-
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Mark AuthProvider as ready AFTER it has rendered and context is available
+  // Using useLayoutEffect ensures this runs after render but before paint
+  React.useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__AUTH_PROVIDER_READY__ = true;
+    }
+
+    // Cleanup: mark as not ready when provider unmounts
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.__AUTH_PROVIDER_READY__ = false;
+      }
+    };
+  }, []);
 
   useEffect(() => {
 
@@ -291,22 +301,35 @@ export function useAuth() {
   if (context === undefined) {
     // During app initialization, return a temporary loading state
     // instead of throwing an error immediately
-    if (typeof window !== 'undefined' && !window.__AUTH_PROVIDER_READY__) {
-      return {
-        session: null,
-        user: null,
-        loading: true,
-        signIn: async () => ({ error: null }),
-        signUp: async () => ({ error: null }),
-        signInWithGoogle: async () => ({ error: null }),
-        signInWithApple: async () => ({ error: null }),
-        signOut: async () => {},
-        changePassword: async () => ({ success: false }),
-        resetPassword: async () => ({ success: false }),
-        updatePassword: async () => ({ success: false }),
-      } as AuthContextType;
+    //
+    // This handles two cases:
+    // 1. Provider hasn't mounted yet (flag is false)
+    // 2. Provider is mounting but context isn't ready (brief window during React render/commit)
+    if (typeof window !== 'undefined') {
+      // If flag is not set OR if we detect we're in the mounting phase,
+      // return a safe loading state instead of throwing
+      const isProviderMounting = !window.__AUTH_PROVIDER_READY__;
+      const isContextUnavailable = context === undefined;
+
+      // Provide temporary loading state during initialization
+      if (isProviderMounting || isContextUnavailable) {
+        return {
+          session: null,
+          user: null,
+          loading: true,
+          signIn: async () => ({ error: null }),
+          signUp: async () => ({ error: null }),
+          signInWithGoogle: async () => ({ error: null }),
+          signInWithApple: async () => ({ error: null }),
+          signOut: async () => {},
+          changePassword: async () => ({ success: false }),
+          resetPassword: async () => ({ success: false }),
+          updatePassword: async () => ({ success: false }),
+        } as AuthContextType;
+      }
     }
 
+    // Only throw error if we're certain the provider is missing
     throw new Error(
       'useAuth must be used within an AuthProvider. ' +
       'Make sure your component is wrapped with <AuthProvider> in app/_layout.tsx. ' +
