@@ -23,6 +23,7 @@ import { ToastProvider } from '@/components/ui/ToastManager';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { useTickerStore } from '@/stores/useTickerStore';
 import { validateEnvironment } from '@/config/env';
+import { ensureSchemaReady } from '@/utils/schema-refresh';
 
 if (Platform.OS === 'web') {
   console.clear();
@@ -69,6 +70,11 @@ export default function RootLayout() {
     } catch (error) {
       console.error('[App] Environment validation failed:', error);
     }
+
+    // Verify database schema is accessible
+    ensureSchemaReady().catch((error) => {
+      console.error('[App] Schema verification failed:', error);
+    });
 
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
