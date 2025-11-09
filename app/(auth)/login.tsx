@@ -201,6 +201,19 @@ export default function LoginScreen() {
 
     setTouched({ email: true, passport: true, password: true });
 
+    // 🔍 DEBUG: Log authentication attempt details
+    console.log('=== LOGIN ATTEMPT DEBUG ===');
+    console.log('Login Mode:', loginMode);
+    console.log('Email:', loginMode === 'email' ? email : 'N/A');
+    console.log('Trading Passport:', loginMode === 'passport' ? tradingPassport : 'N/A');
+    console.log('Password Length:', password.length);
+    console.log('Password First Char:', password.charAt(0));
+    console.log('Password Last Char:', password.charAt(password.length - 1));
+    console.log('Password Trimmed Length:', password.trim().length);
+    console.log('Has Leading/Trailing Spaces:', password !== password.trim());
+    console.log('Password Char Codes:', Array.from(password).map(c => c.charCodeAt(0)).join(','));
+    console.log('=========================');
+
     let hasErrors = false;
 
     // Validate login identifier (email or passport)
@@ -233,6 +246,7 @@ export default function LoginScreen() {
 
     // Stop if validation failed
     if (hasErrors) {
+      console.log('❌ Validation failed, stopping login attempt');
       // Haptic feedback for validation error
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -301,10 +315,28 @@ export default function LoginScreen() {
         loginEmail = profile.email;
       }
 
+      // 🔍 DEBUG: Log the exact credentials being sent to Supabase
+      console.log('📤 Sending to Supabase Auth:');
+      console.log('  Email:', loginEmail);
+      console.log('  Password Length:', password.length);
+      console.log('  Password:', '***' + password.slice(-1)); // Show only last char for security
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password,
       });
+
+      // 🔍 DEBUG: Log authentication response
+      console.log('📥 Supabase Auth Response:');
+      console.log('  Success:', !error);
+      if (error) {
+        console.log('  Error Message:', error.message);
+        console.log('  Error Code:', error.status);
+        console.log('  Error Details:', JSON.stringify(error, null, 2));
+      } else {
+        console.log('  User ID:', data.user?.id);
+        console.log('  User Email:', data.user?.email);
+      }
 
       // Record login attempt
       await rateLimit.recordAttempt(!error, error?.message);
@@ -329,7 +361,10 @@ export default function LoginScreen() {
 
         if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('Invalid')) {
           // Authentication failure
-          setPasswordError('Incorrect password. Please try again.');
+          console.log('❌ Authentication failed - Invalid credentials');
+          console.log('💡 TIP: Password is case-sensitive. Try: Welcome2025!');
+          console.log('💡 Make sure there are no extra spaces before or after the password');
+          setPasswordError('Incorrect password. Please try again. Password is case-sensitive.');
         } else if (errorMessage.includes('Email not confirmed')) {
           setEmailError('Please verify your email address first');
         } else if (errorMessage.includes('User not found') || errorMessage.includes('not found')) {
@@ -648,6 +683,26 @@ export default function LoginScreen() {
                 showSuccess={touched.password && !passwordError && password.length >= 6}
                 onValidate={validatePassword}
               />
+
+              {/* Password Hint - Shows after 2 failed attempts */}
+              {loginAttempts >= 2 && (
+                <Animated.View
+                  entering={FadeIn.duration(300)}
+                  style={styles.passwordHint}
+                >
+                  <View style={{ marginRight: spacing.xs }}>
+                    <Shield size={14} color="rgba(255, 255, 255, 0.5)" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.passwordHintText}>
+                      💡 Demo password: <Text style={styles.passwordHintCode}>Welcome2025!</Text>
+                    </Text>
+                    <Text style={styles.passwordHintSubtext}>
+                      (Capital W, ends with !, no spaces)
+                    </Text>
+                  </View>
+                </Animated.View>
+              )}
 
               {/* Biometric Auth Button */}
               {biometric.capabilities.isAvailable && (loginMode === 'email' ? email : true) && (
@@ -1084,6 +1139,37 @@ const createResponsiveStyles = (
     helpCloseText: {
       fontSize: 16,
       color: 'rgba(255, 255, 255, 0.6)',
+    },
+    passwordHint: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: 'rgba(16, 185, 129, 0.08)',
+      borderWidth: 1,
+      borderColor: 'rgba(16, 185, 129, 0.2)',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 2,
+      borderRadius: 10,
+      marginTop: spacing.sm,
+      marginBottom: spacing.xs,
+    },
+    passwordHintText: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.medium,
+      color: 'rgba(255, 255, 255, 0.8)',
+      lineHeight: 18,
+    },
+    passwordHintCode: {
+      fontSize: typography.size.sm,
+      fontWeight: typography.weight.bold,
+      color: '#10B981',
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      letterSpacing: 0.5,
+    },
+    passwordHintSubtext: {
+      fontSize: typography.size.xs,
+      fontWeight: typography.weight.medium,
+      color: 'rgba(255, 255, 255, 0.5)',
+      marginTop: 2,
     },
     biometricButton: {
       marginBottom: spacing.md,
