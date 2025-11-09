@@ -225,7 +225,7 @@ export async function checkSupabaseHealth(): Promise<boolean> {
  * Batch multiple Supabase operations with error handling
  */
 export async function safeBatch<T = any>(
-  operations: Array<() => Promise<any>>,
+  operations: (() => Promise<any>)[],
   options: {
     stopOnError?: boolean;
     logErrors?: boolean;
