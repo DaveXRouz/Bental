@@ -498,6 +498,9 @@ class DepositWithdrawalService {
 
   /**
    * Get pending withdrawals for admin review
+   *
+   * Note: Uses implicit join with profiles and accounts tables.
+   * Both withdrawals.user_id and profiles.id reference auth.users.id.
    */
   async getPendingWithdrawalsForAdmin(limit: number = 50): Promise<Withdrawal[]> {
     try {
@@ -505,14 +508,22 @@ class DepositWithdrawalService {
         .from('withdrawals')
         .select(`
           *,
-          profiles!withdrawals_user_id_fkey(email, full_name),
-          accounts!withdrawals_account_id_fkey(name, balance)
+          profiles(email, full_name),
+          accounts(name, balance)
         `)
         .eq('admin_approval_status', 'pending_review')
         .order('created_at', { ascending: true })
         .limit(limit);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to fetch pending withdrawals:', {
+          error,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching pending withdrawals for admin:', error);
@@ -522,6 +533,9 @@ class DepositWithdrawalService {
 
   /**
    * Get all withdrawals for admin with filters
+   *
+   * Note: Uses implicit join with profiles and accounts tables.
+   * Both withdrawals.user_id and profiles.id reference auth.users.id.
    */
   async getAdminWithdrawals(
     status?: AdminApprovalStatus,
@@ -532,8 +546,8 @@ class DepositWithdrawalService {
         .from('withdrawals')
         .select(`
           *,
-          profiles!withdrawals_user_id_fkey(email, full_name),
-          accounts!withdrawals_account_id_fkey(name, balance)
+          profiles(email, full_name),
+          accounts(name, balance)
         `)
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -544,7 +558,15 @@ class DepositWithdrawalService {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to fetch admin withdrawals:', {
+          error,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching admin withdrawals:', error);
@@ -643,6 +665,9 @@ class DepositWithdrawalService {
 
   /**
    * Get all deposits for admin review
+   *
+   * Note: Uses implicit join with profiles and accounts tables.
+   * Both deposits.user_id and profiles.id reference auth.users.id.
    */
   async getAdminDeposits(status?: TransactionStatus, limit: number = 100): Promise<Deposit[]> {
     try {
@@ -650,8 +675,8 @@ class DepositWithdrawalService {
         .from('deposits')
         .select(`
           *,
-          profiles!deposits_user_id_fkey(email, full_name),
-          accounts!deposits_account_id_fkey(name, balance)
+          profiles(email, full_name),
+          accounts(name, balance)
         `)
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -662,7 +687,15 @@ class DepositWithdrawalService {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to fetch admin deposits:', {
+          error,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching admin deposits:', error);

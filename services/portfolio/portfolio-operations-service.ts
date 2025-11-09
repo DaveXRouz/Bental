@@ -281,6 +281,10 @@ export async function getUserPendingSellOrders(userId: string) {
 
 /**
  * Get all pending sell orders for admin review
+ *
+ * Note: Uses implicit join with profiles table.
+ * Both pending_sell_orders.user_id and profiles.id reference auth.users.id,
+ * so Supabase can automatically infer the relationship.
  */
 export async function getAllPendingSellOrders() {
   try {
@@ -288,11 +292,11 @@ export async function getAllPendingSellOrders() {
       .from('pending_sell_orders')
       .select(`
         *,
-        profiles!user_id (
+        profiles (
           full_name,
           email
         ),
-        accounts!account_id (
+        accounts (
           name,
           account_type
         )
@@ -300,7 +304,17 @@ export async function getAllPendingSellOrders() {
       .eq('status', 'pending')
       .order('submitted_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Failed to fetch pending sell orders:', {
+        error,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
+
     return data;
   } catch (error: any) {
     console.error('Get all pending sell orders error:', error);

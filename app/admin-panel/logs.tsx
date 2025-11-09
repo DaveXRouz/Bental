@@ -13,12 +13,27 @@ export default function LogsPage() {
   }, []);
 
   const fetchLogs = async () => {
-    const { data } = await supabase
-      .from('admin_activity_log')
-      .select('*, profiles!admin_activity_log_admin_user_id_fkey(full_name)')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (data) setLogs(data);
+    try {
+      const { data, error } = await supabase
+        .from('admin_activity_log')
+        .select('*, profiles(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error('Failed to fetch activity logs:', {
+          error,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        return;
+      }
+
+      if (data) setLogs(data);
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+    }
   };
 
   return (
