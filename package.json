@@ -17,6 +17,7 @@
     "codegen": "echo 'No code generation needed'",
     "test": "echo 'No tests configured yet'",
     "preflight": "node scripts/preflight-check.js",
+    "verify": "npx ts-node scripts/verify-supabase-setup.ts",
     "reset": "bash scripts/reset-project.sh",
     "setup": "npm ci && npm run preflight && npm run dev"
   },
